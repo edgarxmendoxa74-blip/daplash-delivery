@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-daplash-yellow: #FFD700;
+  --color-daplash-blue: #00A8E8;
+  --color-daplash-dark: #1A1A1A;
+
+  --font-outfit: "Outfit", sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-outfit);
+    @apply text-daplash-dark bg-white overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .glass-pill {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 rounded-full;
+  }
+
+  .btn-primary {
+    @apply bg-daplash-yellow hover:bg-yellow-400 text-daplash-dark font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-yellow-200 active:scale-95 flex items-center justify-center space-x-2;
+  }
+
+  .btn-secondary {
+    @apply bg-daplash-blue hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-blue-200 active:scale-95 flex items-center justify-center space-x-2;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-2;
+  }
+}
