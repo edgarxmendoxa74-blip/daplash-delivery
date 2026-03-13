@@ -35,6 +35,7 @@ const Footer = () => {
                             <li><a href="#services" className="hover:text-daplash-yellow transition-colors">Services</a></li>
                             <li><a href="#about" className="hover:text-daplash-yellow transition-colors">About Us</a></li>
                             <li><a href="#contact" className="hover:text-daplash-yellow transition-colors">Contact</a></li>
+                            <li><a href="/admin" className="hover:text-daplash-yellow transition-colors opacity-50 hover:opacity-100 text-[10px] font-black uppercase tracking-widest pt-4 block border-t border-white/5 mt-4">Admin Login</a></li>
                         </ul>
                     </div>
 

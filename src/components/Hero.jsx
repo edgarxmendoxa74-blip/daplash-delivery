@@ -3,10 +3,10 @@ import { Package, Zap } from 'lucide-react';
 
 const Hero = () => {
     return (
-        <section className="relative flex items-center py-16 sm:py-24 overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-blue-50">
+        <section className="relative flex items-center py-16 sm:py-24 overflow-hidden bg-gradient-to-br from-green-50 via-brand-light to-green-100">
             {/* Abstract Background Shapes */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-daplash-yellow/20 rounded-full blur-3xl -mr-64 -mt-24" />
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-daplash-blue/10 rounded-full blur-3xl -ml-48 -mb-24" />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-green-primary/10 rounded-full blur-3xl -mr-64 -mt-24" />
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brand-accent/10 rounded-full blur-3xl -ml-48 -mb-24" />
 
             <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center relative z-10">
                 <motion.div
@@ -15,14 +15,14 @@ const Hero = () => {
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     className="order-1 lg:order-1 text-center lg:text-left pt-10 lg:pt-0"
                 >
-                    <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur shadow-sm px-4 py-2 rounded-full mb-6 border border-yellow-100">
-                        <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                        <span className="text-xs sm:text-sm font-bold text-daplash-dark uppercase tracking-wider">Open for Orders in Naga City</span>
+                    <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur shadow-sm px-4 py-2 rounded-full mb-6 border border-green-100">
+                        <span className="flex h-2 w-2 rounded-full bg-green-primary animate-pulse"></span>
+                        <span className="text-xs sm:text-sm font-bold text-brand-charcoal uppercase tracking-wider">Open for Orders in Naga City</span>
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-daplash-dark leading-[0.9] mb-4 tracking-tighter">
+                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-brand-charcoal leading-[0.9] mb-4 tracking-tighter">
                         WE DELIVER <br />
-                        <span className="text-daplash-blue">HAPPINESS.</span>
+                        <span className="text-green-primary">HAPPINESS.</span>
                     </h1>
 
                     <p className="text-base sm:text-xl text-gray-600 mb-8 sm:mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
@@ -39,8 +39,8 @@ const Hero = () => {
                             ))}
                         </div>
                         <div className="text-center sm:text-left">
-                            <p className="text-daplash-dark font-extrabold text-sm sm:text-lg">2,300+ Happy Clients</p>
-                            <div className="flex justify-center sm:justify-start text-daplash-yellow text-[10px] sm:text-sm">
+                            <p className="text-brand-charcoal font-extrabold text-sm sm:text-lg">2,300+ Happy Clients</p>
+                            <div className="flex justify-center sm:justify-start text-brand-accent text-[10px] sm:text-sm">
                                 {"★★★★★".split("").map((s, i) => <span key={i}>{s}</span>)}
                             </div>
                         </div>
@@ -55,7 +55,7 @@ const Hero = () => {
                 >
                     {/* Main Logo Image */}
                     <div className="relative w-full max-w-[260px] sm:max-w-sm">
-                        <div className="absolute inset-0 bg-daplash-yellow/20 rounded-3xl rotate-3 sm:rotate-6 -z-10 blur-sm"></div>
+                        <div className="absolute inset-0 bg-green-primary/20 rounded-3xl rotate-3 sm:rotate-6 -z-10 blur-sm"></div>
                         <img
                             src="https://scontent.fcrk4-1.fna.fbcdn.net/v/t39.30808-1/611249515_1271314161684352_3439360183148654677_n.jpg?stp=dst-jpg_tt6&cstp=mx500x500&ctp=s500x500&_nc_cat=108&ccb=1-7&_nc_sid=3ab345&_nc_ohc=Lu49tF-2uEAQ7kNvwFn6e1V&_nc_oc=Adkfb1ss3g3zke8rGta5N1MXz2H6H8nyDxmSchzSikorWCdrsfNXNldC5UZOFauVEX0&_nc_zt=24&_nc_ht=scontent.fcrk4-1.fna&_nc_gid=a_ouJkg1qitpO1Mt6lHnEg&_nc_ss=8&oh=00_AfxHn0IftkPNQI9JTvlWBD3QFVorvRqDyr-_j9PxSFRonw&oe=69B6AA40"
                             alt="Daplash Delivery Logo"
@@ -68,13 +68,13 @@ const Hero = () => {
                             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                             className="absolute -top-6 -right-4 sm:-top-12 sm:-right-12 bg-white/90 backdrop-blur-md p-3 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl flex items-center space-x-3 sm:space-x-4 border border-white/50 z-20"
                         >
-                            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-daplash-blue shadow-inner relative overflow-hidden">
-                                <div className="absolute inset-0 bg-blue-100/50 scale-110 rotate-12"></div>
+                            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-primary shadow-inner relative overflow-hidden">
+                                <div className="absolute inset-0 bg-green-100/50 scale-110 rotate-12"></div>
                                 <Package size={22} className="relative z-10 sm:w-8 sm:h-8" />
                             </div>
                             <div>
-                                <p className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-[0.15em]">Fast Delivery</p>
-                                <p className="text-sm sm:text-lg text-daplash-dark font-black tracking-tight">20-30 MIN</p>
+                                <p className="text-[10px] sm:text-xs text-brand-secondary font-bold uppercase tracking-[0.15em]">Fast Delivery</p>
+                                <p className="text-sm sm:text-lg text-brand-charcoal font-black tracking-tight">20-30 MIN</p>
                             </div>
                         </motion.div>
 
@@ -83,13 +83,13 @@ const Hero = () => {
                             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                             className="absolute -bottom-6 -left-4 sm:-bottom-12 sm:-left-12 bg-white/90 backdrop-blur-md p-3 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl flex items-center space-x-3 sm:space-x-4 border border-white/50 z-20"
                         >
-                            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-yellow-50 rounded-2xl flex items-center justify-center text-daplash-yellow shadow-inner relative overflow-hidden">
+                            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-yellow-50 rounded-2xl flex items-center justify-center text-brand-accent shadow-inner relative overflow-hidden">
                                 <div className="absolute inset-0 bg-yellow-100/50 scale-110 -rotate-12"></div>
-                                <Zap size={22} className="relative z-10 sm:w-8 sm:h-8" />
+                                <Zap size={22} className="relative z-10 sm:w-8 sm:h-8 text-yellow-500" />
                             </div>
                             <div>
-                                <p className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-[0.15em]">Trusted by</p>
-                                <p className="text-sm sm:text-lg text-daplash-dark font-black tracking-tight">LOCAL SHOPS</p>
+                                <p className="text-[10px] sm:text-xs text-brand-secondary font-bold uppercase tracking-[0.15em]">Trusted by</p>
+                                <p className="text-sm sm:text-lg text-brand-charcoal font-black tracking-tight">LOCAL SHOPS</p>
                             </div>
                         </motion.div>
                     </div>

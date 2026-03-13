@@ -1,0 +1,402 @@
+import { useState, useCallback } from 'react';
+import { useSiteSettings } from './useSiteSettings';
+
+// Default Restaurant location (fallback)
+const DEFAULT_LOCATION = {
+  lat: 7.201558576842343,
+  lng: 125.45844856673499
+};
+
+// Maximum delivery radius in kilometers from delivery center (adjust as needed)
+const MAX_DELIVERY_RADIUS_KM = 100;
+
+interface DistanceResult {
+  distance: number; // in kilometers
+  duration?: string;
+  routeCoordinates?: [number, number][];
+}
+
+export const useLocationService = () => {
+  const { siteSettings } = useSiteSettings();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Use global starting point if enabled, otherwise fallback to default
+  const deliveryCenterCoords = siteSettings?.starting_point_enabled
+    ? { lat: siteSettings.starting_point_lat, lng: siteSettings.starting_point_lng }
+    : DEFAULT_LOCATION;
+
+  // For compatibility with code expecting restaurantLocation
+  const restaurantLocation = deliveryCenterCoords;
+
+  // Calculate distance using Haversine formula (straight-line distance)
+  const calculateDistanceHaversine = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const straightLineDistance = R * c;
+
+    // Add 20% buffer for road distance (straight-line is usually shorter than actual road distance)
+    return straightLineDistance * 1.2;
+  };
+
+  // Viewbox for Davao City/Calinan area to bias search results
+  // Format: min_lon,min_lat,max_lon,max_lat (approximate bounding box for Davao)
+  const VIEWBOX = '125.30,7.00,125.70,7.60';
+
+  // Geocode using Photon (Komoot) - Better for fuzzy search and typos
+  const geocodeAddressPhoton = async (query: string): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      // Bias towards Calinan/Davao
+      const lat = 7.201;
+      const lon = 125.458;
+      const response = await fetch(
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lat=${lat}&lon=${lon}&limit=3`
+      );
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        // Filter results to ensure they are in the Philippines
+        const phResult = data.features.find((f: any) =>
+          f.properties.country === 'Philippines' ||
+          f.properties.countrycode === 'PH'
+        );
+
+        if (phResult) {
+          return {
+            lat: phResult.geometry.coordinates[1],
+            lng: phResult.geometry.coordinates[0]
+          };
+        }
+
+        // If no PH result but we have results, return the first one if it looks local
+        // (Photon sometimes misses country tags for local streets)
+        const first = data.features[0];
+        const props = first.properties;
+        if (props.city === 'Davao City' || props.state === 'Davao Region') {
+          return {
+            lat: first.geometry.coordinates[1],
+            lng: first.geometry.coordinates[0]
+          };
+        }
+      }
+      return null;
+    } catch (err) {
+      console.error('Photon geocoding error:', err);
+      return null;
+    }
+  };
+
+  // Geocode using Nominatim (OSM) - Good for structured addresses
+  const geocodeAddressNominatim = async (query: string): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=ph&viewbox=${VIEWBOX}&bounded=1`
+      );
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      if (data && data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon)
+        };
+      }
+      return null;
+    } catch (err) {
+      console.error('Nominatim geocoding error:', err);
+      return null;
+    }
+  };
+
+  // Combined Geocoding Strategy
+  const geocodeAddressOSM = async (address: string): Promise<{ lat: number; lng: number } | null> => {
+    // 1. Try Photon first (handles typos better)
+    let coords = await geocodeAddressPhoton(address);
+    if (coords) return coords;
+
+    // 2. Try Photon with "Calinan" appended if not present
+    if (!address.toLowerCase().includes('calinan')) {
+      coords = await geocodeAddressPhoton(`${address}, Calinan`);
+      if (coords) return coords;
+    }
+
+    // 3. Fallback to Nominatim (Standard OSM)
+    coords = await geocodeAddressNominatim(address);
+    if (coords) return coords;
+
+    // 4. Fallback: Try with "Davao City" appended
+    const fullAddress = address.includes('Davao') || address.includes('Philippines')
+      ? address
+      : `${address}, Davao City, Philippines`;
+
+    coords = await geocodeAddressNominatim(fullAddress);
+    if (coords) return coords;
+
+    // 5. Last Resort: Calinan District Center
+    if (address.toLowerCase().includes('calinan')) {
+      return await geocodeAddressNominatim('Calinan District, Davao City');
+    }
+
+    return null;
+  };
+
+  // Geocode delivery center address on first load - REMOVED to keep precise coordinates
+  // useEffect(() => {
+  //   const geocodeDeliveryCenter = async () => {
+  //     try {
+  //       const coords = await geocodeAddressOSM(DELIVERY_CENTER.address);
+  //       if (coords) {
+  //         setDeliveryCenterCoords(coords);
+  //       }
+  //     } catch (err) {
+  //       console.error('Error geocoding delivery center:', err);
+  //     }
+  //   };
+  //   geocodeDeliveryCenter();
+  // }, []);
+
+  // Main distance calculation function - calculates from delivery center to customer address
+  const calculateDistance = useCallback(async (destinationAddress: string): Promise<DistanceResult | null> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const coords = await geocodeAddressOSM(destinationAddress);
+
+      if (coords) {
+        // Try to get driving distance and route from OSRM
+        try {
+          const response = await fetch(
+            `https://router.project-osrm.org/route/v1/driving/${deliveryCenterCoords.lng},${deliveryCenterCoords.lat};${coords.lng},${coords.lat}?overview=full&geometries=geojson&alternatives=true&steps=true`
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.routes && data.routes.length > 0) {
+              // Smart Routing: Select the fastest route (lowest duration)
+              const bestRoute = data.routes.sort((a: any, b: any) => a.duration - b.duration)[0];
+
+              const distanceKm = bestRoute.distance / 1000; // Convert meters to km
+              // OSRM returns [lng, lat], Leaflet needs [lat, lng]
+              const routeCoords = bestRoute.geometry.coordinates.map((coord: [number, number]) => [coord[1], coord[0]]);
+
+              setLoading(false);
+              return {
+                distance: Math.round(distanceKm * 10) / 10, // Round to 1 decimal place
+                duration: Math.round(bestRoute.duration / 60) + ' min',
+                routeCoordinates: routeCoords
+              };
+            }
+          }
+        } catch (osrmError) {
+          console.error('OSRM routing failed, falling back to Haversine:', osrmError);
+        }
+
+        // Fallback: Calculate straight-line distance using Haversine formula
+        const distance = calculateDistanceHaversine(
+          deliveryCenterCoords.lat,
+          deliveryCenterCoords.lng,
+          coords.lat,
+          coords.lng
+        );
+
+        setLoading(false);
+        return {
+          distance: Math.round(distance * 10) / 10 // Round to 1 decimal place
+        };
+      }
+
+      // If geocoding fails
+      setError('Could not find the address. Please enter a complete address including barangay and city.');
+      setLoading(false);
+      return null;
+    } catch (err) {
+      console.error('Distance calculation error:', err);
+      setError('Failed to calculate distance. Please try again.');
+      setLoading(false);
+      return null;
+    }
+  }, [deliveryCenterCoords]);
+
+  // Calculate distance between two arbitrary addresses (e.g., Angkas/Padala pickup -> drop-off)
+  const calculateDistanceBetweenAddresses = useCallback(
+    async (pickupAddress: string, dropoffAddress: string): Promise<DistanceResult | null> => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Geocode both addresses
+        const pickupCoords = await geocodeAddressOSM(pickupAddress);
+        const dropoffCoords = await geocodeAddressOSM(dropoffAddress);
+
+        if (pickupCoords && dropoffCoords) {
+          // Try OSRM first
+          try {
+            const response = await fetch(
+              `https://router.project-osrm.org/route/v1/driving/${pickupCoords.lng},${pickupCoords.lat};${dropoffCoords.lng},${dropoffCoords.lat}?overview=full&geometries=geojson&alternatives=true&steps=true`
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              if (data.routes && data.routes.length > 0) {
+                // Smart Routing: Select the fastest route
+                const bestRoute = data.routes.sort((a: any, b: any) => a.duration - b.duration)[0];
+
+                const distanceKm = bestRoute.distance / 1000;
+                const routeCoords = bestRoute.geometry.coordinates.map((coord: [number, number]) => [coord[1], coord[0]]);
+
+                setLoading(false);
+                return {
+                  distance: Math.round(distanceKm * 10) / 10,
+                  duration: Math.round(bestRoute.duration / 60) + ' min',
+                  routeCoordinates: routeCoords
+                };
+              }
+            }
+          } catch (e) {
+            console.warn('OSRM failed for arbitrary points, using Haversine');
+          }
+
+          // Fallback to Haversine
+          const distance = calculateDistanceHaversine(
+            pickupCoords.lat,
+            pickupCoords.lng,
+            dropoffCoords.lat,
+            dropoffCoords.lng
+          );
+
+          setLoading(false);
+          return {
+            distance: Math.round(distance * 10) / 10
+          };
+        }
+
+        setError('Could not find pickup or drop-off address. Please enter complete addresses.');
+        setLoading(false);
+        return null;
+      } catch (err) {
+        console.error('Distance calculation error (pickup->dropoff):', err);
+        setError('Failed to calculate distance. Please try again.');
+        setLoading(false);
+        return null;
+      }
+    },
+    []
+  );
+
+  // Calculate delivery fee using global settings
+  const calculateDeliveryFee = useCallback((distance: number | null): number => {
+    const baseFee = siteSettings?.base_delivery_fee ?? 49;
+    const baseDistance = siteSettings?.base_delivery_distance ?? 2;
+    const extraFeePerKm = siteSettings?.extra_delivery_fee_per_km ?? 10;
+
+    if (distance === null || distance === undefined || isNaN(distance)) {
+      return baseFee;
+    }
+
+    let fee = baseFee;
+
+    if (distance > baseDistance) {
+      const extraDistance = distance - baseDistance;
+      fee += extraDistance * extraFeePerKm;
+    }
+
+    // Apply Night Shift Surcharge if enabled and within hours
+    if (siteSettings?.night_shift_enabled) {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+
+      const { night_shift_start, night_shift_end, night_shift_surcharge } = siteSettings;
+
+      const isNightShift = (startTime: string, endTime: string, current: string) => {
+        if (startTime <= endTime) {
+          return current >= startTime && current <= endTime;
+        } else {
+          // Crosses midnight
+          return current >= startTime || current <= endTime;
+        }
+      };
+
+      if (isNightShift(night_shift_start, night_shift_end, currentTimeString)) {
+        fee += night_shift_surcharge;
+      }
+    }
+
+    return Math.round(fee);
+  }, [siteSettings]);
+
+  // Check if customer address is within delivery area (distance from restaurant)
+  const isWithinDeliveryArea = useCallback(async (address: string): Promise<{ within: boolean; distance?: number; error?: string }> => {
+    try {
+      const maxRadius = siteSettings?.max_delivery_distance ?? MAX_DELIVERY_RADIUS_KM;
+
+      // Get coordinates for the customer's delivery address
+      const coords = await geocodeAddressOSM(address);
+
+      if (!coords) {
+        return { within: false, error: 'Could not find the address location.' };
+      }
+
+      // Calculate distance from delivery center to customer address
+      const distanceFromCenter = calculateDistanceHaversine(
+        deliveryCenterCoords.lat,
+        deliveryCenterCoords.lng,
+        coords.lat,
+        coords.lng
+      );
+
+      const within = distanceFromCenter <= maxRadius;
+      return { within, distance: Math.round(distanceFromCenter * 10) / 10 };
+    } catch (err) {
+      console.error('Delivery area check error:', err);
+      return { within: false, error: 'Failed to check delivery area.' };
+    }
+  }, [deliveryCenterCoords, siteSettings]);
+
+  // Get driving route from OSRM
+  const getRouteOSRM = async (start: { lat: number; lng: number }, end: { lat: number; lng: number }): Promise<[number, number][] | null> => {
+    try {
+      const response = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson&alternatives=true&steps=true`
+      );
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      if (data.routes && data.routes.length > 0) {
+        // Smart Routing: Select the fastest route
+        const bestRoute = data.routes.sort((a: any, b: any) => a.duration - b.duration)[0];
+        // OSRM returns [lng, lat], Leaflet needs [lat, lng]
+        return bestRoute.geometry.coordinates.map((coord: [number, number]) => [coord[1], coord[0]]);
+      }
+      return null;
+    } catch (err) {
+      console.error('OSRM routing error:', err);
+      return null;
+    }
+  };
+
+  return {
+    calculateDistance,
+    calculateDistanceBetweenAddresses,
+    calculateDeliveryFee,
+    isWithinDeliveryArea,
+    loading,
+    error,
+    restaurantLocation,
+    maxDeliveryRadius: siteSettings?.max_delivery_distance ?? MAX_DELIVERY_RADIUS_KM,
+    geocodeAddressOSM,
+    getRouteOSRM
+  };
+};

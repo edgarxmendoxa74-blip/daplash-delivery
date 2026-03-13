@@ -1,0 +1,333 @@
+import React, { useState } from 'react';
+import { ArrowLeft, Send } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useGoogleMaps } from '../hooks/useGoogleMaps';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import AddressMapPicker from './AddressMapPicker';
+
+
+interface RequestsProps {
+  onBack: () => void;
+}
+
+const Requests: React.FC<RequestsProps> = ({ onBack }) => {
+  const { calculateDistanceBetweenAddresses, calculateDeliveryFee } = useGoogleMaps();
+  const { siteSettings } = useSiteSettings();
+
+  // Angkas/Padala form data
+  const [angkasData, setAngkasData] = useState({
+    customer_name: '',
+    contact_number: '',
+    request_type: 'angkas',
+    subject: '',
+    description: '',
+    pickup_address: '',
+    dropoff_address: '',
+    pickup_lat: '',
+    pickup_lng: '',
+    dropoff_lat: '',
+    dropoff_lng: ''
+  });
+  const [isSubmittingAngkas, setIsSubmittingAngkas] = useState(false);
+  const [distance, setDistance] = useState<number | null>(null);
+  const [deliveryFee, setDeliveryFee] = useState<number>(60);
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  const requestTypes = [
+    { value: 'angkas', label: 'Angkas (Motorcycle Ride)' }
+  ];
+
+  // Angkas/Padala handlers
+  const handleAngkasInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setAngkasData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const calculateFee = async () => {
+    if (!angkasData.pickup_address.trim() || !angkasData.dropoff_address.trim()) {
+      return;
+    }
+
+    try {
+      setIsCalculating(true);
+      const result = await calculateDistanceBetweenAddresses(
+        angkasData.pickup_address,
+        angkasData.dropoff_address
+      );
+      if (result && !isNaN(result.distance)) {
+        setDistance(result.distance);
+        const fee = calculateDeliveryFee(result.distance);
+        setDeliveryFee(fee);
+      } else {
+        setDistance(null);
+        setDeliveryFee(60);
+      }
+    } catch (error) {
+      console.error('Error calculating Angkas fee:', error);
+      setDistance(null);
+      setDeliveryFee(60);
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+
+  const handleLocationSelect = (field: 'pickup' | 'dropoff', lat: number, lng: number, address?: string) => {
+    if (field === 'pickup') {
+      setAngkasData(prev => ({
+        ...prev,
+        pickup_lat: lat.toString(),
+        pickup_lng: lng.toString(),
+        pickup_address: address || prev.pickup_address
+      }));
+    } else {
+      setAngkasData(prev => ({
+        ...prev,
+        dropoff_lat: lat.toString(),
+        dropoff_lng: lng.toString(),
+        dropoff_address: address || prev.dropoff_address
+      }));
+      // Recalculate fee when dropoff location changes
+      setTimeout(() => calculateFee(), 100);
+    }
+  };
+
+  const handleAngkasSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      !angkasData.customer_name ||
+      !angkasData.contact_number ||
+      !angkasData.subject ||
+      !angkasData.description ||
+      !angkasData.pickup_address ||
+      !angkasData.dropoff_address
+    ) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmittingAngkas(true);
+    try {
+      const { error } = await supabase
+        .from('requests')
+        .insert({
+          customer_name: angkasData.customer_name,
+          contact_number: angkasData.contact_number,
+          request_type: angkasData.request_type,
+          subject: angkasData.subject,
+          description: angkasData.description,
+          address: `${angkasData.pickup_address} -> ${angkasData.dropoff_address}`,
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
+      const requestTypeLabel = requestTypes.find(t => t.value === angkasData.request_type)?.label || angkasData.request_type;
+      const message = `🏍️ ANGKAS/PADALA REQUEST
+
+Type: ${requestTypeLabel}
+Subject: ${angkasData.subject}
+
+👤 Customer: ${angkasData.customer_name}
+📞 Contact: ${angkasData.contact_number}
+📍 Pickup Address:
+${angkasData.pickup_address}${angkasData.pickup_lat && angkasData.pickup_lng ? `\n📌 Pin: https://www.google.com/maps?q=${angkasData.pickup_lat},${angkasData.pickup_lng}` : ''}
+
+📍 Drop-off Address:
+${angkasData.dropoff_address}${angkasData.dropoff_lat && angkasData.dropoff_lng ? `\n📌 Pin: https://www.google.com/maps?q=${angkasData.dropoff_lat},${angkasData.dropoff_lng}` : ''}
+
+${distance !== null ? `📏 Distance: ${distance} km` : ''}
+💰 Estimated Fare (delivery fee logic): ₱${deliveryFee.toFixed(2)}
+
+📄 Description:
+${angkasData.description}
+
+Thank you for your Angkas/Padala request. We will get back to you soon! 🛵`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const messengerId = siteSettings?.messenger_id || '61558704207383';
+      const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
+
+      window.open(messengerUrl, '_blank');
+
+      // Reset form
+      setAngkasData({
+        customer_name: '',
+        contact_number: '',
+        request_type: 'angkas',
+        subject: '',
+        description: '',
+        pickup_address: '',
+        dropoff_address: '',
+        pickup_lat: '',
+        pickup_lng: '',
+        dropoff_lat: '',
+        dropoff_lng: ''
+      });
+      setDistance(null);
+      setDeliveryFee(60);
+    } catch (error) {
+      console.error('Error submitting request:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Please try again.';
+      alert(`Failed to submit request: ${errorMessage}\n\nNote: If the error mentions 'relation "requests" does not exist', please make sure you have run the database migration.`);
+    } finally {
+      setIsSubmittingAngkas(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <button
+        onClick={onBack}
+        className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"
+      >
+        <ArrowLeft className="h-5 w-5" />
+        <span>Back to Home</span>
+      </button>
+
+      <form onSubmit={handleAngkasSubmit} className="bg-white rounded-xl shadow-sm p-6 md:p-8 space-y-6">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-brand-charcoal">🛵 Angkas Service</h1>
+          <p className="text-gray-500 mt-1">Book a quick motorcycle ride across the city</p>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+              <input
+                type="text"
+                name="customer_name"
+                value={angkasData.customer_name}
+                onChange={handleAngkasInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Contact Number *</label>
+              <input
+                type="tel"
+                name="contact_number"
+                value={angkasData.contact_number}
+                onChange={handleAngkasInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Service Type *</label>
+          <select
+            name="request_type"
+            value={angkasData.request_type}
+            onChange={handleAngkasInputChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+          >
+            {requestTypes.map(type => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+          <input
+            type="text"
+            name="subject"
+            value={angkasData.subject}
+            onChange={handleAngkasInputChange}
+            required
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+            placeholder="Brief summary of your request (e.g., Need Angkas ride)"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+          <textarea
+            name="description"
+            value={angkasData.description}
+            onChange={handleAngkasInputChange}
+            required
+            rows={6}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+            placeholder="Please provide detailed information about your Angkas request (pickup location, destination, time needed, etc.)"
+          />
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Pickup Location *</label>
+            <div className="mb-4 h-[200px]">
+              <AddressMapPicker
+                lat={angkasData.pickup_lat ? parseFloat(angkasData.pickup_lat) : undefined}
+                lng={angkasData.pickup_lng ? parseFloat(angkasData.pickup_lng) : undefined}
+                onLocationSelect={(lat, lng, addr) => handleLocationSelect('pickup', lat, lng, addr)}
+                height="100%"
+                placeholder="Pin pickup location on map"
+              />
+            </div>
+            <textarea
+              name="pickup_address"
+              value={angkasData.pickup_address}
+              onChange={handleAngkasInputChange}
+              required
+              rows={2}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+              placeholder="Where to pick up (complete address)"
+            />
+          </div>
+
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Drop-off Location *</label>
+            <div className="mb-4 h-[200px]">
+              <AddressMapPicker
+                lat={angkasData.dropoff_lat ? parseFloat(angkasData.dropoff_lat) : undefined}
+                lng={angkasData.dropoff_lng ? parseFloat(angkasData.dropoff_lng) : undefined}
+                onLocationSelect={(lat, lng, addr) => handleLocationSelect('dropoff', lat, lng, addr)}
+                height="100%"
+                placeholder="Pin drop-off location on map"
+              />
+            </div>
+            <textarea
+              name="dropoff_address"
+              value={angkasData.dropoff_address}
+              onChange={handleAngkasInputChange}
+              onBlur={calculateFee}
+              required
+              rows={2}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+              placeholder="Where to drop off (complete address)"
+            />
+            {isCalculating && (
+              <p className="text-xs text-gray-500 mt-1">Calculating distance and fee...</p>
+            )}
+            {!isCalculating && distance !== null && (
+              <p className="text-xs text-green-600 mt-1">
+                Estimated distance: {distance} km • Estimated fee: ₱{deliveryFee.toFixed(2)}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmittingAngkas}
+          className="w-full py-4 rounded-xl font-medium text-lg transition-all duration-200 transform bg-green-primary text-white hover:bg-green-dark hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <Send className="h-5 w-5" />
+          {isSubmittingAngkas ? 'Submitting...' : 'Submit Angkas Request'}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default Requests;
+
