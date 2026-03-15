@@ -28,8 +28,8 @@ interface AddressMapPickerProps {
     placeholder?: string;
 }
 
-// Map center for Calinan, Davao City
-const DEFAULT_CENTER: [number, number] = [7.2906, 125.3764];
+// Map center for Naga City, Philippines
+const DEFAULT_CENTER: [number, number] = [13.6218, 123.1948];
 
 function LocationMarker({ position, setPosition, onLocationSelect }: {
     position: [number, number] | null,

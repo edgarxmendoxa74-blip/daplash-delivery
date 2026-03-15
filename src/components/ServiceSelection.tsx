@@ -4,7 +4,7 @@ import FAQ from './FAQ';
 import Hero from './Hero';
 
 interface ServiceSelectionProps {
-  onServiceSelect: (service: 'food' | 'pabili' | 'padala') => void;
+  onServiceSelect: (service: 'food' | 'pabili' | 'padala' | 'pasakay' | 'paybills' | 'custom_order') => void;
 }
 
 const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) => {
@@ -13,9 +13,9 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
   const services = [
     {
       id: 'food' as const,
-      name: 'Food',
-      icon: '🍔',
-      description: 'Order from your favorite restaurants',
+      name: 'Stores',
+      icon: '🏪',
+      description: 'Order from your favorite local shops',
       color: 'bg-orange-50 hover:bg-orange-100 border-orange-200',
       iconColor: 'text-orange-600'
     },
@@ -28,16 +28,40 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
       iconColor: 'text-blue-600'
     },
     {
+      id: 'custom_order' as const,
+      name: 'Custom Order',
+      icon: '🛍️',
+      description: 'Request specific items you need',
+      color: 'bg-pink-50 hover:bg-pink-100 border-pink-200',
+      iconColor: 'text-pink-600'
+    },
+    {
+      id: 'paybills' as const,
+      name: 'Pay Bills',
+      icon: '💰',
+      description: 'Fast & convenient bills payment service',
+      color: 'bg-yellow-50 hover:bg-yellow-100 border-yellow-200',
+      iconColor: 'text-yellow-600'
+    },
+    {
       id: 'padala' as const,
       name: 'Padala',
       icon: '📦',
       description: 'Fast & secure item delivery service',
       color: 'bg-purple-50 hover:bg-purple-100 border-purple-200',
       iconColor: 'text-purple-600'
+    },
+    {
+      id: 'pasakay' as const,
+      name: 'Pasakay',
+      icon: '🏍️',
+      description: 'Safe & fast motorcycle ride service',
+      color: 'bg-green-50 hover:bg-green-100 border-green-200',
+      iconColor: 'text-green-600'
     }
   ];
 
-  const handleServiceClick = (serviceId: 'food' | 'pabili' | 'padala') => {
+  const handleServiceClick = (serviceId: 'food' | 'pabili' | 'padala' | 'pasakay' | 'paybills' | 'custom_order') => {
     onServiceSelect(serviceId);
   };
 
@@ -75,14 +99,14 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
   ];
 
   return (
-    <div className="min-h-screen bg-brand-light/30 pt-28 pb-12 px-4">
+    <div className="min-h-screen bg-brand-light/30 pt-32 sm:pt-28 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Simple Page Title */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-5xl font-brand font-extrabold text-brand-charcoal tracking-tight mb-2">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-brand font-extrabold text-brand-charcoal tracking-tight mb-2 uppercase">
             What can we do for you?
           </h1>
-          <p className="text-gray-500 text-lg font-light">Select a service to get started</p>
+          <p className="text-gray-500 text-base sm:text-lg font-medium italic opacity-80 uppercase tracking-widest">Select a service to get started</p>
         </div>
 
         {/* Services Grid - 3 services in a row */}
@@ -91,10 +115,10 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
             <button
               key={service.id}
               onClick={() => handleServiceClick(service.id)}
-              className="group bg-white border-b-4 border-gray-100 rounded-3xl p-8 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:border-brand-primary focus:outline-none ring-offset-2 focus:ring-4 focus:ring-brand-primary/20"
+              className="group bg-white border-b-4 border-gray-100 rounded-3xl p-6 sm:p-8 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:border-brand-primary focus:outline-none ring-offset-2 focus:ring-4 focus:ring-brand-primary/20"
             >
               <div className="text-center">
-                <div className="text-7xl md:text-8xl mb-6 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-sm">
+                <div className="text-5xl sm:text-7xl md:text-8xl mb-4 sm:mb-6 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-sm">
                   {service.icon}
                 </div>
                 <h2 className="text-2xl font-brand font-bold text-brand-charcoal mb-1 group-hover:text-brand-primary transition-colors">

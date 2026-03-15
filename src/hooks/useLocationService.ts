@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useSiteSettings } from './useSiteSettings';
 
-// Default Restaurant location (fallback)
+// Default Restaurant location (fallback) - Naga City
 const DEFAULT_LOCATION = {
-  lat: 7.201558576842343,
-  lng: 125.45844856673499
+  lat: 13.6217753,
+  lng: 123.194781
 };
 
 // Maximum delivery radius in kilometers from delivery center (adjust as needed)
@@ -45,16 +45,16 @@ export const useLocationService = () => {
     return straightLineDistance * 1.2;
   };
 
-  // Viewbox for Davao City/Calinan area to bias search results
-  // Format: min_lon,min_lat,max_lon,max_lat (approximate bounding box for Davao)
-  const VIEWBOX = '125.30,7.00,125.70,7.60';
+  // Viewbox for Naga City area to bias search results
+  // Format: min_lon,min_lat,max_lon,max_lat (approximate bounding box for Naga City)
+  const VIEWBOX = '123.10,13.55,123.30,13.70';
 
   // Geocode using Photon (Komoot) - Better for fuzzy search and typos
   const geocodeAddressPhoton = async (query: string): Promise<{ lat: number; lng: number } | null> => {
     try {
-      // Bias towards Calinan/Davao
-      const lat = 7.201;
-      const lon = 125.458;
+      // Bias towards Naga City
+      const lat = 13.6218;
+      const lon = 123.1948;
       const response = await fetch(
         `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lat=${lat}&lon=${lon}&limit=3`
       );
@@ -80,7 +80,7 @@ export const useLocationService = () => {
         // (Photon sometimes misses country tags for local streets)
         const first = data.features[0];
         const props = first.properties;
-        if (props.city === 'Davao City' || props.state === 'Davao Region') {
+        if (props.city === 'Naga City' || props.state === 'Camarines Sur') {
           return {
             lat: first.geometry.coordinates[1],
             lng: first.geometry.coordinates[0]
@@ -123,9 +123,9 @@ export const useLocationService = () => {
     let coords = await geocodeAddressPhoton(address);
     if (coords) return coords;
 
-    // 2. Try Photon with "Calinan" appended if not present
-    if (!address.toLowerCase().includes('calinan')) {
-      coords = await geocodeAddressPhoton(`${address}, Calinan`);
+    // 2. Try Photon with "Naga City" appended if not present
+    if (!address.toLowerCase().includes('naga city')) {
+      coords = await geocodeAddressPhoton(`${address}, Naga City`);
       if (coords) return coords;
     }
 
@@ -133,17 +133,17 @@ export const useLocationService = () => {
     coords = await geocodeAddressNominatim(address);
     if (coords) return coords;
 
-    // 4. Fallback: Try with "Davao City" appended
-    const fullAddress = address.includes('Davao') || address.includes('Philippines')
+    // 4. Fallback: Try with "Naga City" appended
+    const fullAddress = address.includes('Naga City') || address.includes('Philippines')
       ? address
-      : `${address}, Davao City, Philippines`;
+      : `${address}, Naga City, Philippines`;
 
     coords = await geocodeAddressNominatim(fullAddress);
     if (coords) return coords;
 
-    // 5. Last Resort: Calinan District Center
-    if (address.toLowerCase().includes('calinan')) {
-      return await geocodeAddressNominatim('Calinan District, Davao City');
+    // 5. Last Resort: Naga City Center
+    if (address.toLowerCase().includes('naga city')) {
+      return await geocodeAddressNominatim('Naga City, Camarines Sur');
     }
 
     return null;

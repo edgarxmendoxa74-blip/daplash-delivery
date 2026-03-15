@@ -176,7 +176,7 @@ Thank you for your Angkas/Padala request. We will get back to you soon! 🛵`;
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-12">
       <button
         onClick={onBack}
         className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"
@@ -195,37 +195,43 @@ Thank you for your Angkas/Padala request. We will get back to you soon! 🛵`;
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+              <label htmlFor="customer_name" className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
               <input
                 type="text"
+                id="customer_name"
                 name="customer_name"
                 value={angkasData.customer_name}
                 onChange={handleAngkasInputChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+                placeholder="Enter your full name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Contact Number *</label>
+              <label htmlFor="contact_number" className="block text-sm font-medium text-gray-700 mb-2">Contact Number *</label>
               <input
                 type="tel"
+                id="contact_number"
                 name="contact_number"
                 value={angkasData.contact_number}
                 onChange={handleAngkasInputChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+                placeholder="09XX XXX XXXX"
               />
             </div>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Service Type *</label>
+          <label htmlFor="request_type" className="block text-sm font-medium text-gray-700 mb-2">Service Type *</label>
           <select
+            id="request_type"
             name="request_type"
             value={angkasData.request_type}
             onChange={handleAngkasInputChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-transparent"
+            title="Select service type"
           >
             {requestTypes.map(type => (
               <option key={type.value} value={type.value}>

@@ -31,6 +31,13 @@ const fallbackServices = [
         icon: <ShoppingBag className="text-daplash-yellow" size={32} />,
         color: "bg-yellow-50",
         features: ["Errand Runner", "Store Picking", "Item Matching"]
+    },
+    {
+        title: "Pasakay Service",
+        description: "Safe & fast motorcycle ride for your travel needs.",
+        icon: <Zap className="text-daplash-yellow" size={32} />,
+        color: "bg-yellow-50",
+        features: ["Professional Rider", "Safety Helmet", "Fast Transit"]
     }
 ];
 
@@ -65,6 +72,7 @@ const Services = ({ onBook }) => {
         if (id === 'parcel' || id === 'parcel & docs') return <Box className="text-daplash-yellow" size={32} />;
         if (id === 'grocery') return <ShoppingCart className="text-daplash-blue" size={32} />;
         if (id === 'pabili' || id === 'pabili service') return <ShoppingBag className="text-daplash-yellow" size={32} />;
+        if (id === 'pasakay' || id === 'pasakay service') return <Zap className="text-daplash-yellow" size={32} />;
         return <Zap className="text-daplash-blue" size={32} />;
     };
     return (

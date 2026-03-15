@@ -39,7 +39,8 @@ const PadalaBooking: React.FC<PadalaBookingProps> = ({ onBack, title = 'Padala',
     contact_number: '',
   });
 
-  // Store orders (for Pabili mode - multiple stores with items)
+
+  // Store orders (for Pabili mode - multiple stores with items) - DEPRECATED in favor of new format
   const [storeOrders, setStoreOrders] = useState<StoreOrder[]>([
     {
       id: `store-${Date.now()}`,
@@ -135,6 +136,7 @@ const PadalaBooking: React.FC<PadalaBookingProps> = ({ onBack, title = 'Padala',
       setTimeout(() => calculatePadalaFee(), 100);
     }
   };
+
 
   // ═══════════ PABILI / PADALA STORE ORDER HANDLERS ═══════════
   const addStoreOrder = () => {
@@ -421,7 +423,7 @@ Please confirm this Padala booking. Thank you! 🛵`;
   // ═══════════════════════════════════════
   if (mode === 'simple') {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
+      <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-8">
         <button
           onClick={onBack}
           className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"
@@ -656,7 +658,7 @@ Please confirm this Padala booking. Thank you! 🛵`;
   // PADALA MODE (full) - Send items
   // ═══════════════════════════════════════
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
+    <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-8">
       <button
         onClick={onBack}
         className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"

@@ -21,7 +21,8 @@ import {
     ShoppingCart,
     Package,
     Eye,
-    RefreshCw
+    RefreshCw,
+    Store
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -38,6 +39,8 @@ const AdminDashboard = () => {
     const [bookings, setBookings] = useState([]);
     const [foodOrders, setFoodOrders] = useState([]);
     const [manualOrders, setManualOrders] = useState([]);
+    const [pasakayBookings, setPasakayBookings] = useState([]);
+    const [stores, setStores] = useState([]);
 
     // Edit Modal states
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -69,12 +72,16 @@ const AdminDashboard = () => {
         const { data: bookingsData } = await supabase.from('padala_bookings').select('*').order('created_at', { ascending: false });
         const { data: foodData } = await supabase.from('food_orders').select('*').order('created_at', { ascending: false });
         const { data: manualData } = await supabase.from('manual_orders').select('*').order('created_at', { ascending: false });
+        const { data: pasakayData } = await supabase.from('pasakay_bookings').select('*').order('created_at', { ascending: false });
+        const { data: storesData } = await supabase.from('stores').select('*').order('order_index');
 
         setMenuItems(menuData || []);
         setFaqs(faqsData || []);
         setBookings(bookingsData || []);
         setFoodOrders(foodData || []);
         setManualOrders(manualData || []);
+        setPasakayBookings(pasakayData || []);
+        setStores(storesData || []);
     };
 
     const handleLogout = async () => {
@@ -95,7 +102,10 @@ const AdminDashboard = () => {
 
     const handleSave = async (e) => {
         e.preventDefault();
-        const table = itemType === 'menu' ? 'menu_items' : 'faqs';
+        let table;
+        if (itemType === 'menu') table = 'menu_items';
+        else if (itemType === 'faq') table = 'faqs';
+        else if (itemType === 'stores') table = 'stores';
 
         let error;
         if (editingItem.id) {
@@ -149,6 +159,8 @@ const AdminDashboard = () => {
             case 'bookings': return 'Pabili & Padala Bookings';
             case 'food_orders': return 'Food Orders';
             case 'manual_orders': return 'Manual Orders';
+            case 'pasakay': return 'Pasakay Bookings';
+            case 'stores': return 'Stores Management';
             default: return 'Dashboard';
         }
     };
@@ -175,9 +187,11 @@ const AdminDashboard = () => {
 
                 <nav className="flex-1 space-y-2">
                     <SidebarLink icon={<UtensilsCrossed size={20} />} label="Food Menu" active={activeTab === 'menu'} onClick={() => setActiveTab('menu')} />
+                    <SidebarLink icon={<Store size={20} />} label="Stores" active={activeTab === 'stores'} onClick={() => setActiveTab('stores')} />
                     <SidebarLink icon={<ShoppingCart size={20} />} label="Food Orders" active={activeTab === 'food_orders'} onClick={() => setActiveTab('food_orders')} />
                     <SidebarLink icon={<Plus size={20} />} label="Manual Orders" active={activeTab === 'manual_orders'} onClick={() => setActiveTab('manual_orders')} />
                     <SidebarLink icon={<ClipboardList size={20} />} label="Pabili / Padala" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} />
+                    <SidebarLink icon={<Zap size={20} />} label="Pasakay" active={activeTab === 'pasakay'} onClick={() => setActiveTab('pasakay')} />
                     <SidebarLink icon={<MessageSquare size={20} />} label="FAQs" active={activeTab === 'faqs'} onClick={() => setActiveTab('faqs')} />
                 </nav>
 
@@ -201,9 +215,11 @@ const AdminDashboard = () => {
                             </div>
                             <nav className="space-y-2 mb-auto">
                                 <SidebarLink icon={<UtensilsCrossed size={20} />} label="Menu" active={activeTab === 'menu'} onClick={() => { setActiveTab('menu'); setMobileMenuOpen(false); }} />
+                                <SidebarLink icon={<Store size={20} />} label="Stores" active={activeTab === 'stores'} onClick={() => { setActiveTab('stores'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<ShoppingCart size={20} />} label="Food Orders" active={activeTab === 'food_orders'} onClick={() => { setActiveTab('food_orders'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<Plus size={20} />} label="Manual Orders" active={activeTab === 'manual_orders'} onClick={() => { setActiveTab('manual_orders'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<ClipboardList size={20} />} label="Pabili / Padala" active={activeTab === 'bookings'} onClick={() => { setActiveTab('bookings'); setMobileMenuOpen(false); }} />
+                                <SidebarLink icon={<Zap size={20} />} label="Pasakay" active={activeTab === 'pasakay'} onClick={() => { setActiveTab('pasakay'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<MessageSquare size={20} />} label="FAQs" active={activeTab === 'faqs'} onClick={() => { setActiveTab('faqs'); setMobileMenuOpen(false); }} />
                             </nav>
                             <button onClick={handleLogout} className="mt-10 py-4 bg-red-50 text-red-600 font-bold rounded-2xl flex items-center justify-center space-x-3">
@@ -222,22 +238,28 @@ const AdminDashboard = () => {
                         <h2 className="text-xl font-black text-brand-charcoal uppercase">{getHeaderTitle()}</h2>
                     </div>
                     <div className="flex items-center space-x-3">
-                        {(activeTab === 'bookings' || activeTab === 'food_orders' || activeTab === 'manual_orders') && (
+                        {(activeTab === 'bookings' || activeTab === 'food_orders' || activeTab === 'manual_orders' || activeTab === 'pasakay' || activeTab === 'stores' || activeTab === 'menu') && (
                             <button onClick={fetchData} className="p-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-colors" title="Refresh">
                                 <RefreshCw size={18} />
                             </button>
                         )}
-                        {(activeTab === 'menu' || activeTab === 'faqs') && (
+                        {(activeTab === 'menu' || activeTab === 'faqs' || activeTab === 'stores') && (
                             <button
                                 onClick={() => {
-                                    setItemType(activeTab === 'menu' ? 'menu' : 'faq');
-                                    setEditingItem(activeTab === 'menu' ? { name: '', description: '', price: 0, category: 'Main Course', image_url: '', order_index: menuItems.length } : { question: '', answer: '', order_index: faqs.length });
+                                    setItemType(activeTab);
+                                    if (activeTab === 'menu') {
+                                        setEditingItem({ name: '', description: '', price: 0, category: 'Main Course', image_url: '', order_index: menuItems.length, store_id: stores[0]?.id });
+                                    } else if (activeTab === 'faqs') {
+                                        setEditingItem({ question: '', answer: '', order_index: faqs.length });
+                                    } else if (activeTab === 'stores') {
+                                        setEditingItem({ name: '', description: '', image_url: '', location: '', contact: '', is_active: true, order_index: stores.length });
+                                    }
                                     setIsEditModalOpen(true);
                                 }}
                                 className="px-6 py-3 bg-brand-charcoal text-white font-black rounded-xl text-sm flex items-center space-x-2 hover:bg-brand-primary transition-colors"
                             >
                                 <Plus size={18} />
-                                <span>NEW {activeTab === 'menu' ? 'MENU ITEM' : 'FAQ'}</span>
+                                <span>NEW {activeTab === 'menu' ? 'MENU ITEM' : activeTab === 'faqs' ? 'FAQ' : 'STORE'}</span>
                             </button>
                         )}
                     </div>
@@ -273,6 +295,21 @@ const AdminDashboard = () => {
                                         <button onClick={() => handleDelete(f.id, 'faqs')} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={18} /></button>
                                     </div>
                                 </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* ═══════════ STORES TAB ═══════════ */}
+                    {activeTab === 'stores' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {stores.map(store => (
+                                <ItemCard
+                                    key={store.id}
+                                    title={store.name}
+                                    description={`${store.location || 'Local Area'}\n\n${store.description || ''}`}
+                                    onEdit={() => { setItemType('stores'); setEditingItem(store); setIsEditModalOpen(true); }}
+                                    onDelete={() => handleDelete(store.id, 'stores')}
+                                />
                             ))}
                         </div>
                     )}
@@ -519,6 +556,96 @@ const AdminDashboard = () => {
                             )}
                         </div>
                     )}
+
+                    {/* ═══════════ PASAKAY BOOKINGS TAB ═══════════ */}
+                    {activeTab === 'pasakay' && (
+                        <div>
+                            {/* Status Filters */}
+                            <div className="flex flex-wrap gap-2 mb-8">
+                                {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map(status => (
+                                    <button
+                                        key={status}
+                                        onClick={() => setBookingFilter(status)}
+                                        className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${bookingFilter === status ? 'bg-brand-charcoal text-white shadow-lg' : 'bg-white text-gray-400 hover:bg-gray-100 border border-gray-100'}`}
+                                    >
+                                        {status} {status === 'all' ? `(${pasakayBookings.length})` : `(${pasakayBookings.filter(b => b.status?.toLowerCase() === status).length})`}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {pasakayBookings.filter(b => bookingFilter === 'all' || b.status?.toLowerCase() === bookingFilter).length === 0 ? (
+                                <div className="text-center py-24">
+                                    <Zap size={48} className="mx-auto text-gray-200 mb-4" />
+                                    <h4 className="text-xl font-bold text-gray-400">No pasakay bookings found</h4>
+                                    <p className="text-gray-400 text-sm">Pasakay requests will appear here when customers submit the form.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {pasakayBookings
+                                        .filter(b => bookingFilter === 'all' || b.status?.toLowerCase() === bookingFilter)
+                                        .map(booking => (
+                                            <div key={booking.id} className="bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-lg transition-all">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            <span className="flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-black uppercase">
+                                                                <Truck size={12} /> Pasakay
+                                                            </span>
+                                                            <span className={`px-3 py-1 rounded-full text-xs font-black uppercase ${getStatusColor(booking.status)}`}>
+                                                                {booking.status || 'pending'}
+                                                            </span>
+                                                        </div>
+                                                        <h4 className="font-bold text-brand-charcoal text-lg">{booking.customer_name}</h4>
+                                                        <p className="text-gray-500 text-sm">
+                                                            📞 {booking.contact_number} • 👥 {booking.passengers} pax • 🧳 {booking.has_baggage ? 'With Baggage' : 'No Baggage'}
+                                                        </p>
+                                                        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div>
+                                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Pickup</p>
+                                                                <p className="text-brand-charcoal text-sm">{booking.pickup_location}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Destination</p>
+                                                                <p className="text-brand-charcoal text-sm">{booking.destination}</p>
+                                                            </div>
+                                                        </div>
+                                                        {booking.notes && (
+                                                            <div className="mt-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Notes</p>
+                                                                <p className="text-gray-600 text-sm italic">"{booking.notes}"</p>
+                                                            </div>
+                                                        )}
+                                                        <p className="text-gray-300 text-[10px] mt-2 uppercase tracking-widest">
+                                                            {new Date(booking.created_at).toLocaleString()}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 shrink-0">
+                                                        <select
+                                                            value={booking.status || 'pending'}
+                                                            onChange={(e) => handleUpdateBookingStatus(booking.id, 'pasakay_bookings', e.target.value)}
+                                                            className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold bg-gray-50 focus:ring-2 focus:ring-brand-primary outline-none"
+                                                            aria-label="Update status"
+                                                        >
+                                                            <option value="pending">Pending</option>
+                                                            <option value="confirmed">Confirmed</option>
+                                                            <option value="in_transit">In Transit</option>
+                                                            <option value="completed">Completed</option>
+                                                            <option value="cancelled">Cancelled</option>
+                                                        </select>
+                                                        <button
+                                                            onClick={() => handleDelete(booking.id, 'pasakay_bookings')}
+                                                            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </main>
 
@@ -618,6 +745,15 @@ const AdminDashboard = () => {
                                                     <input required value={editingItem.name} onChange={e => setEditingItem({ ...editingItem, name: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" />
                                                 </div>
                                                 <div>
+                                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Store</label>
+                                                    <select required value={editingItem.store_id} onChange={e => setEditingItem({ ...editingItem, store_id: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all">
+                                                        <option value="">Select a Store</option>
+                                                        {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
                                                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Category</label>
                                                     <select value={editingItem.category} onChange={e => setEditingItem({ ...editingItem, category: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all">
                                                         <option value="Pizza">Pizza</option>
@@ -628,14 +764,42 @@ const AdminDashboard = () => {
                                                         <option value="Desserts">Desserts</option>
                                                     </select>
                                                 </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4">
                                                 <div>
                                                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Price (₱)</label>
                                                     <div className="relative">
                                                         <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                                                         <input type="number" step="0.01" required value={editingItem.price} onChange={e => setEditingItem({ ...editingItem, price: parseFloat(e.target.value) })} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" />
                                                     </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Image URL</label>
+                                                <div className="relative">
+                                                    <Image className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                                    <input value={editingItem.image_url} onChange={e => setEditingItem({ ...editingItem, image_url: e.target.value })} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" placeholder="https://..." />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Short Description</label>
+                                                <textarea required value={editingItem.description} onChange={e => setEditingItem({ ...editingItem, description: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all h-24" />
+                                            </div>
+                                        </>
+                                    ) : itemType === 'stores' ? (
+                                        <>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Store Name</label>
+                                                    <input required value={editingItem.name} onChange={e => setEditingItem({ ...editingItem, name: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Location</label>
+                                                    <input value={editingItem.location} onChange={e => setEditingItem({ ...editingItem, location: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" placeholder="e.g. Downtown" />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Contact</label>
+                                                    <input value={editingItem.contact} onChange={e => setEditingItem({ ...editingItem, contact: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" placeholder="e.g. 0912..." />
                                                 </div>
                                                 <div>
                                                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Image URL</label>
@@ -646,7 +810,7 @@ const AdminDashboard = () => {
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Short Description</label>
+                                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Description</label>
                                                 <textarea required value={editingItem.description} onChange={e => setEditingItem({ ...editingItem, description: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all h-24" />
                                             </div>
                                         </>

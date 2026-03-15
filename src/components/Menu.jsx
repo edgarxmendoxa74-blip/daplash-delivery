@@ -34,7 +34,7 @@ const fallbackMenu = [
     }
 ];
 
-const Menu = ({ onOrder, onOpenManualOrder }) => {
+const Menu = ({ onOrder, onOpenManualOrder, storeId, onBackToStores }) => {
     const [menuItems, setMenuItems] = useState([]);
     const [categories, setCategories] = useState(['All']);
     const [activeCategory, setActiveCategory] = useState('All');
@@ -42,10 +42,15 @@ const Menu = ({ onOrder, onOpenManualOrder }) => {
 
     useEffect(() => {
         const fetchMenu = async () => {
-            const { data } = await supabase
+            let finalQuery = supabase
                 .from('menu_items')
-                .select('*')
-                .order('order_index');
+                .select('*');
+
+            if (storeId) {
+                finalQuery = finalQuery.eq('store_id', storeId);
+            }
+
+            const { data } = await finalQuery.order('order_index');
 
             if (data && data.length > 0) {
                 setMenuItems(data);
@@ -67,29 +72,31 @@ const Menu = ({ onOrder, onOpenManualOrder }) => {
     });
 
     return (
-        <section id="menu" className="pt-16 pb-24 bg-white font-outfit">
+        <section id="menu" className="pt-32 sm:pt-24 pb-24 bg-white font-outfit">
             <div className="container mx-auto px-6">
+                <button
+                    onClick={onBackToStores}
+                    className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"
+                >
+                    <ArrowLeft className="h-5 w-5" />
+                    <span className="text-sm font-bold uppercase tracking-wider">Back to Stores</span>
+                </button>
+
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl sm:text-6xl font-[1000] text-brand-charcoal leading-none uppercase tracking-tighter mb-4"
+                        className="text-3xl sm:text-4xl md:text-6xl font-[1000] text-brand-charcoal leading-none uppercase tracking-tighter mb-4"
                     >
                         OUR <span className="text-green-primary">MENU</span>
                     </motion.h2>
-                    <p className="text-gray-500 font-medium text-lg uppercase tracking-widest">Taste the excellence in every bite</p>
+                    <p className="text-gray-500 font-medium text-sm sm:text-lg uppercase tracking-widest mt-2">Taste the excellence in every bite</p>
                 </div>
 
                 {/* Actions & Search */}
                 <div className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-12">
                     <div className="flex flex-col sm:flex-row justify-center gap-3 w-full lg:w-auto">
-                        <a
-                            href="/"
-                            className="inline-flex items-center justify-center space-x-2 px-6 py-4 lg:py-3 rounded-full bg-gray-100 text-brand-charcoal text-sm font-black uppercase tracking-widest shadow-sm hover:bg-gray-200 transition-colors duration-200 w-full sm:w-auto"
-                        >
-                            <span>&larr; Back</span>
-                        </a>
                         <button
                             onClick={onOpenManualOrder}
                             className="inline-flex items-center justify-center space-x-2 px-6 py-4 lg:py-3 rounded-full bg-brand-accent text-brand-charcoal text-sm font-black uppercase tracking-widest shadow-lg hover:bg-yellow-400 transition-colors duration-200 w-full sm:w-auto"
@@ -141,7 +148,7 @@ const Menu = ({ onOrder, onOpenManualOrder }) => {
                                         <span className="text-xl font-black text-green-primary tracking-tighter self-start">₱{item.price}</span>
                                     </div>
                                     <p className="text-gray-500 text-sm font-medium line-clamp-2 mb-8 leading-relaxed italic border-l-2 border-brand-accent/50 pl-3">
-                                        "{item.description}"
+                                        "{item.description || 'Our chef\'s special creation.'}"
                                     </p>
                                     <button
                                         onClick={() => onOrder(item)}

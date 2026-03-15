@@ -20,7 +20,7 @@ const Hero = () => {
                         <span className="text-xs sm:text-sm font-bold text-brand-charcoal uppercase tracking-wider">Open for Orders in Naga City</span>
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-brand-charcoal leading-[0.9] mb-4 tracking-tighter">
+                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-brand-charcoal leading-[0.9] mb-4 tracking-tighter uppercase">
                         WE DELIVER <br />
                         <span className="text-green-primary">HAPPINESS.</span>
                     </h1>
@@ -66,30 +66,30 @@ const Hero = () => {
                         <motion.div
                             animate={{ y: [0, -12, 0] }}
                             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute -top-6 -right-4 sm:-top-12 sm:-right-12 bg-white/90 backdrop-blur-md p-3 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl flex items-center space-x-3 sm:space-x-4 border border-white/50 z-20"
+                            className="absolute -top-4 -right-2 sm:-top-12 sm:-right-12 bg-white/90 backdrop-blur-md p-2 sm:p-5 rounded-xl sm:rounded-3xl shadow-2xl flex items-center space-x-2 sm:space-x-4 border border-white/50 z-20 scale-90 sm:scale-100"
                         >
-                            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-primary shadow-inner relative overflow-hidden">
+                            <div className="w-8 h-8 sm:w-14 sm:h-14 bg-green-50 rounded-xl flex items-center justify-center text-green-primary shadow-inner relative overflow-hidden">
                                 <div className="absolute inset-0 bg-green-100/50 scale-110 rotate-12"></div>
-                                <Package size={22} className="relative z-10 sm:w-8 sm:h-8" />
+                                <Package size={18} className="relative z-10 sm:w-8 sm:h-8" />
                             </div>
                             <div>
-                                <p className="text-[10px] sm:text-xs text-brand-secondary font-bold uppercase tracking-[0.15em]">Fast Delivery</p>
-                                <p className="text-sm sm:text-lg text-brand-charcoal font-black tracking-tight">20-30 MIN</p>
+                                <p className="text-[8px] sm:text-xs text-brand-secondary font-bold uppercase tracking-[0.15em]">Fast Delivery</p>
+                                <p className="text-xs sm:text-lg text-brand-charcoal font-black tracking-tight">20-30 MIN</p>
                             </div>
                         </motion.div>
 
                         <motion.div
                             animate={{ y: [0, 12, 0] }}
                             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                            className="absolute -bottom-6 -left-4 sm:-bottom-12 sm:-left-12 bg-white/90 backdrop-blur-md p-3 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl flex items-center space-x-3 sm:space-x-4 border border-white/50 z-20"
+                            className="absolute -bottom-4 -left-2 sm:-bottom-12 sm:-left-12 bg-white/90 backdrop-blur-md p-2 sm:p-5 rounded-xl sm:rounded-3xl shadow-2xl flex items-center space-x-2 sm:space-x-4 border border-white/50 z-20 scale-90 sm:scale-100"
                         >
-                            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-yellow-50 rounded-2xl flex items-center justify-center text-brand-accent shadow-inner relative overflow-hidden">
+                            <div className="w-8 h-8 sm:w-14 sm:h-14 bg-yellow-50 rounded-xl flex items-center justify-center text-brand-accent shadow-inner relative overflow-hidden">
                                 <div className="absolute inset-0 bg-yellow-100/50 scale-110 -rotate-12"></div>
-                                <Zap size={22} className="relative z-10 sm:w-8 sm:h-8 text-yellow-500" />
+                                <Zap size={18} className="relative z-10 sm:w-8 sm:h-8 text-yellow-500" />
                             </div>
                             <div>
-                                <p className="text-[10px] sm:text-xs text-brand-secondary font-bold uppercase tracking-[0.15em]">Trusted by</p>
-                                <p className="text-sm sm:text-lg text-brand-charcoal font-black tracking-tight">LOCAL SHOPS</p>
+                                <p className="text-[8px] sm:text-xs text-brand-secondary font-bold uppercase tracking-[0.15em]">Trusted by</p>
+                                <p className="text-xs sm:text-lg text-brand-charcoal font-black tracking-tight">LOCAL SHOPS</p>
                             </div>
                         </motion.div>
                     </div>

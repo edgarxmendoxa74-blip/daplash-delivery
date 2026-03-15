@@ -1,17 +1,17 @@
 import { useState, useCallback, useEffect } from 'react';
 
-// Restaurant location: Calinan, Davao City
+// Restaurant location: Naga City, Camarines Sur, Philippines
 const RESTAURANT_LOCATION = {
-  lat: 7.2906, // Calinan, Davao City latitude
-  lng: 125.3764 // Calinan, Davao City longitude
+  lat: 13.6218,
+  lng: 123.1948
 };
 
-// Delivery center: Villafuerte St, Calinan District, Davao City, Davao del Sur
+// Delivery center: Naga City, Camarines Sur, Philippines
 // This is the point from which delivery distance is calculated
 const DELIVERY_CENTER = {
-  lat: 7.2906, // Villafuerte St, Calinan District, Davao City (approximate - will be geocoded)
-  lng: 125.3764, // Villafuerte St, Calinan District, Davao City (approximate - will be geocoded)
-  address: 'Villafuerte St, Calinan District, Davao City, Davao del Sur'
+  lat: 13.6218,
+  lng: 123.1948,
+  address: 'Naga City, Camarines Sur, Philippines'
 };
 
 // Maximum delivery radius in kilometers from delivery center (adjust as needed)
@@ -50,10 +50,9 @@ export const useGoogleMaps = () => {
   // Get coordinates from address using OpenStreetMap Nominatim (FREE, no API key needed)
   const geocodeAddressOSM = async (address: string): Promise<{ lat: number; lng: number } | null> => {
     try {
-      // Add "Davao City, Philippines" to improve accuracy for local addresses
-      const fullAddress = address.includes('Davao') || address.includes('Philippines')
+      const fullAddress = address.includes('Naga City') || address.includes('Camarines Sur') || address.includes('Philippines')
         ? address
-        : `${address}, Davao City, Philippines`;
+        : `${address}, Naga City, Camarines Sur, Philippines`;
 
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1&countrycodes=ph`,
