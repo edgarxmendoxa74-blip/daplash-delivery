@@ -72,13 +72,7 @@ Please process this payment request. Thank you!`;
 
     return (
         <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-12">
-            <button
-                onClick={onBack}
-                className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"
-            >
-                <ArrowLeft className="h-5 w-5" />
-                <span>Back to Home</span>
-            </button>
+
 
             <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
                 <div className="bg-brand-primary p-8 text-white text-center">
@@ -214,6 +208,14 @@ Please process this payment request. Thank you!`;
                             {isSubmitting ? 'PROCESSING...' : 'SEND TO MESSENGER'}
                         </button>
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={onBack}
+                        className="w-full py-4 bg-gray-50 text-gray-400 font-bold rounded-2xl hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2 border border-gray-100 mt-4"
+                    >
+                        <span>BACK TO HOME</span>
+                    </button>
                 </div>
             </div>
         </div>

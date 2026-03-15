@@ -135,6 +135,16 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                         </AnimatePresence>
                     </div>
                 )}
+
+                <div className="mt-16 flex justify-center">
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="px-12 py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-full text-lg font-bold shadow-lg shadow-brand-primary/10 hover:bg-brand-primary hover:text-white transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center gap-3"
+                    >
+                        <span>🏠</span>
+                        BACK TO HOME
+                    </button>
+                </div>
             </div>
         </section>
     );

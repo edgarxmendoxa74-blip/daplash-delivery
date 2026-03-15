@@ -22,7 +22,8 @@ import {
     Package,
     Eye,
     RefreshCw,
-    Store
+    Store,
+    Shield
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -161,6 +162,7 @@ const AdminDashboard = () => {
             case 'manual_orders': return 'Manual Orders';
             case 'pasakay': return 'Pasakay Bookings';
             case 'stores': return 'Stores Management';
+            case 'security': return 'Account Security';
             default: return 'Dashboard';
         }
     };
@@ -193,6 +195,7 @@ const AdminDashboard = () => {
                     <SidebarLink icon={<ClipboardList size={20} />} label="Pabili / Padala" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} />
                     <SidebarLink icon={<Zap size={20} />} label="Pasakay" active={activeTab === 'pasakay'} onClick={() => setActiveTab('pasakay')} />
                     <SidebarLink icon={<MessageSquare size={20} />} label="FAQs" active={activeTab === 'faqs'} onClick={() => setActiveTab('faqs')} />
+                    <SidebarLink icon={<Shield size={20} />} label="Security" active={activeTab === 'security'} onClick={() => setActiveTab('security')} />
                 </nav>
 
                 <div className="mt-auto pt-8 border-t border-gray-100">
@@ -221,6 +224,7 @@ const AdminDashboard = () => {
                                 <SidebarLink icon={<ClipboardList size={20} />} label="Pabili / Padala" active={activeTab === 'bookings'} onClick={() => { setActiveTab('bookings'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<Zap size={20} />} label="Pasakay" active={activeTab === 'pasakay'} onClick={() => { setActiveTab('pasakay'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<MessageSquare size={20} />} label="FAQs" active={activeTab === 'faqs'} onClick={() => { setActiveTab('faqs'); setMobileMenuOpen(false); }} />
+                                <SidebarLink icon={<Shield size={20} />} label="Security" active={activeTab === 'security'} onClick={() => { setActiveTab('security'); setMobileMenuOpen(false); }} />
                             </nav>
                             <button onClick={handleLogout} className="mt-10 py-4 bg-red-50 text-red-600 font-bold rounded-2xl flex items-center justify-center space-x-3">
                                 <LogOut size={20} /> <span>LOGOUT</span>
@@ -646,6 +650,9 @@ const AdminDashboard = () => {
                             )}
                         </div>
                     )}
+
+                    {/* ═══════════ SECURITY TAB ═══════════ */}
+                    {activeTab === 'security' && <SecurityTab />}
                 </div>
             </main>
 
@@ -863,5 +870,108 @@ const ItemCard = ({ title, description, onEdit, onDelete }) => (
         </div>
     </div>
 );
+
+const SecurityTab = () => {
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState({ type: '', text: '' });
+
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+        if (newPassword !== confirmPassword) {
+            setMessage({ type: 'error', text: 'Passwords do not match!' });
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            setMessage({ type: 'error', text: 'Password must be at least 6 characters!' });
+            return;
+        }
+
+        setLoading(true);
+        setMessage({ type: '', text: '' });
+
+        const { error } = await supabase.auth.updateUser({
+            password: newPassword
+        });
+
+        if (error) {
+            setMessage({ type: 'error', text: error.message });
+        } else {
+            setMessage({ type: 'success', text: 'Password updated successfully!' });
+            setNewPassword('');
+            setConfirmPassword('');
+        }
+        setLoading(false);
+    };
+
+    return (
+        <div className="max-w-2xl bg-white rounded-[2.5rem] border border-gray-100 p-10 shadow-sm">
+            <div className="flex items-center space-x-4 mb-8">
+                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-brand-primary">
+                    <Shield size={24} />
+                </div>
+                <div>
+                    <h3 className="text-xl font-black text-brand-charcoal uppercase tracking-tight">Update Access Key</h3>
+                    <p className="text-sm text-gray-500 font-medium">Change your administrator login password</p>
+                </div>
+            </div>
+
+            <form onSubmit={handlePasswordChange} className="space-y-6">
+                {message.text && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 border ${message.type === 'error' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-green-50 text-green-600 border-green-100'
+                            }`}
+                    >
+                        {message.type === 'error' ? <AlertCircle size={16} /> : <Check size={16} />}
+                        {message.text}
+                    </motion.div>
+                )}
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">New Access Key</label>
+                        <input
+                            type="password"
+                            required
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary transition-all"
+                            placeholder="Min. 6 characters"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Confirm Access Key</label>
+                        <input
+                            type="password"
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary transition-all"
+                            placeholder="Repeat new access key"
+                        />
+                    </div>
+                </div>
+
+                <div className="pt-4">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-5 bg-brand-charcoal text-white font-black rounded-2xl shadow-xl shadow-brand-charcoal/10 flex items-center justify-center space-x-3 hover:bg-brand-primary transition-all group disabled:opacity-50"
+                    >
+                        <Save size={20} />
+                        <span className="uppercase tracking-widest text-sm">{loading ? 'UPDATING...' : 'UPDATE PASSWORD'}</span>
+                    </button>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center mt-6">
+                        Changes take effect immediately. Keep your new key safe.
+                    </p>
+                </div>
+            </form>
+        </div>
+    );
+};
 
 export default AdminDashboard;

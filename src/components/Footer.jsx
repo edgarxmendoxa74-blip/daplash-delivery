@@ -9,7 +9,7 @@ const Footer = () => {
                     <div className="col-span-1 md:col-span-1 whitespace-nowrap">
                         <div className="flex items-center space-x-2 mb-6">
                             <div className="w-10 h-10 bg-daplash-yellow rounded-full flex items-center justify-center font-bold text-daplash-dark text-xl">D</div>
-                            <span className="text-2xl font-bold tracking-tight">DAPLASH <span className="text-daplash-blue">DELIVERY</span></span>
+                            <span className="text-2xl font-bold tracking-tight">DAPLASH <span className="text-daplash-blue">DELIVERY</span> <span className="text-brand-accent ml-2 text-sm uppercase font-black">📍 Naga City</span></span>
                         </div>
                         <p className="text-gray-400 max-w-xs mb-8">
                             Delivering happiness across Naga City. Fast, reliable, and friendly service for all your delivery needs.

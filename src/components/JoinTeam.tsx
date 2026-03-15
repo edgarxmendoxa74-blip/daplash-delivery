@@ -64,13 +64,7 @@ ${formData.aboutMe}`;
 
     return (
         <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-12">
-            <button
-                onClick={onBack}
-                className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"
-            >
-                <ArrowLeft className="h-5 w-5" />
-                <span>Back to Home</span>
-            </button>
+
 
             <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 mb-12">
                 <div className="bg-brand-primary p-8 sm:p-12 text-white text-center relative overflow-hidden">

@@ -97,18 +97,18 @@ const Services = ({ onBook }) => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="group p-4 sm:p-8 rounded-2xl sm:rounded-[2.5rem] border border-gray-100 bg-white hover:bg-gradient-to-b hover:from-white hover:to-gray-50/50 transition-all duration-500 shadow-sm hover:shadow-2xl hover:shadow-daplash-blue/5 relative overflow-hidden flex flex-col highlight-border"
+                            className="group p-3 sm:p-5 rounded-2xl sm:rounded-[2rem] border border-gray-100 bg-white hover:bg-gradient-to-b hover:from-white hover:to-gray-50/50 transition-all duration-500 shadow-sm hover:shadow-2xl hover:shadow-daplash-blue/5 relative overflow-hidden flex flex-col highlight-border"
                         >
                             {/* Decorative Background Shape */}
                             <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-gray-50 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                             <div className="relative mb-4 sm:mb-8">
-                                <div className={`w-12 h-12 sm:w-20 sm:h-20 ${service.color} rounded-2xl sm:rounded-3xl flex items-center justify-center relative group-hover:rotate-6 transition-transform duration-500`}>
+                                <div className={`w-10 h-10 sm:w-14 sm:h-14 ${service.color} rounded-xl sm:rounded-2xl flex items-center justify-center relative group-hover:rotate-6 transition-transform duration-500`}>
                                     {/* Inner Glow/Shadow */}
-                                    <div className="absolute inset-0 bg-white/20 rounded-2xl sm:rounded-3xl scale-75 blur-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="absolute inset-0 bg-white/20 rounded-xl sm:rounded-2xl scale-75 blur-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     <div className="relative z-10 filter drop-shadow-md">
                                         {/* Scale icon for mobile */}
-                                        <div className="scale-75 sm:scale-100">
+                                        <div className="scale-[0.6] sm:scale-75">
                                             {service.icon}
                                         </div>
                                     </div>
@@ -117,17 +117,17 @@ const Services = ({ onBook }) => {
                                 </div>
                             </div>
 
-                            <h3 className="text-sm sm:text-2xl font-black text-daplash-dark mb-2 sm:mb-4 tracking-tight leading-tight group-hover:text-daplash-blue transition-colors">
+                            <h3 className="text-xs sm:text-xl font-black text-daplash-dark mb-1.5 sm:mb-3 tracking-tight leading-tight group-hover:text-daplash-blue transition-colors">
                                 {service.title}
                             </h3>
-                            <p className="text-[10px] sm:text-base text-gray-500 leading-tight sm:leading-relaxed mb-4 sm:mb-6 font-medium line-clamp-2 sm:line-clamp-none">
+                            <p className="text-[9px] sm:text-sm text-gray-500 leading-tight sm:leading-relaxed mb-3 sm:mb-5 font-medium line-clamp-2 sm:line-clamp-none">
                                 {service.description}
                             </p>
 
                             {/* Features List */}
-                            <ul className="space-y-1.5 sm:space-y-2 mb-6 sm:mb-8">
+                            <ul className="space-y-1 sm:space-y-1.5 mb-4 sm:mb-6">
                                 {service.features.map((feature, fIndex) => (
-                                    <li key={fIndex} className="flex items-center space-x-2 text-[9px] sm:text-sm text-gray-400 font-semibold group/item">
+                                    <li key={fIndex} className="flex items-center space-x-1.5 sm:space-x-2 text-[8px] sm:text-xs text-gray-400 font-semibold group/item">
                                         <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-daplash-yellow group-hover/item:scale-125 transition-transform"></div>
                                         <span className="group-hover/item:text-daplash-blue transition-colors">{feature}</span>
                                     </li>
@@ -137,10 +137,10 @@ const Services = ({ onBook }) => {
                             <div className="mt-auto">
                                 <button
                                     onClick={() => onBook(service)}
-                                    className="w-full inline-flex items-center justify-center space-x-1 sm:space-x-2 py-2 sm:py-4 px-2 sm:px-6 bg-daplash-yellow text-daplash-dark font-black rounded-lg sm:rounded-2xl hover:bg-daplash-blue hover:text-white transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-daplash-yellow/30 hover:shadow-daplash-blue/30"
+                                    className="w-full inline-flex items-center justify-center space-x-1 sm:space-x-2 py-1.5 sm:py-3 px-2 sm:px-6 bg-daplash-yellow text-daplash-dark font-black rounded-lg sm:rounded-xl hover:bg-daplash-blue hover:text-white transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-daplash-yellow/30 hover:shadow-daplash-blue/30"
                                 >
-                                    <span className="text-[10px] sm:text-base">Book Now</span>
-                                    <Zap size={12} className="sm:w-[18px] sm:h-[18px] fill-current" />
+                                    <span className="text-[9px] sm:text-sm">Book Now</span>
+                                    <Zap size={10} className="sm:w-4 sm:h-4 fill-current" />
                                 </button>
                             </div>
                         </motion.div>

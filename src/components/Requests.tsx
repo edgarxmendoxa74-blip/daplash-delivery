@@ -177,13 +177,7 @@ Thank you for your Angkas/Padala request. We will get back to you soon! 🛵`;
 
   return (
     <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-12">
-      <button
-        onClick={onBack}
-        className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"
-      >
-        <ArrowLeft className="h-5 w-5" />
-        <span>Back to Home</span>
-      </button>
+
 
       <form onSubmit={handleAngkasSubmit} className="bg-white rounded-xl shadow-sm p-6 md:p-8 space-y-6">
         <div className="text-center mb-6">

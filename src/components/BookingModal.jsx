@@ -159,6 +159,14 @@ Please confirm this food order. Thank you! 🛵`;
                                 <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                                 <span>{isSubmitting ? 'SUBMITTING...' : 'CONFIRM BOOKING'}</span>
                             </button>
+
+                            <button
+                                type="button"
+                                onClick={() => window.location.href = '/'}
+                                className="w-full py-4 bg-gray-100 text-gray-500 font-bold rounded-2xl hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
+                            >
+                                <span>BACK TO HOME</span>
+                            </button>
                         </form>
                     </motion.div>
                 </div>

@@ -18,16 +18,16 @@ const Header = () => {
     return (
         <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-md' : 'bg-transparent'}`}>
             {/* Top Bar */}
-            <div className={`bg-brand-charcoal text-white py-2 px-6 transition-all duration-300 ${isScrolled ? 'hidden' : 'block'}`}>
+            <div className={`bg-brand-primary text-white py-2 px-6 transition-all duration-300 ${isScrolled ? 'hidden' : 'block'}`}>
                 <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5">
                             <Phone size={12} className="text-brand-accent" />
                             <span>09569414260</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                            <MapPin size={12} className="text-brand-primary" />
-                            <span>Serving Naga City</span>
+                        <div className="flex items-center gap-1.5 text-brand-accent">
+                            <MapPin size={12} />
+                            <span>📍 Naga City</span>
                         </div>
                     </div>
                     <div className="hidden md:block text-gray-400">

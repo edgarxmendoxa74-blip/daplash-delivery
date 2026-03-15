@@ -109,22 +109,22 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
           <p className="text-gray-500 text-base sm:text-lg font-medium italic opacity-80 uppercase tracking-widest">Select a service to get started</p>
         </div>
 
-        {/* Services Grid - 3 services in a row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
+        {/* Services Grid - 2 on mobile, 3 on desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-8">
           {services.map((service) => (
             <button
               key={service.id}
               onClick={() => handleServiceClick(service.id)}
-              className="group bg-white border-b-4 border-gray-100 rounded-3xl p-6 sm:p-8 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:border-brand-primary focus:outline-none ring-offset-2 focus:ring-4 focus:ring-brand-primary/20"
+              className="group bg-white border-b-4 border-gray-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:border-brand-primary focus:outline-none ring-offset-2 focus:ring-4 focus:ring-brand-primary/20"
             >
               <div className="text-center">
-                <div className="text-5xl sm:text-7xl md:text-8xl mb-4 sm:mb-6 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-sm">
+                <div className="text-3xl sm:text-5xl md:text-6xl mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-sm">
                   {service.icon}
                 </div>
-                <h2 className="text-2xl font-brand font-bold text-brand-charcoal mb-1 group-hover:text-brand-primary transition-colors">
+                <h2 className="text-lg sm:text-xl md:text-2xl font-brand font-bold text-brand-charcoal mb-1 group-hover:text-brand-primary transition-colors">
                   {service.name}
                 </h2>
-                <p className="text-sm text-gray-500 mb-4 group-hover:text-gray-600 transition-colors">
+                <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 mb-4 group-hover:text-gray-600 transition-colors line-clamp-2">
                   {service.description}
                 </p>
                 <div className="w-12 h-1 bg-brand-accent/30 mx-auto rounded-full group-hover:w-20 group-hover:bg-brand-accent transition-all duration-300"></div>

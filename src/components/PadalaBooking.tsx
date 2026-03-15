@@ -424,13 +424,7 @@ Please confirm this Padala booking. Thank you! 🛵`;
   if (mode === 'simple') {
     return (
       <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-8">
-        <button
-          onClick={onBack}
-          className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span>Back to Home</span>
-        </button>
+
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="text-center mb-6">
@@ -649,6 +643,14 @@ Please confirm this Padala booking. Thank you! 🛵`;
           >
             {isSubmitting ? 'Submitting...' : 'Submit Pabili Order'}
           </button>
+
+          <button
+            type="button"
+            onClick={onBack}
+            className="w-full py-4 bg-gray-50 text-gray-400 font-bold rounded-xl hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2 border border-gray-100"
+          >
+            <span>BACK TO HOME</span>
+          </button>
         </form>
       </div>
     );
@@ -659,13 +661,7 @@ Please confirm this Padala booking. Thank you! 🛵`;
   // ═══════════════════════════════════════
   return (
     <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-8">
-      <button
-        onClick={onBack}
-        className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200 mb-6"
-      >
-        <ArrowLeft className="h-5 w-5" />
-        <span>Back to Home</span>
-      </button>
+
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 md:p-8 space-y-6">
         <div className="text-center mb-6">
@@ -880,9 +876,17 @@ Please confirm this Padala booking. Thank you! 🛵`;
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-4 rounded-xl font-medium text-lg transition-all duration-200 transform bg-green-primary text-white hover:bg-green-dark hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-4 bg-brand-primary text-white font-black rounded-xl shadow-lg shadow-brand-primary/30 flex items-center justify-center space-x-3 hover:bg-green-700 transition-all transform hover:-translate-y-1 mt-8 disabled:opacity-50"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit Padala Booking'}
+          {isSubmitting ? 'SUBMITTING...' : 'CONFIRM PADALA'}
+        </button>
+
+        <button
+          type="button"
+          onClick={onBack}
+          className="w-full py-4 bg-gray-50 text-gray-400 font-bold rounded-xl hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2 border border-gray-100 mt-4"
+        >
+          <span>BACK TO HOME</span>
         </button>
       </form>
     </div>
