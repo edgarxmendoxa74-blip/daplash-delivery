@@ -30,7 +30,7 @@ const Header = () => {
                             <span>📍 Naga City</span>
                         </div>
                     </div>
-                    <div className="hidden md:block text-gray-400">
+                    <div className="hidden md:block text-white">
                         Fast & Reliable Delivery Service
                     </div>
                 </div>
@@ -97,9 +97,6 @@ const Header = () => {
                         <a href="https://m.me/100064173395989" target="_blank" rel="noopener noreferrer" className="flex flex-col space-y-2 group">
                             <p className="font-bold text-gray-400 uppercase tracking-widest text-xs">Chat with us on</p>
                             <p className="text-xl font-black text-brand-charcoal group-hover:text-brand-primary transition-colors">FB MESSENGER</p>
-                        </a>
-                        <a href="/admin" className="ml-auto text-[10px] font-black text-gray-300 hover:text-brand-primary uppercase tracking-widest transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                            Admin Login
                         </a>
                     </div>
                 </div>

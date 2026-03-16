@@ -9,6 +9,15 @@ interface ServiceSelectionProps {
 
 const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) => {
   const [showGuide, setShowGuide] = useState(false);
+  const [showPartnerModal, setShowPartnerModal] = useState(false);
+  const [partnerData, setPartnerData] = useState({
+    businessName: '',
+    businessAddress: '',
+    contactPerson: '',
+    operatingHours: '',
+    menuLink: '',
+    paymentMode: 'COD & GCash'
+  });
 
   const services = [
     {
@@ -121,7 +130,7 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
                 <div className="text-3xl sm:text-5xl md:text-6xl mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-sm">
                   {service.icon}
                 </div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-brand font-bold text-brand-charcoal mb-1 group-hover:text-brand-primary transition-colors">
+                <h2 className="text-lg md:text-xl font-black text-brand-charcoal mb-1 uppercase tracking-tight group-hover:text-brand-primary transition-colors">
                   {service.name}
                 </h2>
                 <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 mb-4 group-hover:text-gray-600 transition-colors line-clamp-2">
@@ -133,44 +142,223 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
           ))}
         </div>
 
-        {/* How to Use Button */}
+        {/* Action Buttons */}
         <div className="mt-16 text-center">
-          <button
-            onClick={() => setShowGuide(true)}
-            className="inline-flex items-center gap-3 px-8 py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-full text-lg font-semibold shadow-lg shadow-brand-primary/10 hover:bg-brand-primary hover:text-white transition-all duration-300 transform hover:scale-105 active:scale-95"
-          >
-            <span className="text-2xl">📖</span>
-            How to Use
-          </button>
-          <p className="text-gray-400 text-sm mt-3">New here? Tap to learn how Daplash Delivery works</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 max-w-4xl mx-auto">
+            {/* How to Use Button */}
+            <div className="flex flex-col items-center w-full sm:w-auto">
+              <button
+                onClick={() => setShowGuide(true)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-full text-lg font-semibold shadow-lg shadow-brand-primary/10 hover:bg-brand-primary hover:text-white transition-all duration-300 transform hover:scale-105 active:scale-95"
+              >
+                <span className="text-2xl">📖</span>
+                How to Use
+              </button>
+              <p className="text-gray-400 text-xs sm:text-sm mt-3 font-medium">New here? Learn how Daplash works</p>
+            </div>
+
+            {/* Be Our Partner Button */}
+            <div className="flex flex-col items-center w-full sm:w-auto">
+              <button
+                onClick={() => setShowPartnerModal(true)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-brand-accent border-2 border-brand-accent text-brand-charcoal rounded-full text-lg font-bold shadow-lg shadow-brand-accent/20 hover:bg-brand-charcoal hover:text-brand-accent hover:border-brand-charcoal transition-all duration-300 transform hover:scale-105 active:scale-95"
+              >
+                <span className="text-2xl">🤝</span>
+                Be Our Partner
+              </button>
+              <p className="text-brand-primary text-xs sm:text-sm font-black mt-3 italic">
+                Libre po ang partnership! Walang bayad, no hidden fees.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       <Hero />
       <FAQ />
 
+      {/* ═══════════ PARTNERSHIP MODAL ═══════════ */}
+      {showPartnerModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPartnerModal(false)} />
+          <div className="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300">
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 flex items-center justify-between z-20">
+              <div>
+                <h2 className="text-2xl font-brand font-bold text-brand-charcoal flex items-center gap-2">🤝 Partner with Us</h2>
+                <p className="text-sm text-green-600 font-bold">100% FREE! No hidden fees.</p>
+              </div>
+              <button onClick={() => setShowPartnerModal(false)} className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600" aria-label="Close partnership modal">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-8">
+              {/* Info Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-brand-primary/5 p-4 rounded-2xl border border-brand-primary/10">
+                  <h3 className="font-bold text-brand-primary flex items-center gap-2 mb-2 italic">📦 Delivery Arrangement</h3>
+                  <ul className="text-xs text-gray-600 space-y-1.5 list-disc pl-4 font-medium">
+                    <li>Kami ang bahala sa pickup at delivery ng orders.</li>
+                    <li>Customer-based ang delivery fee (si customer ang magbabayad, unless merchant wants to shoulder it).</li>
+                  </ul>
+                </div>
+                <div className="bg-brand-accent/10 p-4 rounded-2xl border border-brand-accent/20">
+                  <h3 className="font-bold text-brand-charcoal flex items-center gap-2 mb-2 italic">📣 Marketing Support</h3>
+                  <ul className="text-xs text-gray-600 space-y-1.5 list-disc pl-4 font-medium">
+                    <li>Pwede naming i-feature ang negosyo ninyo sa FB page namin.</li>
+                    <li>Pwede kayong magpadala ng promo or discount para mas ma-promote.</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Form Section */}
+              <div className="space-y-4 pt-4 border-t border-dashed border-gray-200">
+                <h3 className="text-lg font-black text-brand-charcoal uppercase tracking-wider text-center">Merchant Details</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Business Name</label>
+                    <input
+                      type="text"
+                      placeholder="Enter Business Name"
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all text-sm font-medium"
+                      value={partnerData.businessName}
+                      onChange={(e) => setPartnerData({ ...partnerData, businessName: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Contact Person & Number</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Juan Dela Cruz - 09123456789"
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all text-sm font-medium"
+                      value={partnerData.contactPerson}
+                      onChange={(e) => setPartnerData({ ...partnerData, contactPerson: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Business Address / Pickup Location</label>
+                  <input
+                    type="text"
+                    placeholder="Brgy. Concepcion Pequena, Naga City"
+                    className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all text-sm font-medium"
+                    value={partnerData.businessAddress}
+                    onChange={(e) => setPartnerData({ ...partnerData, businessAddress: e.target.value })}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Operating Hours</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 8:00 AM - 9:00 PM"
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all text-sm font-medium"
+                      value={partnerData.operatingHours}
+                      onChange={(e) => setPartnerData({ ...partnerData, operatingHours: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Preferred Mode of Payment</label>
+                    <select
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all text-sm font-medium appearance-none"
+                      value={partnerData.paymentMode}
+                      onChange={(e) => setPartnerData({ ...partnerData, paymentMode: e.target.value })}
+                    >
+                      <option value="COD & GCash">COD & GCash (Recommended)</option>
+                      <option value="COD Only">COD Only</option>
+                      <option value="GCash Only">GCash Only</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Menu or Product List (Link)</label>
+                  <input
+                    type="text"
+                    placeholder="Google Drive, Facebook Menu, or Website Link"
+                    className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all text-sm font-medium"
+                    value={partnerData.menuLink}
+                    onChange={(e) => setPartnerData({ ...partnerData, menuLink: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Terms Section */}
+              <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                <h3 className="font-black text-brand-charcoal flex items-center gap-2 mb-3 text-sm uppercase tracking-widest italic">📌 Terms & Conditions</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand-primary"></div>
+                    No exclusive lock-in.
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand-primary"></div>
+                    Walang kontrata — trust-based.
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand-primary"></div>
+                    Open sa feedback and adjustments.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-5">
+              <button
+                onClick={() => {
+                  const message = `Mga Kailangan mula sa Merchant:
+
+Business Name: ${partnerData.businessName}
+Business Address / Pickup Location: ${partnerData.businessAddress}
+Contact Person & Number: ${partnerData.contactPerson}
+Operating Hours: ${partnerData.operatingHours}
+Menu or Product List: ${partnerData.menuLink}
+Preferred Mode of Payment: ${partnerData.paymentMode}
+
+Delivery Arrangement:
+Kami ang bahala sa pickup at delivery ng orders.
+Customer-based ang delivery fee (si customer ang magbabayad, unless merchant wants to shoulder it).
+
+📣 Marketing Support:
+Pwede naming i-feature ang negosyo ninyo sa FB page namin.
+Pwede kayong magpadala ng promo or discount para mas ma-promote.
+
+📌 Terms:
+No exclusive lock-in.
+Walang kontrata — trust-based partnership.
+Open sa feedback and adjustments.`;
+
+                  const encodedMessage = encodeURIComponent(message);
+                  window.open(`https://m.me/100064173395989?text=${encodedMessage}`, '_blank');
+                  setShowPartnerModal(false);
+                }}
+                disabled={!partnerData.businessName || !partnerData.contactPerson}
+                className="w-full py-4 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-green-700 transition-all active:scale-[0.98] transform shadow-xl shadow-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl flex items-center justify-center gap-3 uppercase tracking-widest"
+              >
+                Submit Inquiry via Messenger 🚀
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ═══════════ HOW TO USE MODAL ═══════════ */}
       {showGuide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setShowGuide(false)}
-          />
-
-          {/* Modal */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowGuide(false)} />
           <div className="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto animate-in zoom-in-95 duration-300">
             {/* Header */}
-            <div className="sticky top-0 bg-white rounded-t-3xl border-b border-gray-100 px-6 py-5 flex items-center justify-between z-10">
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 flex items-center justify-between z-10">
               <div>
-                <h2 className="text-2xl font-brand font-bold text-brand-charcoal">📖 How to Use</h2>
+                <h2 className="text-xl font-brand font-bold text-brand-charcoal">📖 How to Use</h2>
                 <p className="text-sm text-gray-500 mt-0.5">Daplash Delivery in 6 simple steps</p>
               </div>
-              <button
-                onClick={() => setShowGuide(false)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
-                aria-label="Close guide"
-              >
+              <button onClick={() => setShowGuide(false)} className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600" aria-label="Close guide">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -191,7 +379,7 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
             </div>
 
             {/* Footer */}
-            <div className="sticky bottom-0 bg-white rounded-b-3xl border-t border-gray-100 px-6 py-4">
+            <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4">
               <button
                 onClick={() => setShowGuide(false)}
                 className="w-full py-3 bg-brand-primary text-white rounded-xl font-semibold text-lg hover:bg-green-700 transition-colors active:scale-[0.98] transform shadow-lg shadow-brand-primary/20"

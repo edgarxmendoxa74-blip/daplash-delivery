@@ -119,7 +119,7 @@ const Menu = ({ onOrder, onOpenManualOrder, storeId, onBackToStores }) => {
                 </div>
 
                 {/* Menu Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                     <AnimatePresence mode="popLayout">
                         {filteredItems.map((item, index) => (
                             <motion.div
@@ -129,34 +129,34 @@ const Menu = ({ onOrder, onOpenManualOrder, storeId, onBackToStores }) => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.4 }}
-                                className="group bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden hover:shadow-2xl hover:shadow-green-primary/10 transition-all flex flex-col"
+                                className="group bg-white rounded-2xl md:rounded-[2.5rem] border border-gray-100 overflow-hidden hover:shadow-2xl hover:shadow-green-primary/10 transition-all flex flex-col"
                             >
-                                <div className="h-64 relative overflow-hidden">
+                                <div className="h-40 md:h-64 relative overflow-hidden">
                                     <img
                                         src={item.image_url}
                                         alt={item.name}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                     />
-                                    <div className="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-green-primary">
+                                    <div className="absolute top-4 md:top-6 left-4 md:left-6 px-3 md:px-4 py-1 md:py-1.5 bg-white/90 backdrop-blur-md rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest text-green-primary">
                                         {item.category}
                                     </div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
-                                <div className="p-8 flex flex-col flex-1">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h3 className="text-xl font-black text-brand-charcoal leading-tight tracking-tight uppercase group-hover:text-green-primary transition-colors">{item.name}</h3>
-                                        <span className="text-xl font-black text-green-primary tracking-tighter self-start">₱{item.price}</span>
+                                <div className="p-4 md:p-8 flex flex-col flex-1">
+                                    <div className="flex flex-col mb-2">
+                                        <h3 className="text-sm md:text-xl font-black text-brand-charcoal leading-tight tracking-tight uppercase group-hover:text-green-primary transition-colors line-clamp-1">{item.name}</h3>
+                                        <span className="text-lg md:text-xl font-black text-green-primary tracking-tighter">₱{item.price}</span>
                                     </div>
-                                    <p className="text-gray-500 text-sm font-medium line-clamp-2 mb-8 leading-relaxed italic border-l-2 border-brand-accent/50 pl-3">
+                                    <p className="text-gray-500 text-[10px] md:text-sm font-medium line-clamp-2 mb-4 md:mb-8 leading-relaxed italic border-l-2 border-brand-accent/50 pl-2 md:pl-3">
                                         "{item.description || 'Our chef\'s special creation.'}"
                                     </p>
                                     <button
                                         onClick={() => onOrder(item)}
-                                        className="mt-auto w-full py-4 bg-green-primary text-white font-black rounded-2xl flex items-center justify-center space-x-3 hover:bg-green-dark transition-all transform hover:-translate-y-1 shadow-lg shadow-green-primary/30 group-hover:shadow-green-dark/20"
+                                        className="mt-auto w-full py-2.5 md:py-4 bg-green-primary text-white font-black rounded-xl md:rounded-2xl flex items-center justify-center space-x-2 md:space-x-3 hover:bg-green-dark transition-all transform hover:-translate-y-1 shadow-lg shadow-green-primary/30 group-hover:shadow-green-dark/20"
                                     >
-                                        <ShoppingCart size={20} />
-                                        <span className="uppercase text-sm tracking-widest">Add to Order</span>
-                                        <Zap size={14} className="fill-current text-brand-accent" />
+                                        <ShoppingCart size={16} />
+                                        <span className="uppercase text-[10px] md:text-sm tracking-widest">Order</span>
+                                        <Zap size={12} className="hidden sm:inline fill-current text-brand-accent" />
                                     </button>
                                 </div>
                             </motion.div>

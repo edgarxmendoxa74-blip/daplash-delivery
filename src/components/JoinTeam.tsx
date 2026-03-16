@@ -23,7 +23,7 @@ const JoinTeam: React.FC<JoinTeamProps> = ({ onBack }) => {
     };
 
     const generateMessageText = () => {
-        return `Hi One Click Delivery,
+        return `Hi Daplash Delivery,
 
 I would like to apply for the Rider position.
 
@@ -116,7 +116,7 @@ ${formData.aboutMe}`;
                                 <div className="space-y-6">
                                     <h3 className="text-2xl font-black uppercase text-green-primary tracking-wide">About the Role</h3>
                                     <p className="text-gray-300 leading-relaxed text-lg font-medium">
-                                        Join our team as a Rider and be the backbone of One Click Delivery. You'll be responsible for delivering orders quickly and safely across Naga City. We're looking for reliable, professional riders who take pride in their work and are committed to customer satisfaction.
+                                        Join our team as a Rider and be the backbone of Daplash Delivery. You'll be responsible for delivering orders quickly and safely across Naga City. We're looking for reliable, professional riders who take pride in their work and are committed to customer satisfaction.
                                     </p>
                                 </div>
                                 <div className="space-y-6">

@@ -20,12 +20,12 @@ const Hero = () => {
                         <span className="text-xs sm:text-sm font-bold text-brand-charcoal uppercase tracking-wider">Open for Orders in Naga City</span>
                     </div>
 
-                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-brand-charcoal leading-[0.9] mb-4 tracking-tighter uppercase">
+                    <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-brand-charcoal leading-[0.9] mb-4 tracking-tighter uppercase">
                         WE DELIVER <br />
                         <span className="text-green-primary">HAPPINESS.</span>
                     </h1>
 
-                    <p className="text-base sm:text-xl text-gray-600 mb-8 sm:mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                    <p className="text-sm sm:text-lg text-gray-600 mb-8 sm:mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
                         Your satisfaction is our priority. Fastest and most reliable delivery service in Naga City.
                     </p>
 
@@ -39,7 +39,7 @@ const Hero = () => {
                             ))}
                         </div>
                         <div className="text-center sm:text-left">
-                            <p className="text-brand-charcoal font-extrabold text-sm sm:text-lg">2,300+ Happy Clients</p>
+                            <p className="text-brand-charcoal font-extrabold text-xs sm:text-base">2,300+ Happy Clients</p>
                             <div className="flex justify-center sm:justify-start text-brand-accent text-[10px] sm:text-sm">
                                 {"★★★★★".split("").map((s, i) => <span key={i}>{s}</span>)}
                             </div>
@@ -74,7 +74,7 @@ const Hero = () => {
                             </div>
                             <div>
                                 <p className="text-[8px] sm:text-xs text-brand-secondary font-bold uppercase tracking-[0.15em]">Fast Delivery</p>
-                                <p className="text-xs sm:text-lg text-brand-charcoal font-black tracking-tight">20-30 MIN</p>
+                                <p className="text-xs sm:text-lg text-brand-charcoal font-black tracking-tight">20 - 30 minutes</p>
                             </div>
                         </motion.div>
 

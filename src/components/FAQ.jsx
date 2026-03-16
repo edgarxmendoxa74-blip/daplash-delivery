@@ -10,7 +10,7 @@ const fallbackFaqs = [
     },
     {
         q: "What are your operating hours?",
-        a: "We currently operate from 8:00 AM to 10:00 PM daily. However, special delivery arrangements can be made via our Facebook Messenger."
+        a: "We currently operate from 8am - 12mn daily. However, special delivery arrangements can be made via our Facebook Messenger."
     },
     {
         q: "Do you deliver outside Naga City?",
@@ -18,7 +18,7 @@ const fallbackFaqs = [
     },
     {
         q: "How do I pay for the delivery?",
-        a: "We primary accept Cash on Delivery (COD). We are also working on integrating digital payment options like GCash soon."
+        a: "We primarily accept Cash on Delivery (COD). We are also working on integrating digital payment options like GCash soon."
     }
 ];
 

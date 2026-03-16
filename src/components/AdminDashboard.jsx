@@ -23,30 +23,36 @@ import {
     Eye,
     RefreshCw,
     Store,
-    Shield
+    Zap,
+    Utensils,
+    Settings,
+    Globe,
+    Mail
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ImageUpload from './ImageUpload';
 
 const AdminDashboard = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('menu');
+    const [activeTab, setActiveTab] = useState('stores');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
 
     // Data states
-    const [menuItems, setMenuItems] = useState([]);
     const [faqs, setFaqs] = useState([]);
     const [bookings, setBookings] = useState([]);
     const [foodOrders, setFoodOrders] = useState([]);
     const [manualOrders, setManualOrders] = useState([]);
     const [pasakayBookings, setPasakayBookings] = useState([]);
     const [stores, setStores] = useState([]);
+    const [requests, setRequests] = useState([]);
+    const [siteSettings, setSiteSettings] = useState([]);
 
     // Edit Modal states
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
-    const [itemType, setItemType] = useState('menu'); // 'menu' or 'faq'
+    const [itemType, setItemType] = useState('stores'); // 'stores' or 'faq'
 
     // Booking detail modal
     const [selectedBooking, setSelectedBooking] = useState(null);
@@ -68,21 +74,23 @@ const AdminDashboard = () => {
     }, [navigate]);
 
     const fetchData = async () => {
-        const { data: menuData } = await supabase.from('menu_items').select('*').order('order_index');
         const { data: faqsData } = await supabase.from('faqs').select('*').order('order_index');
         const { data: bookingsData } = await supabase.from('padala_bookings').select('*').order('created_at', { ascending: false });
         const { data: foodData } = await supabase.from('food_orders').select('*').order('created_at', { ascending: false });
         const { data: manualData } = await supabase.from('manual_orders').select('*').order('created_at', { ascending: false });
         const { data: pasakayData } = await supabase.from('pasakay_bookings').select('*').order('created_at', { ascending: false });
         const { data: storesData } = await supabase.from('stores').select('*').order('order_index');
+        const { data: requestsData } = await supabase.from('requests').select('*').order('created_at', { ascending: false });
+        const { data: settingsData } = await supabase.from('site_settings').select('*').order('id');
 
-        setMenuItems(menuData || []);
         setFaqs(faqsData || []);
         setBookings(bookingsData || []);
         setFoodOrders(foodData || []);
         setManualOrders(manualData || []);
         setPasakayBookings(pasakayData || []);
         setStores(storesData || []);
+        setRequests(requestsData || []);
+        setSiteSettings(settingsData || []);
     };
 
     const handleLogout = async () => {
@@ -127,9 +135,9 @@ const AdminDashboard = () => {
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case 'pending': return 'bg-yellow-100 text-yellow-700';
-            case 'confirmed': return 'bg-blue-100 text-blue-700';
-            case 'in_transit': case 'in transit': return 'bg-purple-100 text-purple-700';
-            case 'completed': case 'delivered': return 'bg-green-100 text-green-700';
+            case 'confirmed': case 'resolved': return 'bg-blue-100 text-blue-700';
+            case 'in_transit': case 'in transit': case 'in_progress': return 'bg-purple-100 text-purple-700';
+            case 'completed': case 'delivered': case 'closed': return 'bg-green-100 text-green-700';
             case 'cancelled': return 'bg-red-100 text-red-700';
             default: return 'bg-gray-100 text-gray-700';
         }
@@ -155,14 +163,15 @@ const AdminDashboard = () => {
     // Get header title based on active tab
     const getHeaderTitle = () => {
         switch (activeTab) {
-            case 'menu': return 'Manage Food Menu';
+            case 'menu': return 'Manage Product Menu';
             case 'faqs': return 'Manage FAQs';
             case 'bookings': return 'Pabili & Padala Bookings';
-            case 'food_orders': return 'Food Orders';
+            case 'food_orders': return 'Product Orders';
             case 'manual_orders': return 'Manual Orders';
             case 'pasakay': return 'Pasakay Bookings';
             case 'stores': return 'Stores Management';
-            case 'security': return 'Account Security';
+            case 'requests': return 'Support Requests';
+            case 'settings': return 'Site Settings';
             default: return 'Dashboard';
         }
     };
@@ -188,14 +197,14 @@ const AdminDashboard = () => {
                 </div>
 
                 <nav className="flex-1 space-y-2">
-                    <SidebarLink icon={<UtensilsCrossed size={20} />} label="Food Menu" active={activeTab === 'menu'} onClick={() => setActiveTab('menu')} />
                     <SidebarLink icon={<Store size={20} />} label="Stores" active={activeTab === 'stores'} onClick={() => setActiveTab('stores')} />
-                    <SidebarLink icon={<ShoppingCart size={20} />} label="Food Orders" active={activeTab === 'food_orders'} onClick={() => setActiveTab('food_orders')} />
+                    <SidebarLink icon={<ShoppingCart size={20} />} label="Product Orders" active={activeTab === 'food_orders'} onClick={() => setActiveTab('food_orders')} />
                     <SidebarLink icon={<Plus size={20} />} label="Manual Orders" active={activeTab === 'manual_orders'} onClick={() => setActiveTab('manual_orders')} />
                     <SidebarLink icon={<ClipboardList size={20} />} label="Pabili / Padala" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} />
                     <SidebarLink icon={<Zap size={20} />} label="Pasakay" active={activeTab === 'pasakay'} onClick={() => setActiveTab('pasakay')} />
                     <SidebarLink icon={<MessageSquare size={20} />} label="FAQs" active={activeTab === 'faqs'} onClick={() => setActiveTab('faqs')} />
-                    <SidebarLink icon={<Shield size={20} />} label="Security" active={activeTab === 'security'} onClick={() => setActiveTab('security')} />
+                    <SidebarLink icon={<Mail size={20} />} label="Requests" active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} />
+                    <SidebarLink icon={<Settings size={20} />} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
                 </nav>
 
                 <div className="mt-auto pt-8 border-t border-gray-100">
@@ -217,14 +226,14 @@ const AdminDashboard = () => {
                                 <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-gray-400"><X size={24} /></button>
                             </div>
                             <nav className="space-y-2 mb-auto">
-                                <SidebarLink icon={<UtensilsCrossed size={20} />} label="Menu" active={activeTab === 'menu'} onClick={() => { setActiveTab('menu'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<Store size={20} />} label="Stores" active={activeTab === 'stores'} onClick={() => { setActiveTab('stores'); setMobileMenuOpen(false); }} />
-                                <SidebarLink icon={<ShoppingCart size={20} />} label="Food Orders" active={activeTab === 'food_orders'} onClick={() => { setActiveTab('food_orders'); setMobileMenuOpen(false); }} />
+                                <SidebarLink icon={<ShoppingCart size={20} />} label="Product Orders" active={activeTab === 'food_orders'} onClick={() => { setActiveTab('food_orders'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<Plus size={20} />} label="Manual Orders" active={activeTab === 'manual_orders'} onClick={() => { setActiveTab('manual_orders'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<ClipboardList size={20} />} label="Pabili / Padala" active={activeTab === 'bookings'} onClick={() => { setActiveTab('bookings'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<Zap size={20} />} label="Pasakay" active={activeTab === 'pasakay'} onClick={() => { setActiveTab('pasakay'); setMobileMenuOpen(false); }} />
                                 <SidebarLink icon={<MessageSquare size={20} />} label="FAQs" active={activeTab === 'faqs'} onClick={() => { setActiveTab('faqs'); setMobileMenuOpen(false); }} />
-                                <SidebarLink icon={<Shield size={20} />} label="Security" active={activeTab === 'security'} onClick={() => { setActiveTab('security'); setMobileMenuOpen(false); }} />
+                                <SidebarLink icon={<Mail size={20} />} label="Requests" active={activeTab === 'requests'} onClick={() => { setActiveTab('requests'); setMobileMenuOpen(false); }} />
+                                <SidebarLink icon={<Settings size={20} />} label="Settings" active={activeTab === 'settings'} onClick={() => { setActiveTab('settings'); setMobileMenuOpen(false); }} />
                             </nav>
                             <button onClick={handleLogout} className="mt-10 py-4 bg-red-50 text-red-600 font-bold rounded-2xl flex items-center justify-center space-x-3">
                                 <LogOut size={20} /> <span>LOGOUT</span>
@@ -242,48 +251,32 @@ const AdminDashboard = () => {
                         <h2 className="text-xl font-black text-brand-charcoal uppercase">{getHeaderTitle()}</h2>
                     </div>
                     <div className="flex items-center space-x-3">
-                        {(activeTab === 'bookings' || activeTab === 'food_orders' || activeTab === 'manual_orders' || activeTab === 'pasakay' || activeTab === 'stores' || activeTab === 'menu') && (
+                        {(activeTab === 'bookings' || activeTab === 'food_orders' || activeTab === 'manual_orders' || activeTab === 'pasakay' || activeTab === 'stores') && (
                             <button onClick={fetchData} className="p-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-colors" title="Refresh">
                                 <RefreshCw size={18} />
                             </button>
                         )}
-                        {(activeTab === 'menu' || activeTab === 'faqs' || activeTab === 'stores') && (
+                        {(activeTab === 'faqs' || activeTab === 'stores') && (
                             <button
                                 onClick={() => {
                                     setItemType(activeTab);
-                                    if (activeTab === 'menu') {
-                                        setEditingItem({ name: '', description: '', price: 0, category: 'Main Course', image_url: '', order_index: menuItems.length, store_id: stores[0]?.id });
-                                    } else if (activeTab === 'faqs') {
+                                    if (activeTab === 'faqs') {
                                         setEditingItem({ question: '', answer: '', order_index: faqs.length });
                                     } else if (activeTab === 'stores') {
-                                        setEditingItem({ name: '', description: '', image_url: '', location: '', contact: '', is_active: true, order_index: stores.length });
+                                        setEditingItem({ name: '', description: '', image_url: '', menu_image_url: '', location: '', contact: '', is_active: true, order_index: stores.length });
                                     }
                                     setIsEditModalOpen(true);
                                 }}
                                 className="px-6 py-3 bg-brand-charcoal text-white font-black rounded-xl text-sm flex items-center space-x-2 hover:bg-brand-primary transition-colors"
                             >
                                 <Plus size={18} />
-                                <span>NEW {activeTab === 'menu' ? 'MENU ITEM' : activeTab === 'faqs' ? 'FAQ' : 'STORE'}</span>
+                                <span>NEW {activeTab === 'faqs' ? 'FAQ' : 'STORE'}</span>
                             </button>
                         )}
                     </div>
                 </header>
 
                 <div className="p-6 lg:p-12">
-                    {/* ═══════════ FOOD MENU TAB ═══════════ */}
-                    {activeTab === 'menu' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                            {menuItems.map(item => (
-                                <ItemCard
-                                    key={item.id}
-                                    title={item.name}
-                                    description={`${item.category} • ₱${item.price}`}
-                                    onEdit={() => { setItemType('menu'); setEditingItem(item); setIsEditModalOpen(true); }}
-                                    onDelete={() => handleDelete(item.id, 'menu_items')}
-                                />
-                            ))}
-                        </div>
-                    )}
 
                     {/* ═══════════ FAQS TAB ═══════════ */}
                     {activeTab === 'faqs' && (
@@ -651,6 +644,99 @@ const AdminDashboard = () => {
                         </div>
                     )}
 
+                    {/* ═══════════ SUPPORT REQUESTS TAB ═══════════ */}
+                    {activeTab === 'requests' && (
+                        <div className="space-y-4 max-w-4xl">
+                            {requests.length === 0 ? (
+                                <div className="text-center py-24">
+                                    <Mail size={48} className="mx-auto text-gray-200 mb-4" />
+                                    <h4 className="text-xl font-bold text-gray-400">No support requests yet</h4>
+                                    <p className="text-gray-400 text-sm">Requests from the contact form will appear here.</p>
+                                </div>
+                            ) : (
+                                requests.map(req => (
+                                    <div key={req.id} className="bg-white p-6 rounded-2xl border border-gray-100 flex flex-col sm:flex-row justify-between items-start group gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-black uppercase tracking-widest">
+                                                    {req.request_type || 'General'}
+                                                </span>
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${getStatusColor(req.status)}`}>
+                                                    {req.status || 'pending'}
+                                                </span>
+                                            </div>
+                                            <h4 className="font-bold text-brand-charcoal leading-tight">{req.subject}</h4>
+                                            <p className="text-gray-500 text-sm mt-1 whitespace-pre-wrap">{req.description}</p>
+                                            <div className="mt-4 flex flex-wrap gap-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                                                <span className="flex items-center gap-1.5"><User size={12} /> {req.customer_name}</span>
+                                                <span className="flex items-center gap-1.5"><Phone size={12} /> {req.contact_number}</span>
+                                                {req.address && <span className="flex items-center gap-1.5"><MapPin size={12} /> {req.address}</span>}
+                                                <span>{new Date(req.created_at).toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <select
+                                                value={req.status || 'pending'}
+                                                onChange={(e) => handleUpdateBookingStatus(req.id, 'requests', e.target.value)}
+                                                className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-bold bg-gray-50 outline-none"
+                                            >
+                                                <option value="pending">Pending</option>
+                                                <option value="in_progress">In Progress</option>
+                                                <option value="resolved">Resolved</option>
+                                                <option value="closed">Closed</option>
+                                            </select>
+                                            <button onClick={() => handleDelete(req.id, 'requests')} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
+
+                    {/* ═══════════ SITE SETTINGS TAB ═══════════ */}
+                    {activeTab === 'settings' && (
+                        <div className="max-w-4xl bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+                            <div className="p-8 border-b border-gray-50 bg-gray-50/50">
+                                <h3 className="text-lg font-black text-brand-charcoal uppercase tracking-tight">System Configuration</h3>
+                                <p className="text-sm text-gray-400">Global settings for the application. These changes take effect immediately.</p>
+                            </div>
+                            <div className="p-8">
+                                <div className="space-y-6">
+                                    {siteSettings.length === 0 ? (
+                                        <p className="text-center py-12 text-gray-400 italic">No settings found in the database.</p>
+                                    ) : (
+                                        <div className="grid grid-cols-1 gap-6">
+                                            {siteSettings.map(setting => (
+                                                <div key={setting.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-gray-50 rounded-2xl hover:bg-gray-50 transition-colors group">
+                                                    <div className="flex-1">
+                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{setting.id.replace(/_/g, ' ')}</p>
+                                                        <div className="flex items-center gap-3">
+                                                            <input
+                                                                type="text"
+                                                                defaultValue={setting.value}
+                                                                onBlur={async (e) => {
+                                                                    if (e.target.value !== setting.value) {
+                                                                        const { error } = await supabase.from('site_settings').update({ value: e.target.value }).eq('id', setting.id);
+                                                                        if (!error) fetchData();
+                                                                        else alert(error.message);
+                                                                    }
+                                                                }}
+                                                                className="w-full bg-transparent font-bold text-brand-charcoal outline-none border-b-2 border-transparent focus:border-brand-primary py-1 transition-all"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <span className="text-[10px] font-bold text-brand-primary uppercase tracking-tighter bg-blue-50 px-2 py-1 rounded">Auto-saves on blur</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* ═══════════ SECURITY TAB ═══════════ */}
                     {activeTab === 'security' && <SecurityTab />}
                 </div>
@@ -775,16 +861,19 @@ const AdminDashboard = () => {
                                                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Price (₱)</label>
                                                     <div className="relative">
                                                         <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                                        <input type="number" step="0.01" required value={editingItem.price} onChange={e => setEditingItem({ ...editingItem, price: parseFloat(e.target.value) })} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" />
+                                                        <input type="number" step="0.01" required value={editingItem.price} onChange={e => {
+                                                            const val = parseFloat(e.target.value);
+                                                            setEditingItem({ ...editingItem, price: val, base_price: val });
+                                                        }} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Image URL</label>
-                                                <div className="relative">
-                                                    <Image className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                                    <input value={editingItem.image_url} onChange={e => setEditingItem({ ...editingItem, image_url: e.target.value })} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" placeholder="https://..." />
-                                                </div>
+                                                <ImageUpload
+                                                    value={editingItem.image_url}
+                                                    onChange={url => setEditingItem({ ...editingItem, image_url: url })}
+                                                    label="Product Image"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Short Description</label>
@@ -809,11 +898,11 @@ const AdminDashboard = () => {
                                                     <input value={editingItem.contact} onChange={e => setEditingItem({ ...editingItem, contact: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" placeholder="e.g. 0912..." />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Image URL</label>
-                                                    <div className="relative">
-                                                        <Image className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                                        <input value={editingItem.image_url} onChange={e => setEditingItem({ ...editingItem, image_url: e.target.value })} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" placeholder="https://..." />
-                                                    </div>
+                                                    <ImageUpload
+                                                        value={editingItem.image_url}
+                                                        onChange={url => setEditingItem({ ...editingItem, image_url: url })}
+                                                        label="Store Logo / Cover"
+                                                    />
                                                 </div>
                                             </div>
                                             <div>
@@ -846,7 +935,7 @@ const AdminDashboard = () => {
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 };
 
@@ -870,108 +959,5 @@ const ItemCard = ({ title, description, onEdit, onDelete }) => (
         </div>
     </div>
 );
-
-const SecurityTab = () => {
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
-
-    const handlePasswordChange = async (e) => {
-        e.preventDefault();
-        if (newPassword !== confirmPassword) {
-            setMessage({ type: 'error', text: 'Passwords do not match!' });
-            return;
-        }
-
-        if (newPassword.length < 6) {
-            setMessage({ type: 'error', text: 'Password must be at least 6 characters!' });
-            return;
-        }
-
-        setLoading(true);
-        setMessage({ type: '', text: '' });
-
-        const { error } = await supabase.auth.updateUser({
-            password: newPassword
-        });
-
-        if (error) {
-            setMessage({ type: 'error', text: error.message });
-        } else {
-            setMessage({ type: 'success', text: 'Password updated successfully!' });
-            setNewPassword('');
-            setConfirmPassword('');
-        }
-        setLoading(false);
-    };
-
-    return (
-        <div className="max-w-2xl bg-white rounded-[2.5rem] border border-gray-100 p-10 shadow-sm">
-            <div className="flex items-center space-x-4 mb-8">
-                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-brand-primary">
-                    <Shield size={24} />
-                </div>
-                <div>
-                    <h3 className="text-xl font-black text-brand-charcoal uppercase tracking-tight">Update Access Key</h3>
-                    <p className="text-sm text-gray-500 font-medium">Change your administrator login password</p>
-                </div>
-            </div>
-
-            <form onSubmit={handlePasswordChange} className="space-y-6">
-                {message.text && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 border ${message.type === 'error' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-green-50 text-green-600 border-green-100'
-                            }`}
-                    >
-                        {message.type === 'error' ? <AlertCircle size={16} /> : <Check size={16} />}
-                        {message.text}
-                    </motion.div>
-                )}
-
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">New Access Key</label>
-                        <input
-                            type="password"
-                            required
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary transition-all"
-                            placeholder="Min. 6 characters"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Confirm Access Key</label>
-                        <input
-                            type="password"
-                            required
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary transition-all"
-                            placeholder="Repeat new access key"
-                        />
-                    </div>
-                </div>
-
-                <div className="pt-4">
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-5 bg-brand-charcoal text-white font-black rounded-2xl shadow-xl shadow-brand-charcoal/10 flex items-center justify-center space-x-3 hover:bg-brand-primary transition-all group disabled:opacity-50"
-                    >
-                        <Save size={20} />
-                        <span className="uppercase tracking-widest text-sm">{loading ? 'UPDATING...' : 'UPDATE PASSWORD'}</span>
-                    </button>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center mt-6">
-                        Changes take effect immediately. Keep your new key safe.
-                    </p>
-                </div>
-            </form>
-        </div>
-    );
-};
 
 export default AdminDashboard;

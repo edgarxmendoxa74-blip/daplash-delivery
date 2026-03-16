@@ -16,6 +16,7 @@ import BillPayment from './components/BillPayment';
 import CustomOrder from './components/CustomOrder';
 import JoinTeam from './components/JoinTeam';
 import { useParams } from 'react-router-dom';
+import StoreSelection from './components/StoreSelection';
 
 // Home Page: Select between Food, Pabili, and Padala
 function ServiceSelectionPage() {
@@ -53,32 +54,15 @@ function ServiceSelectionPage() {
 }
 
 // Food Service Page (Original Daplash Landing Page logic)
-const FoodService = ({ onOrder, onOpenManualOrder }) => {
+const FoodService = () => {
   const navigate = useNavigate();
-  const { storeId } = useParams();
-
-  if (storeId) {
-    return (
-      <div className="bg-white font-outfit min-h-screen">
-        <Header />
-        <main>
-          <Menu
-            onOrder={onOrder}
-            onOpenManualOrder={onOpenManualOrder}
-            storeId={storeId}
-            onBackToStores={() => navigate('/food')}
-          />
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white font-outfit min-h-screen">
       <Header />
       <main>
         <StoreSelection
-          onStoreSelect={(id) => navigate(`/food/${id}`)}
+          onStoreSelect={() => { }}
           onBack={() => navigate('/')}
         />
       </main>
@@ -217,8 +201,7 @@ function App() {
             <Route path="/" element={<ServiceSelectionPage />} />
 
             {/* The three services */}
-            <Route path="/food" element={<FoodService onOrder={handleOrder} onOpenManualOrder={() => setIsManualModalOpen(true)} />} />
-            <Route path="/food/:storeId" element={<FoodService onOrder={handleOrder} onOpenManualOrder={() => setIsManualModalOpen(true)} />} />
+            <Route path="/food" element={<FoodService />} />
             <Route path="/pabili" element={<PabiliService />} />
             <Route path="/padala" element={<PadalaService />} />
             <Route path="/pasakay" element={<PasakayService />} />
