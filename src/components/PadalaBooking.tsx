@@ -324,6 +324,13 @@ Please confirm this Pabili order. Thank you! 🛵`;
     }
 
     setIsSubmitting(true);
+
+    // 1. Prepare Message First (so it's ready even if DB fails)
+    const message = mode === 'simple' ? generatePabiliMessage() : generatePadalaMessage();
+    const encodedMessage = encodeURIComponent(message);
+    const messengerId = siteSettings?.messenger_id || '100064173395989';
+    const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
+
     try {
       if (mode === 'simple') {
         // ═══════════ PABILI SUBMISSION ═══════════
@@ -334,6 +341,10 @@ Please confirm this Pabili order. Thank you! 🛵`;
             store_address: store.store_address,
             items: store.items.filter(i => i.item_description.trim())
           }));
+
+        if (storeDetails.length === 0) {
+          throw new Error('Please add at least one item to order.');
+        }
 
         // Build item description from all stores
         const allItemsDescription = storeDetails.map(store =>
@@ -359,14 +370,7 @@ Please confirm this Pabili order. Thank you! 🛵`;
 
         if (error) throw error;
 
-        // Open Messenger
-        const message = generatePabiliMessage();
-        const encodedMessage = encodeURIComponent(message);
-        const messengerId = siteSettings?.messenger_id || '100064173395989';
-        const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
-        window.open(messengerUrl, '_blank');
-
-        // Reset form and show success
+        // Reset Pabili form
         setStoreOrders([{
           id: `store-${Date.now()}`,
           store_name: '',
@@ -381,8 +385,6 @@ Please confirm this Pabili order. Thank you! 🛵`;
           landmark: '',
           contact_number: '',
         });
-
-        setBookingSuccess(true);
 
       } else {
         // ═══════════ PADALA SUBMISSION ═══════════
@@ -413,14 +415,7 @@ Please confirm this Pabili order. Thank you! 🛵`;
 
         if (error) throw error;
 
-        // Open Messenger
-        const message = (mode as any) === 'simple' ? generatePabiliMessage() : generatePadalaMessage();
-        const encodedMessage = encodeURIComponent(message);
-        const messengerId = siteSettings?.messenger_id || '100064173395989';
-        const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
-        window.open(messengerUrl, '_blank');
-
-        // Reset form and show success
+        // Reset Padala form
         setPadalaData({
           customer_name: '',
           contact_number: '',
@@ -440,16 +435,31 @@ Please confirm this Pabili order. Thank you! 🛵`;
           receiver_name: '',
           receiver_contact: '',
         });
-
-        setBookingSuccess(true);
       }
 
+      // 2. Open Messenger and show success
+      window.open(messengerUrl, '_blank');
+      setBookingSuccess(true);
       setDistance(null);
       setDeliveryFee(65);
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Error submitting booking:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Please try again.';
-      alert(`Failed to submit booking: ${errorMessage}\n\nNote: If the error mentions 'relation "padala_bookings" does not exist', please make sure you have run the database migration.`);
+      let errorMessage = 'Please try again.';
+
+      if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || JSON.stringify(error);
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      // If DB fails, we still let user open Messenger but with a warning
+      const proceed = window.confirm(`Database error: ${errorMessage}\n\nWould you like to proceed and send your details via Messenger anyway? Your booking can still be processed manually.`);
+
+      if (proceed) {
+        window.open(messengerUrl, '_blank');
+        setBookingSuccess(true);
+      }
     } finally {
       setIsSubmitting(false);
     }
