@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, MapPin, User, Package, Phone, Copy, MessageSquare, Plus, Minus, Navigation } from 'lucide-react';
+import { ArrowLeft, MapPin, User, Package, Phone, Copy, MessageSquare, Plus, Minus, Navigation, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import MultiPointMapPicker from './MultiPointMapPicker';
@@ -392,6 +392,17 @@ Please confirm this delivery request.`;
                         </div>
                         <div className="bg-white p-4 rounded-xl border border-gray-100 font-mono text-sm whitespace-pre-wrap text-gray-600 shadow-inner">
                             {generateMessageText()}
+                        </div>
+                    </div>
+
+                    {/* Cancellation Policy */}
+                    <div className="mb-6 p-4 bg-orange-50 rounded-2xl border border-orange-100/50 flex items-start gap-3">
+                        <AlertCircle size={18} className="text-orange-500 shrink-0 mt-0.5" />
+                        <div>
+                            <p className="text-[10px] font-black text-orange-700 uppercase tracking-widest mb-1">Cancellation Policy</p>
+                            <p className="text-[11px] font-medium text-orange-600 leading-relaxed">
+                                A ₱40 fee applies if the rider has arrived at the pickup point. This compensates for the rider's travel and effort.
+                            </p>
                         </div>
                     </div>
 

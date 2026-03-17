@@ -266,9 +266,9 @@ const AdminDashboard = () => {
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0">
                 <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-6 lg:px-12 sticky top-0 z-[100]">
-                    <div className="flex items-center">
-                        <button onClick={() => setMobileMenuOpen(true)} className="p-2 lg:hidden mr-4"><Menu size={24} /></button>
-                        <h2 className="text-xl font-black text-brand-charcoal uppercase">{getHeaderTitle()}</h2>
+                    <div className="flex items-center min-w-0">
+                        <button onClick={() => setMobileMenuOpen(true)} className="p-2 lg:hidden mr-2 sm:mr-4 shrink-0"><Menu size={24} /></button>
+                        <h2 className="text-base sm:text-xl font-black text-brand-charcoal uppercase truncate">{getHeaderTitle()}</h2>
                     </div>
                     <div className="flex items-center space-x-3">
                         {(activeTab === 'bookings' || activeTab === 'food_orders' || activeTab === 'manual_orders' || activeTab === 'pasakay' || activeTab === 'stores') && (
@@ -287,9 +287,9 @@ const AdminDashboard = () => {
                                     }
                                     setIsEditModalOpen(true);
                                 }}
-                                className="px-6 py-3 bg-brand-charcoal text-white font-black rounded-xl text-sm flex items-center space-x-2 hover:bg-brand-primary transition-colors"
+                                className="px-4 sm:px-6 py-3 bg-brand-charcoal text-white font-black rounded-xl text-[10px] sm:text-sm flex items-center space-x-2 hover:bg-brand-primary transition-colors whitespace-nowrap"
                             >
-                                <Plus size={18} />
+                                <Plus size={18} className="shrink-0" />
                                 <span>NEW {activeTab === 'faqs' ? 'FAQ' : 'STORE'}</span>
                             </button>
                         )}
@@ -720,15 +720,15 @@ const AdminDashboard = () => {
                                 <h3 className="text-lg font-black text-brand-charcoal uppercase tracking-tight">System Configuration</h3>
                                 <p className="text-sm text-gray-400">Global settings for the application. These changes take effect immediately.</p>
                             </div>
-                            <div className="p-8">
-                                <div className="space-y-6">
+                            <div className="p-4 sm:p-8">
+                                <div className="space-y-4 sm:space-y-6">
                                     {siteSettings.length === 0 ? (
                                         <p className="text-center py-12 text-gray-400 italic">No settings found in the database.</p>
                                     ) : (
-                                        <div className="grid grid-cols-1 gap-6">
+                                        <div className="grid grid-cols-1 gap-4 sm:gap-6">
                                             {siteSettings.map(setting => (
                                                 <div key={setting.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-gray-50 rounded-2xl hover:bg-gray-50 transition-colors group">
-                                                    <div className="flex-1">
+                                                    <div className="flex-1 min-w-0">
                                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{setting.id.replace(/_/g, ' ')}</p>
                                                         <div className="flex items-center gap-3">
                                                             <input
@@ -741,12 +741,12 @@ const AdminDashboard = () => {
                                                                         else alert(error.message);
                                                                     }
                                                                 }}
-                                                                className="w-full bg-transparent font-bold text-brand-charcoal outline-none border-b-2 border-transparent focus:border-brand-primary py-1 transition-all"
+                                                                className="w-full bg-transparent font-bold text-brand-charcoal outline-none border-b-2 border-transparent focus:border-brand-primary py-1 transition-all text-sm sm:text-base"
                                                             />
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <span className="text-[10px] font-bold text-brand-primary uppercase tracking-tighter bg-blue-50 px-2 py-1 rounded">Auto-saves on blur</span>
+                                                        <span className="text-[10px] sm:text-[10px] font-bold text-brand-primary uppercase tracking-tighter bg-blue-50 px-2 py-1 rounded">Auto-saves on blur</span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -765,17 +765,17 @@ const AdminDashboard = () => {
             {/* ═══════════ BOOKING DETAIL MODAL ═══════════ */}
             <AnimatePresence>
                 {selectedBooking && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4">
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedBooking(null)} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] overflow-y-auto">
-                            <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+                            <div className="p-5 sm:p-8 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
                                 <div>
-                                    <h3 className="text-2xl font-black text-brand-charcoal uppercase">Booking Details</h3>
-                                    <p className="text-sm text-gray-400">{getBookingType(selectedBooking)} • {new Date(selectedBooking.created_at).toLocaleString()}</p>
+                                    <h3 className="text-lg sm:text-2xl font-black text-brand-charcoal uppercase">Booking Details</h3>
+                                    <p className="text-[10px] sm:text-sm text-gray-400">{getBookingType(selectedBooking)} • {new Date(selectedBooking.created_at).toLocaleString()}</p>
                                 </div>
                                 <button onClick={() => setSelectedBooking(null)} className="p-2 text-gray-400 hover:bg-gray-50 rounded-full"><X size={24} /></button>
                             </div>
-                            <div className="p-8 space-y-6">
+                            <div className="p-5 sm:p-8 space-y-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Customer Name</p>
@@ -845,11 +845,11 @@ const AdminDashboard = () => {
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsEditModalOpen(false)} className="absolute inset-0 bg-brand-charcoal/60 backdrop-blur-sm" />
                         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
                             <form onSubmit={handleSave}>
-                                <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0">
-                                    <h3 className="text-2xl font-black text-brand-charcoal uppercase">{editingItem.id ? 'Edit' : 'New'} {itemType}</h3>
+                                <div className="p-5 sm:p-8 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0">
+                                    <h3 className="text-lg sm:text-2xl font-black text-brand-charcoal uppercase">{editingItem.id ? 'Edit' : 'New'} {itemType}</h3>
                                     <button type="button" onClick={() => setIsEditModalOpen(false)} className="p-2 text-gray-400 hover:bg-gray-50 rounded-full"><X size={24} /></button>
                                 </div>
-                                <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+                                <div className="p-5 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
                                     {itemType === 'menu' ? (
                                         <>
                                             <div className="grid grid-cols-2 gap-4">
@@ -970,11 +970,11 @@ const AdminDashboard = () => {
                                         </>
                                     )}
                                 </div>
-                                <div className="p-8 bg-gray-50 flex justify-end space-x-4">
-                                    <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-8 py-4 font-bold text-gray-400 uppercase">Cancel</button>
-                                    <button type="submit" className="px-10 py-4 bg-brand-primary text-white font-black rounded-2xl shadow-lg shadow-blue-200 flex items-center space-x-3 hover:bg-brand-secondary transition-all">
-                                        <Save size={20} />
-                                        <span>SAVE CHANGES</span>
+                                <div className="p-5 sm:p-8 bg-gray-50 flex justify-end space-x-4">
+                                    <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 sm:px-8 py-4 font-bold text-gray-400 uppercase text-xs sm:text-sm">Cancel</button>
+                                    <button type="submit" className="px-6 sm:px-10 py-4 bg-brand-primary text-white font-black rounded-2xl shadow-lg shadow-blue-200 flex items-center space-x-3 hover:bg-brand-secondary transition-all text-sm">
+                                        <Save size={20} className="shrink-0" />
+                                        <span className="whitespace-nowrap">SAVE CHANGES</span>
                                     </button>
                                 </div>
                             </form>

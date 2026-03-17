@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, MapPin, Plus, Trash2, Navigation, Copy, Check, MessageSquare } from 'lucide-react';
+import { ArrowLeft, MapPin, Plus, Trash2, Navigation, Copy, Check, MessageSquare, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useGoogleMaps } from '../hooks/useGoogleMaps';
 import { useSiteSettings } from '../hooks/useSiteSettings';
@@ -1019,6 +1019,17 @@ Please confirm this Pabili order. Thank you! 🛵`;
           </div>
           <div className="bg-white p-4 rounded-xl border border-gray-100 font-mono text-xs whitespace-pre-wrap text-gray-600 shadow-inner overflow-x-auto min-h-[100px]">
             {generatePadalaMessage()}
+          </div>
+        </div>
+
+        {/* Cancellation Policy */}
+        <div className="mb-6 p-4 bg-orange-50 rounded-2xl border border-orange-100/50 flex items-start gap-3">
+          <AlertCircle size={18} className="text-orange-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-[10px] font-black text-orange-700 uppercase tracking-widest mb-1">Cancellation Policy</p>
+            <p className="text-[11px] font-medium text-orange-600 leading-relaxed">
+              A ₱40 fee applies if the rider has arrived at the pickup point. This compensates for the rider's travel and effort.
+            </p>
           </div>
         </div>
 

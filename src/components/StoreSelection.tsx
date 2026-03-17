@@ -339,11 +339,22 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                                         const messengerId = siteSettings?.messenger_id || '100064173395989';
                                         window.open(`https://m.me/${messengerId}?text=${encodedMessage}`, '_blank');
                                     }}
-                                    className="w-full py-5 bg-brand-primary text-white rounded-3xl font-black text-lg sm:text-xl uppercase tracking-widest shadow-xl shadow-brand-primary/20 hover:bg-green-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                    className="w-full py-5 bg-brand-primary text-white rounded-3xl font-black text-lg sm:text-xl uppercase tracking-widest shadow-xl shadow-brand-primary/20 hover:bg-green-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mb-4"
                                 >
                                     <span>📩</span>
                                     Send order thru Messenger
                                 </button>
+
+                                {/* Cancellation Policy */}
+                                <div className="mb-4 p-4 bg-orange-50 rounded-2xl border border-orange-100/50 flex items-start gap-3">
+                                    <AlertCircle size={18} className="text-orange-500 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="text-[10px] font-black text-orange-700 uppercase tracking-widest mb-1">Cancellation Policy</p>
+                                        <p className="text-[11px] font-medium text-orange-600 leading-relaxed">
+                                            A ₱40 fee applies if the rider has arrived at the pickup point. This compensates for the rider's travel and effort.
+                                        </p>
+                                    </div>
+                                </div>
                                 <button
                                     onClick={async () => {
                                         if (!orderForm.name || !orderForm.contact || !orderForm.address || !orderForm.orderDetails) {
