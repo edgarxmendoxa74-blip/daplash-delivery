@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ArrowLeft, MapPin, Plus, Trash2, Navigation, Copy, Check, MessageSquare, AlertCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import { useGoogleMaps } from '../hooks/useGoogleMaps';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import MultiPointMapPicker from './MultiPointMapPicker';
@@ -325,144 +324,56 @@ Please confirm this Pabili order. Thank you! 🛵`;
 
     setIsSubmitting(true);
 
-    // 1. Prepare Message First (so it's ready even if DB fails)
+    // 1. Prepare Message
     const message = mode === 'simple' ? generatePabiliMessage() : generatePadalaMessage();
     const encodedMessage = encodeURIComponent(message);
     const messengerId = siteSettings?.messenger_id || '100064173395989';
     const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
 
-    try {
-      if (mode === 'simple') {
-        // ═══════════ PABILI SUBMISSION ═══════════
-        const storeDetails = storeOrders
-          .filter(s => s.store_name.trim())
-          .map(store => ({
-            store_name: store.store_name,
-            store_address: store.store_address,
-            items: store.items.filter(i => i.item_description.trim())
-          }));
-
-        if (storeDetails.length === 0) {
-          throw new Error('Please add at least one item to order.');
-        }
-
-        // Build item description from all stores
-        const allItemsDescription = storeDetails.map(store =>
-          `[${store.store_name}${store.store_address ? ` - ${store.store_address}` : ''}]\n` +
-          store.items.map(i => `  • ${i.item_description} x${i.quantity}`).join('\n')
-        ).join('\n\n');
-
-        const { error } = await supabase
-          .from('padala_bookings')
-          .insert({
-            customer_name: customerData.receivers_name,
-            contact_number: customerData.contact_number,
-            pickup_address: storeDetails.map(s => `${s.store_name}: ${s.store_address}`).join(' | '),
-            delivery_address: customerData.address,
-            delivery_lat: customerData.pin_lat || null,
-            delivery_lng: customerData.pin_lng || null,
-            item_description: allItemsDescription,
-            delivery_fee: deliveryFee || null,
-            distance_km: distance || null,
-            notes: customerData.landmark ? `Landmark: ${customerData.landmark}` : null,
-            status: 'pending'
-          });
-
-        if (error) throw error;
-
-        // Reset Pabili form
-        setStoreOrders([{
-          id: `store-${Date.now()}`,
-          store_name: '',
-          store_address: '',
-          items: [{ id: `item-${Date.now()}`, item_description: '', quantity: 1 }]
-        }]);
-        setCustomerData({
-          receivers_name: '',
-          address: '',
-          pin_lat: '',
-          pin_lng: '',
-          landmark: '',
-          contact_number: '',
-        });
-
-      } else {
-        // ═══════════ PADALA SUBMISSION ═══════════
-        const { error } = await supabase
-          .from('padala_bookings')
-          .insert({
-            customer_name: padalaData.customer_name,
-            contact_number: padalaData.contact_number,
-            pickup_address: padalaData.pickup_address,
-            pickup_lat: padalaData.pickup_lat || null,
-            pickup_lng: padalaData.pickup_lng || null,
-            delivery_address: padalaData.delivery_address,
-            delivery_lat: padalaData.delivery_lat || null,
-            delivery_lng: padalaData.delivery_lng || null,
-            item_description: padalaData.item_description || null,
-            item_weight: padalaData.item_weight ? padalaData.item_weight : null,
-            item_value: padalaData.item_value ? parseFloat(padalaData.item_value) : null,
-            special_instructions: padalaData.special_instructions || null,
-            preferred_date: padalaData.preferred_date ? padalaData.preferred_date : null,
-            preferred_time: padalaData.preferred_time,
-            delivery_fee: deliveryFee || null,
-            distance_km: distance || null,
-            notes: padalaData.notes ? padalaData.notes : null,
-            receiver_name: padalaData.receiver_name || null,
-            receiver_contact: padalaData.receiver_contact || null,
-            status: 'pending'
-          });
-
-        if (error) throw error;
-
-        // Reset Padala form
-        setPadalaData({
-          customer_name: '',
-          contact_number: '',
-          pickup_address: '',
-          delivery_address: '',
-          item_description: '',
-          item_weight: '',
-          item_value: '',
-          special_instructions: '',
-          preferred_date: '',
-          preferred_time: 'Morning',
-          notes: '',
-          pickup_lat: '',
-          pickup_lng: '',
-          delivery_lat: '',
-          delivery_lng: '',
-          receiver_name: '',
-          receiver_contact: '',
-        });
-      }
-
-      // 2. Open Messenger and show success
-      window.open(messengerUrl, '_blank');
-      setBookingSuccess(true);
-      setDistance(null);
-      setDeliveryFee(65);
-
-    } catch (error: any) {
-      console.error('Error submitting booking:', error);
-      let errorMessage = 'Please try again.';
-
-      if (error && typeof error === 'object') {
-        errorMessage = error.message || error.details || JSON.stringify(error);
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      }
-
-      // If DB fails, we still let user open Messenger but with a warning
-      const proceed = window.confirm(`Database error: ${errorMessage}\n\nWould you like to proceed and send your details via Messenger anyway? Your booking can still be processed manually.`);
-
-      if (proceed) {
-        window.open(messengerUrl, '_blank');
-        setBookingSuccess(true);
-      }
-    } finally {
-      setIsSubmitting(false);
+    // 2. Clear Forms
+    if (mode === 'simple') {
+      setStoreOrders([{
+        id: `store-${Date.now()}`,
+        store_name: '',
+        store_address: '',
+        items: [{ id: `item-${Date.now()}`, item_description: '', quantity: 1 }]
+      }]);
+      setCustomerData({
+        receivers_name: '',
+        address: '',
+        pin_lat: '',
+        pin_lng: '',
+        landmark: '',
+        contact_number: '',
+      });
+    } else {
+      setPadalaData({
+        customer_name: '',
+        contact_number: '',
+        pickup_address: '',
+        delivery_address: '',
+        item_description: '',
+        item_weight: '',
+        item_value: '',
+        special_instructions: '',
+        preferred_date: '',
+        preferred_time: 'Morning',
+        notes: '',
+        pickup_lat: '',
+        pickup_lng: '',
+        delivery_lat: '',
+        delivery_lng: '',
+        receiver_name: '',
+        receiver_contact: '',
+      });
     }
+
+    // 3. Open Messenger and show success
+    window.open(messengerUrl, '_blank');
+    setBookingSuccess(true);
+    setDistance(null);
+    setDeliveryFee(65);
+    setIsSubmitting(false);
   };
 
   // ═══════════════════════════════════════

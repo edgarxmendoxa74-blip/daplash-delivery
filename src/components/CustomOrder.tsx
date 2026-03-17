@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ArrowLeft, User, Phone, MapPin, Navigation, Plus, Trash2, Copy, MessageSquare, ShoppingBag, AlertCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import AddressMapPicker from './AddressMapPicker';
 
@@ -132,41 +131,34 @@ Please confirm availability and final pricing.`;
         });
     };
 
-    const openMessenger = async () => {
+    const openMessenger = () => {
         if (!formData.customerName || !formData.contactNumber || !formData.deliveryAddress || items.some(i => !i.description)) {
             alert('Please fill in all required fields and item descriptions');
             return;
         }
-
         setIsSubmitting(true);
-        try {
-            // Save to common bookings or custom table if exists
-            const { error } = await supabase
-                .from('padala_bookings') // Reusing padala_bookings for now as it accepts JSON-like item descriptions
-                .insert({
-                    customer_name: formData.customerName,
-                    contact_number: formData.contactNumber,
-                    delivery_address: formData.deliveryAddress,
-                    delivery_lat: formData.lat || null,
-                    delivery_lng: formData.lng || null,
-                    pickup_address: 'Custom Order',
-                    item_description: generateMessageText(),
-                    status: 'pending'
-                });
+        const message = generateMessageText();
+        const encodedMessage = encodeURIComponent(message);
+        const messengerId = siteSettings?.messenger_id || '100064173395989';
+        const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
 
-            if (error) throw error;
+        // Open Messenger
+        window.open(messengerUrl, '_blank');
 
-            const message = generateMessageText();
-            const encodedMessage = encodeURIComponent(message);
-            const messengerId = siteSettings?.messenger_id || '100064173395989';
-            const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
-            window.open(messengerUrl, '_blank');
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Please try again.';
-            alert(`Failed to save booking: ${errorMessage}\n\nYou can still copy the text and open Messenger.`);
-        } finally {
-            setIsSubmitting(false);
-        }
+        // Clear Form
+        setFormData({
+            customerName: '',
+            contactNumber: '',
+            deliveryAddress: '',
+            lat: '',
+            lng: '',
+        });
+        setItems([
+            { id: `item-${Date.now()}`, description: '', quantity: 1, estimatedPrice: 0 }
+        ]);
+
+        // Finalize
+        setIsSubmitting(false);
     };
 
     return (
