@@ -357,6 +357,13 @@ Please confirm this Pabili order. Thank you! 🛵`;
 
         if (error) throw error;
 
+        // Open Messenger
+        const message = generatePabiliMessage();
+        const encodedMessage = encodeURIComponent(message);
+        const messengerId = siteSettings?.messenger_id || '100064173395989';
+        const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
+        window.open(messengerUrl, '_blank');
+
         // Reset form and show success
         setStoreOrders([{
           id: `store-${Date.now()}`,
@@ -399,6 +406,13 @@ Please confirm this Pabili order. Thank you! 🛵`;
           });
 
         if (error) throw error;
+
+        // Open Messenger
+        const message = mode === 'simple' ? generatePabiliMessage() : generatePadalaMessage();
+        const encodedMessage = encodeURIComponent(message);
+        const messengerId = siteSettings?.messenger_id || '100064173395989';
+        const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
+        window.open(messengerUrl, '_blank');
 
         // Reset form and show success
         setPadalaData({
@@ -732,7 +746,7 @@ Please confirm this Pabili order. Thank you! 🛵`;
               className="w-full py-4 bg-brand-primary text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
             >
               <Check className="h-6 w-6" />
-              {isSubmitting ? 'Submitting...' : 'Place Order'}
+              {isSubmitting ? 'SUBMITTING...' : 'SEND VIA MESSENGER'}
             </button>
           </div>
 
@@ -1049,7 +1063,7 @@ Please confirm this Pabili order. Thank you! 🛵`;
             className="w-full py-4 bg-brand-primary text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
           >
             <Check className="h-6 w-6" />
-            {isSubmitting ? 'Submitting...' : 'Submit Booking'}
+            {isSubmitting ? 'SUBMITTING...' : 'SEND VIA MESSENGER'}
           </button>
         </div>
 

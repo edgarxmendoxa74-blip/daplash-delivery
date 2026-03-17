@@ -27,7 +27,10 @@ import {
     Utensils,
     Settings,
     Globe,
-    Mail
+    Mail,
+    User,
+    Phone,
+    MapPin
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ImageUpload from './ImageUpload';
@@ -757,8 +760,12 @@ const AdminDashboard = () => {
                         </div>
                     )}
 
-                    {/* ═══════════ SECURITY TAB ═══════════ */}
-                    {activeTab === 'security' && <SecurityTab />}
+                    {/* SECURITY TAB (Disabled/Removed) */}
+                    {activeTab === 'security' && (
+                        <div className="bg-white p-8 rounded-3xl border border-gray-100 italic text-gray-400">
+                            Security management features are coming soon.
+                        </div>
+                    )}
                 </div>
             </main>
 

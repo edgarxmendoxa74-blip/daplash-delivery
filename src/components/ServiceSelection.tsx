@@ -343,7 +343,7 @@ Open sa feedback and adjustments.`;
                 disabled={!partnerData.businessName || !partnerData.contactPerson}
                 className="w-full py-4 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-green-700 transition-all active:scale-[0.98] transform shadow-xl shadow-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl flex items-center justify-center gap-3 uppercase tracking-widest"
               >
-                Submit Inquiry via Messenger 🚀
+                SEND VIA MESSENGER 🚀
               </button>
             </div>
           </div>

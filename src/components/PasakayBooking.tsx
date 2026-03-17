@@ -141,6 +141,13 @@ Please confirm this delivery request.`;
 
             if (error) throw error;
 
+            // Open Messenger
+            const message = generateMessageText();
+            const encodedMessage = encodeURIComponent(message);
+            const messengerId = siteSettings?.messenger_id || '100064173395989';
+            const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
+            window.open(messengerUrl, '_blank');
+
             // Reset form and show success
             setFormData({
                 customer_name: '',
@@ -421,7 +428,7 @@ Please confirm this delivery request.`;
                             className="w-full py-5 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-xl shadow-brand-primary/30 flex items-center justify-center gap-3 disabled:opacity-50"
                         >
                             <Check className="h-6 w-6" />
-                            {isSubmitting ? 'PROCESSING...' : 'REQUEST RIDER'}
+                            {isSubmitting ? 'PROCESSING...' : 'SEND VIA MESSENGER'}
                         </button>
                     </div>
 

@@ -142,7 +142,7 @@ Please confirm this manual order. Thank you! 🛵`;
                                 className="w-full py-4 bg-brand-primary text-white font-black rounded-2xl shadow-lg shadow-brand-primary/30 flex items-center justify-center space-x-3 hover:bg-brand-secondary transition-colors mt-8 group disabled:opacity-50"
                             >
                                 <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                <span>{isSubmitting ? 'SUBMITTING...' : 'SEND MANUALLY'}</span>
+                                <span>{isSubmitting ? 'SUBMITTING...' : 'SEND VIA MESSENGER'}</span>
                             </button>
                             <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                 Your order will be stored and sent to our Messenger

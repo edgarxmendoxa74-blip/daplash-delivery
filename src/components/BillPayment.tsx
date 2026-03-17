@@ -216,7 +216,7 @@ Please process this payment request. Thank you!`;
                             className="w-full py-5 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
                         >
                             <Send className="h-6 w-6" />
-                            {isSubmitting ? 'PROCESSING...' : 'SEND TO MESSENGER'}
+                            {isSubmitting ? 'PROCESSING...' : 'SEND VIA MESSENGER'}
                         </button>
                     </div>
 

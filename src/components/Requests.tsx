@@ -322,7 +322,7 @@ Thank you for your Angkas/Padala request. We will get back to you soon! 🛵`;
           className="w-full py-4 rounded-xl font-medium text-lg transition-all duration-200 transform bg-green-primary text-white hover:bg-green-dark hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <Send className="h-5 w-5" />
-          {isSubmittingAngkas ? 'Submitting...' : 'Submit Angkas Request'}
+          {isSubmittingAngkas ? 'SUBMITTING...' : 'SEND VIA MESSENGER'}
         </button>
       </form>
     </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, ArrowRight, ArrowLeft, Store as StoreIcon, X, Copy, Check, ExternalLink } from 'lucide-react';
+import { Search, MapPin, ArrowRight, ArrowLeft, Store as StoreIcon, X, Copy, Check, ExternalLink, AlertCircle } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 
 interface Store {
@@ -190,7 +190,7 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                                     <h3 className="text-xl sm:text-2xl font-[1000] text-brand-charcoal uppercase tracking-tighter">
                                         {selectedStoreForMenu.name}
                                     </h3>
-                                    <p className="text-gray-500 font-bold text-xs sm:text-sm uppercase tracking-widest mt-1">View Menu & Place Order</p>
+                                    <p className="text-gray-500 font-bold text-xs sm:text-sm uppercase tracking-widest mt-1">View Menu & Send via Messenger</p>
                                 </div>
                                 <button
                                     onClick={() => setSelectedStoreForMenu(null)}
@@ -342,7 +342,7 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                                     className="w-full py-5 bg-brand-primary text-white rounded-3xl font-black text-lg sm:text-xl uppercase tracking-widest shadow-xl shadow-brand-primary/20 hover:bg-green-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mb-4"
                                 >
                                     <span>📩</span>
-                                    Send order thru Messenger
+                                    SEND VIA MESSENGER
                                 </button>
 
                                 {/* Cancellation Policy */}

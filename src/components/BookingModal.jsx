@@ -2,8 +2,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, MapPin, User, ShoppingCart, Package, Utensils, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const BookingModal = ({ isOpen, onClose, onConfirm, item }) => {
+    const { siteSettings } = useSiteSettings();
     if (!item) return null;
 
     const [formData, setFormData] = useState({
@@ -59,7 +61,8 @@ ${formData.instructions ? `📝 Note: ${formData.instructions}\n` : ''}
 Please confirm this food order. Thank you! 🛵`;
 
         const encodedMessage = encodeURIComponent(message);
-        window.open(`https://m.me/100064173395989?text=${encodedMessage}`, '_blank');
+        const messengerId = siteSettings?.messenger_id || '100064173395989';
+        window.open(`https://m.me/${messengerId}?text=${encodedMessage}`, '_blank');
 
         setIsSubmitting(false);
     };
@@ -157,7 +160,7 @@ Please confirm this food order. Thank you! 🛵`;
                                 className="w-full py-4 bg-brand-primary text-white font-black rounded-2xl shadow-lg shadow-brand-primary/30 flex items-center justify-center space-x-3 hover:bg-brand-secondary transition-colors mt-8 group disabled:opacity-50"
                             >
                                 <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                <span>{isSubmitting ? 'SUBMITTING...' : 'CONFIRM BOOKING'}</span>
+                                <span>{isSubmitting ? 'SUBMITTING...' : 'SEND VIA MESSENGER'}</span>
                             </button>
 
                             <button

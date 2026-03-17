@@ -237,7 +237,7 @@ ${formData.aboutMe}`;
                                     className="w-full py-6 bg-brand-primary text-white rounded-[1.5rem] font-black text-xl hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-2xl shadow-brand-primary/20 flex items-center justify-center gap-3 disabled:opacity-50"
                                 >
                                     <MessageSquare className="h-7 w-7" />
-                                    {isSubmitting ? 'PROCESSING...' : 'OPEN MESSENGER'}
+                                    {isSubmitting ? 'PROCESSING...' : 'SEND VIA MESSENGER'}
                                 </button>
                             </div>
                             <p className="text-gray-400 font-bold text-base text-center pt-4">
