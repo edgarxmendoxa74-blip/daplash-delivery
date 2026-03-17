@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Phone, MapPin, Users, Mail, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const Header = () => {
