@@ -71,7 +71,7 @@ const PadalaBooking: React.FC<PadalaBookingProps> = ({ onBack, title = 'Padala',
   });
 
   const [distance, setDistance] = useState<number | null>(null);
-  const [deliveryFee, setDeliveryFee] = useState<number>(65);
+  const [deliveryFee, setDeliveryFee] = useState<number>(0);
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
@@ -163,12 +163,12 @@ Please confirm this Pabili order. Thank you! 🛵`;
         setDeliveryFee(fee);
       } else {
         setDistance(null);
-        setDeliveryFee(65);
+        setDeliveryFee(0);
       }
     } catch (error) {
       console.error('Error calculating fee:', error);
       setDistance(null);
-      setDeliveryFee(65);
+      setDeliveryFee(0);
     } finally {
       setIsCalculating(false);
     }
@@ -372,7 +372,7 @@ Please confirm this Pabili order. Thank you! 🛵`;
     window.open(messengerUrl, '_blank');
     setBookingSuccess(true);
     setDistance(null);
-    setDeliveryFee(65);
+    setDeliveryFee(0);
     setIsSubmitting(false);
   };
 

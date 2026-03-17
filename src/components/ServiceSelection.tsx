@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Check, Copy } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import FAQ from './FAQ';
 import Hero from './Hero';
@@ -12,6 +12,7 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
   const { siteSettings } = useSiteSettings();
   const [showGuide, setShowGuide] = useState(false);
   const [showPartnerModal, setShowPartnerModal] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [partnerData, setPartnerData] = useState({
     businessName: '',
     businessAddress: '',
@@ -331,9 +332,52 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
                   setShowPartnerModal(false);
                 }}
                 disabled={!partnerData.businessName || !partnerData.contactPerson}
-                className="w-full py-3 bg-brand-primary text-white rounded-2xl font-black text-sm hover:bg-green-700 transition-all active:scale-[0.98] transform shadow-xl shadow-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl flex items-center justify-center gap-2 uppercase tracking-widest"
+                className="w-full mb-3 py-3 bg-brand-primary text-white rounded-2xl font-black text-sm hover:bg-green-700 transition-all active:scale-[0.98] transform shadow-xl shadow-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl flex items-center justify-center gap-2 uppercase tracking-widest"
               >
                 SEND VIA MESSENGER 🚀
+              </button>
+
+              <button
+                onClick={async () => {
+                  if (!partnerData.businessName || !partnerData.contactPerson) return;
+                  const message = `DAPLASH DELIVERY - PARTNERSHIP INQUIRY\n\n` +
+                    `🏢 BUSINESS: ${partnerData.businessName}\n` +
+                    `👤 CONTACT: ${partnerData.contactPerson}\n` +
+                    `📞 PHONE: ${partnerData.businessAddress}\n` +
+                    `📍 LOCATION: ${partnerData.businessAddress}\n\n` +
+                    `💬 MESSAGE: Inquiry regarding partnership\n\n` +
+                    `📌 Partnership Benefits:\n` +
+                    `Libre po ang partnership! Walang bayad.\n` +
+                    `Pwede naming i-feature ang negosyo ninyo sa FB page namin.\n` +
+                    `Pwede kayong magpadala ng promo or discount para mas ma-promote.\n` +
+                    `📌 Terms: No exclusive lock-in. Walang kontrata.`;
+
+                  try {
+                    await navigator.clipboard.writeText(message);
+                    setIsCopied(true);
+                    setTimeout(() => setIsCopied(false), 2000);
+                  } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    alert('Failed to copy text. Please try again.');
+                  }
+                }}
+                disabled={!partnerData.businessName || !partnerData.contactPerson}
+                className={`w-full py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 border-2 disabled:opacity-50 disabled:cursor-not-allowed ${isCopied
+                  ? 'bg-green-50 border-green-500 text-green-600'
+                  : 'bg-white border-gray-200 text-gray-600 hover:border-brand-primary hover:text-brand-primary'
+                  }`}
+              >
+                {isCopied ? (
+                  <>
+                    <Check size={16} />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={16} />
+                    <span>Copy Details</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

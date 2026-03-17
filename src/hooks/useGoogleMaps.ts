@@ -292,8 +292,8 @@ export const useGoogleMaps = () => {
   const calculateDeliveryFee = useCallback((distanceInKm: number | null): number => {
     if (distanceInKm === null || distanceInKm === undefined) return 0;
 
-    // Base fee: ₱65 (covers first 3km)
-    let fee = 65;
+    // Base fee: ₱0 (covers first 3km)
+    let fee = 0;
 
     // For distances beyond 3km: add ₱15 for every additional 3km (or portion thereof)
     if (distanceInKm > 3) {

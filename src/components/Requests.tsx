@@ -30,7 +30,7 @@ const Requests: React.FC<RequestsProps> = ({ onBack }) => {
   });
   const [isSubmittingAngkas, setIsSubmittingAngkas] = useState(false);
   const [distance, setDistance] = useState<number | null>(null);
-  const [deliveryFee, setDeliveryFee] = useState<number>(60);
+  const [deliveryFee, setDeliveryFee] = useState<number>(0);
   const [isCalculating, setIsCalculating] = useState(false);
 
   const requestTypes = [
@@ -60,12 +60,12 @@ const Requests: React.FC<RequestsProps> = ({ onBack }) => {
         setDeliveryFee(fee);
       } else {
         setDistance(null);
-        setDeliveryFee(60);
+        setDeliveryFee(0);
       }
     } catch (error) {
       console.error('Error calculating Angkas fee:', error);
       setDistance(null);
-      setDeliveryFee(60);
+      setDeliveryFee(0);
     } finally {
       setIsCalculating(false);
     }
@@ -165,7 +165,7 @@ Thank you for your Angkas/Padala request. We will get back to you soon! 🛵`;
         dropoff_lng: ''
       });
       setDistance(null);
-      setDeliveryFee(60);
+      setDeliveryFee(0);
     } catch (error) {
       console.error('Error submitting request:', error);
       const errorMessage = error instanceof Error ? error.message : 'Please try again.';
