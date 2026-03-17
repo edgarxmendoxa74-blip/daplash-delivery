@@ -2,9 +2,9 @@ import { useRef } from 'react';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react';
 
-const ImageUpload = ({ value, onChange, label = "Upload Image" }) => {
+const ImageUpload = ({ value, onChange, label = "Upload Image", bucket = 'menu-images' }) => {
     const fileInputRef = useRef(null);
-    const { uploadImage, uploading, uploadProgress } = useImageUpload();
+    const { uploadImage, uploading, uploadProgress } = useImageUpload(bucket);
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];

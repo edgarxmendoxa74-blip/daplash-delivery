@@ -160,8 +160,8 @@ Please confirm availability and final pricing.`;
             const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
             window.open(messengerUrl, '_blank');
         } catch (error) {
-            console.error('Error saving booking:', error);
-            alert('Failed to save booking. You can still copy the text and open Messenger.');
+            const errorMessage = error instanceof Error ? error.message : 'Please try again.';
+            alert(`Failed to save booking: ${errorMessage}\n\nYou can still copy the text and open Messenger.`);
         } finally {
             setIsSubmitting(false);
         }

@@ -934,6 +934,7 @@ const AdminDashboard = () => {
                                                     value={editingItem.image_url}
                                                     onChange={url => setEditingItem({ ...editingItem, image_url: url })}
                                                     label="Store Logo / Cover"
+                                                    bucket="stores"
                                                 />
                                             </div>
                                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -942,6 +943,7 @@ const AdminDashboard = () => {
                                                         value={editingItem.menu_image_url}
                                                         onChange={url => setEditingItem({ ...editingItem, menu_image_url: url })}
                                                         label="Menu Image 1"
+                                                        bucket="stores"
                                                     />
                                                 </div>
                                                 <div>
@@ -949,6 +951,7 @@ const AdminDashboard = () => {
                                                         value={editingItem.menu_image_2_url}
                                                         onChange={url => setEditingItem({ ...editingItem, menu_image_2_url: url })}
                                                         label="Menu Image 2"
+                                                        bucket="stores"
                                                     />
                                                 </div>
                                                 <div>
@@ -956,6 +959,7 @@ const AdminDashboard = () => {
                                                         value={editingItem.menu_image_3_url}
                                                         onChange={url => setEditingItem({ ...editingItem, menu_image_3_url: url })}
                                                         label="Menu Image 3"
+                                                        bucket="stores"
                                                     />
                                                 </div>
                                             </div>

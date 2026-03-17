@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
-export const useImageUpload = () => {
+export const useImageUpload = (bucketName: string = 'menu-images') => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -39,7 +39,7 @@ export const useImageUpload = () => {
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from('menu-images')
+        .from(bucketName)
         .upload(fileName, file, {
           cacheControl: '3600',
           upsert: false,
@@ -52,7 +52,7 @@ export const useImageUpload = () => {
       if (error) {
         // Check if it's a bucket not found error
         if (error.message?.includes('Bucket not found') || error.message?.includes('The resource was not found')) {
-          throw new Error('Storage bucket "menu-images" not found. Please create it in Supabase Storage or use an image URL instead.');
+          throw new Error(`Storage bucket "${bucketName}" not found. Please create it in Supabase Storage or use an image URL instead.`);
         }
         // Check if it's an RLS policy error
         if (error.message?.includes('row-level security') || error.message?.includes('violates row-level security') || error.message?.includes('RLS')) {
@@ -71,7 +71,7 @@ export const useImageUpload = () => {
 
       // Get public URL
       const { data: urlData } = supabase.storage
-        .from('menu-images')
+        .from(bucketName)
         .getPublicUrl(data.path);
 
       if (!urlData?.publicUrl) {
@@ -94,14 +94,14 @@ export const useImageUpload = () => {
       // URL format: https://[project].supabase.co/storage/v1/object/public/menu-images/[filename]
       const urlParts = imageUrl.split('/');
       let fileName = urlParts[urlParts.length - 1];
-      
+
       // If URL contains query parameters, remove them
       if (fileName.includes('?')) {
         fileName = fileName.split('?')[0];
       }
 
       const { error } = await supabase.storage
-        .from('menu-images')
+        .from(bucketName)
         .remove([fileName]);
 
       if (error) {

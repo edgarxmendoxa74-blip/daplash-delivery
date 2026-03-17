@@ -730,6 +730,17 @@ Please confirm this Pabili order. Thank you! 🛵`;
             </div>
           </div>
 
+          {/* Cancellation Policy */}
+          <div className="mb-3 p-2.5 bg-orange-50 rounded-xl border border-orange-100/50 flex items-start gap-2">
+            <AlertCircle size={16} className="text-orange-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[9px] font-black text-orange-700 uppercase tracking-widest mb-0.5">Cancellation Policy</p>
+              <p className="text-[10px] font-medium text-orange-600 leading-relaxed">
+                A ₱40 fee applies if the rider has arrived at the pickup point. This compensates for the rider's travel and effort.
+              </p>
+            </div>
+          </div>
+
           {/* Submit Button */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
