@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Phone, MapPin, Users } from 'lucide-react';
+import { Menu, X, Phone, MapPin, Users, Mail, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [contactModalOpen, setContactModalOpen] = useState(false);
+    const { siteSettings } = useSiteSettings();
+
+    const contactPhone = siteSettings?.contact_phone || '09569414260';
+    const contactEmail = siteSettings?.contact_email || 'support@daplash.com';
+    const messengerLink = `https://m.me/${siteSettings?.messenger_id || '100064173395989'}`;
 
     useEffect(() => {
         const handleScroll = () => {
@@ -23,7 +30,7 @@ const Header = () => {
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5">
                             <Phone size={12} className="text-brand-accent" />
-                            <span>09569414260</span>
+                            <span>{contactPhone}</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-brand-accent">
                             <MapPin size={12} />
@@ -55,10 +62,10 @@ const Header = () => {
                     <Link to="/join-team" className="text-sm font-bold text-gray-600 hover:text-brand-primary transition-colors">
                         Join Our Team
                     </Link>
-                    <a href="https://m.me/100064173395989" target="_blank" rel="noopener noreferrer" className="btn-primary flex items-center space-x-2 px-6 py-2.5 text-sm">
+                    <button onClick={() => setContactModalOpen(true)} className="btn-primary flex items-center space-x-2 px-6 py-2.5 text-sm">
                         <Phone size={16} />
                         <span>Contact Us</span>
-                    </a>
+                    </button>
                 </nav>
 
                 {/* Mobile Toggle */}
@@ -75,16 +82,16 @@ const Header = () => {
                     <button className="absolute top-5 right-6 p-2 text-brand-charcoal" onClick={() => setMobileMenuOpen(false)}>
                         <X size={32} />
                     </button>
-                    <a
-                        href="https://m.me/100064173395989"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <button
+                        onClick={() => {
+                            setContactModalOpen(true);
+                            setMobileMenuOpen(false);
+                        }}
                         className="bg-brand-accent text-brand-charcoal p-6 rounded-2xl text-2xl font-black flex items-center justify-center space-x-3 shadow-lg shadow-brand-accent/20"
-                        onClick={() => setMobileMenuOpen(false)}
                     >
                         <Phone size={24} />
                         <span>Contact Us</span>
-                    </a>
+                    </button>
                     <Link
                         to="/join-team"
                         className="bg-gray-100 text-brand-charcoal p-6 rounded-2xl text-2xl font-black flex items-center justify-center space-x-3"
@@ -94,13 +101,92 @@ const Header = () => {
                         <span>Join Our Team</span>
                     </Link>
                     <div className="mt-auto pb-10 flex border-t pt-10 border-gray-100">
-                        <a href="https://m.me/100064173395989" target="_blank" rel="noopener noreferrer" className="flex flex-col space-y-2 group">
-                            <p className="font-bold text-gray-400 uppercase tracking-widest text-xs">Chat with us on</p>
-                            <p className="text-xl font-black text-brand-charcoal group-hover:text-brand-primary transition-colors">FB MESSENGER</p>
-                        </a>
                     </div>
                 </div>
             )}
+
+            {/* Contact Details Modal */}
+            <AnimatePresence>
+                {contactModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setContactModalOpen(false)}
+                            className="absolute inset-0 bg-brand-charcoal/40 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden p-8 text-brand-charcoal"
+                        >
+                            <div className="flex justify-between items-center mb-8">
+                                <div>
+                                    <h3 className="text-2xl font-black uppercase tracking-tighter">GET IN TOUCH</h3>
+                                    <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-1">We're here to help you</p>
+                                </div>
+                                <button
+                                    onClick={() => setContactModalOpen(false)}
+                                    className="p-2 bg-gray-50 text-gray-400 hover:text-brand-charcoal rounded-full transition-all"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <a
+                                    href={`tel:${contactPhone}`}
+                                    className="flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl border border-gray-100/50 hover:bg-brand-primary hover:text-white hover:scale-[1.02] transition-all group"
+                                >
+                                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-primary group-hover:bg-white/20 group-hover:text-white transition-colors">
+                                        <Phone size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Call Us Directly</p>
+                                        <p className="text-lg font-black">{contactPhone}</p>
+                                    </div>
+                                </a>
+
+                                <a
+                                    href={`mailto:${contactEmail}`}
+                                    className="flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl border border-gray-100/50 hover:bg-brand-accent hover:text-brand-charcoal hover:scale-[1.02] transition-all group"
+                                >
+                                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-accent group-hover:bg-white/20 group-hover:text-brand-charcoal transition-colors">
+                                        <Mail size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Send an Email</p>
+                                        <p className="text-lg font-black break-all">{contactEmail}</p>
+                                    </div>
+                                </a>
+
+                                <a
+                                    href={messengerLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl border border-gray-100/50 hover:bg-blue-600 hover:text-white hover:scale-[1.02] transition-all group"
+                                >
+                                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-white/20 group-hover:text-white transition-colors">
+                                        <MessageSquare size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Chat on Messenger</p>
+                                        <p className="text-lg font-black">Official FB Page</p>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div className="mt-8 flex justify-center">
+                                <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] text-center">
+                                    AVAILABLE 24/7 FOR YOUR NEEDS
+                                </p>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </header>
     );
 };

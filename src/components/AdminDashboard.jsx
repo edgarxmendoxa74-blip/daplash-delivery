@@ -81,7 +81,27 @@ const AdminDashboard = () => {
         const { data: pasakayData } = await supabase.from('pasakay_bookings').select('*').order('created_at', { ascending: false });
         const { data: storesData } = await supabase.from('stores').select('*').order('order_index');
         const { data: requestsData } = await supabase.from('requests').select('*').order('created_at', { ascending: false });
-        const { data: settingsData } = await supabase.from('site_settings').select('*').order('id');
+        let { data: settingsData } = await supabase.from('site_settings').select('*').order('id');
+
+        // Auto-seed missing contact settings and other menu link
+        if (settingsData && !settingsData.some(s => s.id === 'contact_phone')) {
+            const updates = [];
+            if (!settingsData.some(s => s.id === 'contact_phone')) updates.push({ id: 'contact_phone', value: '09569414260', updated_at: new Date().toISOString() });
+            if (!settingsData.some(s => s.id === 'contact_email')) updates.push({ id: 'contact_email', value: 'support@daplash.com', updated_at: new Date().toISOString() });
+            if (!settingsData.some(s => s.id === 'other_menu_link')) updates.push({ id: 'other_menu_link', value: '', updated_at: new Date().toISOString() });
+
+            if (updates.length > 0) {
+                await supabase.from('site_settings').upsert(updates);
+                const res = await supabase.from('site_settings').select('*').order('id');
+                settingsData = res.data;
+            }
+        } else if (settingsData && !settingsData.some(s => s.id === 'other_menu_link')) {
+            await supabase.from('site_settings').upsert([
+                { id: 'other_menu_link', value: '', updated_at: new Date().toISOString() }
+            ]);
+            const res = await supabase.from('site_settings').select('*').order('id');
+            settingsData = res.data;
+        }
 
         setFaqs(faqsData || []);
         setBookings(bookingsData || []);
@@ -263,7 +283,7 @@ const AdminDashboard = () => {
                                     if (activeTab === 'faqs') {
                                         setEditingItem({ question: '', answer: '', order_index: faqs.length });
                                     } else if (activeTab === 'stores') {
-                                        setEditingItem({ name: '', description: '', image_url: '', menu_image_url: '', location: '', contact: '', is_active: true, order_index: stores.length });
+                                        setEditingItem({ name: '', description: '', image_url: '', menu_image_url: '', menu_image_2_url: '', menu_image_3_url: '', external_menu_url: '', location: '', contact: '', is_active: true, order_index: stores.length });
                                     }
                                     setIsEditModalOpen(true);
                                 }}
@@ -898,10 +918,37 @@ const AdminDashboard = () => {
                                                     <input value={editingItem.contact} onChange={e => setEditingItem({ ...editingItem, contact: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" placeholder="e.g. 0912..." />
                                                 </div>
                                                 <div>
+                                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Other Menu Link (G Drive)</label>
+                                                    <input value={editingItem.external_menu_url || ''} onChange={e => setEditingItem({ ...editingItem, external_menu_url: e.target.value })} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-brand-accent transition-all" placeholder="https://drive.google.com/..." />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <ImageUpload
+                                                    value={editingItem.image_url}
+                                                    onChange={url => setEditingItem({ ...editingItem, image_url: url })}
+                                                    label="Store Logo / Cover"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                <div>
                                                     <ImageUpload
-                                                        value={editingItem.image_url}
-                                                        onChange={url => setEditingItem({ ...editingItem, image_url: url })}
-                                                        label="Store Logo / Cover"
+                                                        value={editingItem.menu_image_url}
+                                                        onChange={url => setEditingItem({ ...editingItem, menu_image_url: url })}
+                                                        label="Menu Image 1"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <ImageUpload
+                                                        value={editingItem.menu_image_2_url}
+                                                        onChange={url => setEditingItem({ ...editingItem, menu_image_2_url: url })}
+                                                        label="Menu Image 2"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <ImageUpload
+                                                        value={editingItem.menu_image_3_url}
+                                                        onChange={url => setEditingItem({ ...editingItem, menu_image_3_url: url })}
+                                                        label="Menu Image 3"
                                                     />
                                                 </div>
                                             </div>

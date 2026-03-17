@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ArrowLeft, MapPin, Plus, Trash2, Navigation } from 'lucide-react';
+import { ArrowLeft, MapPin, Plus, Trash2, Navigation, Copy, Check, MessageSquare } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useGoogleMaps } from '../hooks/useGoogleMaps';
 import { useSiteSettings } from '../hooks/useSiteSettings';
-import AddressMapPicker from './AddressMapPicker';
+import MultiPointMapPicker from './MultiPointMapPicker';
 
 
 interface PadalaBookingProps {
@@ -67,6 +67,8 @@ const PadalaBooking: React.FC<PadalaBookingProps> = ({ onBack, title = 'Padala',
     pickup_lng: '',
     delivery_lat: '',
     delivery_lng: '',
+    receiver_name: '',
+    receiver_contact: '',
   });
 
   const [distance, setDistance] = useState<number | null>(null);
@@ -74,6 +76,69 @@ const PadalaBooking: React.FC<PadalaBookingProps> = ({ onBack, title = 'Padala',
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+
+  const generatePadalaMessage = () => {
+    return `📦 Padala Service
+
+👤 Customer: ${padalaData.customer_name}
+📞 Contact: ${padalaData.contact_number}
+
+📍 Pickup Address:
+${padalaData.pickup_address}${padalaData.pickup_lat && padalaData.pickup_lng ? `\n📌 Pin: https://www.google.com/maps?q=${padalaData.pickup_lat},${padalaData.pickup_lng}` : ''}
+
+📍 Delivery Address:
+${padalaData.delivery_address}${padalaData.delivery_lat && padalaData.delivery_lng ? `\n📌 Pin: https://www.google.com/maps?q=${padalaData.delivery_lat},${padalaData.delivery_lng}` : ''}
+
+👤 Receiver: ${padalaData.receiver_name || 'N/A'}
+📞 Receiver Contact: ${padalaData.receiver_contact || 'N/A'}
+
+${padalaData.item_description ? `📦 Item Details:\n${padalaData.item_description}\n` : ''}${padalaData.item_weight ? `Weight: ${padalaData.item_weight}\n` : ''}${padalaData.item_value ? `Declared Value: ₱${padalaData.item_value}\n` : ''}
+📅 Preferred Date: ${padalaData.preferred_date || 'Any'}
+⏰ Preferred Time: ${padalaData.preferred_time}
+
+${distance ? `📏 Distance: ${distance} km` : ''}
+💰 Delivery Fee: ₱${deliveryFee.toFixed(2)}
+
+${padalaData.special_instructions ? `📝 Special Instructions: ${padalaData.special_instructions}` : ''}${padalaData.notes ? `\n📝 Notes: ${padalaData.notes}` : ''}
+
+Please confirm this Padala booking. Thank you! 🛵`;
+  };
+
+  const generatePabiliMessage = () => {
+    const storeDetails = storeOrders
+      .filter(s => s.store_name.trim())
+      .map(store => ({
+        store_name: store.store_name,
+        store_address: store.store_address,
+        items: store.items.filter(i => i.item_description.trim())
+      }));
+
+    return `🛒 Pabili Service
+
+${storeDetails.map((store, idx) => `
+🏪 Store ${idx + 1}: ${store.store_name}${store.store_address ? `\n📍 Address: ${store.store_address}` : ''}
+📋 Items:
+${store.items.map(i => `  • ${i.item_description} — Qty: ${i.quantity}`).join('\n')}`).join('\n')}
+
+━━━━━━━━━━━━━━━━━━
+👤 Customer Details
+━━━━━━━━━━━━━━━━━━
+📋 Receiver: ${customerData.receivers_name}
+📞 Contact: ${customerData.contact_number}
+📍 Address: ${customerData.address}${customerData.pin_lat && customerData.pin_lng ? `\n📌 Pin: https://www.google.com/maps?q=${customerData.pin_lat},${customerData.pin_lng}` : ''}${customerData.landmark ? `\n🗺️ Landmark: ${customerData.landmark}` : ''}
+
+Please confirm this Pabili order. Thank you! 🛵`;
+  };
+
+  const copyToClipboard = () => {
+    const text = mode === 'simple' ? generatePabiliMessage() : generatePadalaMessage();
+    navigator.clipboard.writeText(text).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    });
+  };
 
   // ═══════════ PADALA MODE HANDLERS ═══════════
   const handlePadalaInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -110,22 +175,15 @@ const PadalaBooking: React.FC<PadalaBookingProps> = ({ onBack, title = 'Padala',
     }
   };
 
-  const handleLocationSelect = (field: 'pabili_delivery' | 'padala_pickup' | 'padala_delivery', lat: number, lng: number, address?: string) => {
-    if (field === 'pabili_delivery') {
-      setCustomerData(prev => ({
-        ...prev,
-        pin_lat: lat.toString(),
-        pin_lng: lng.toString(),
-        address: address || prev.address
-      }));
-    } else if (field === 'padala_pickup') {
+  const handleLocationSelect = (type: 'pickup' | 'dropoff', lat: number, lng: number, address?: string) => {
+    if (type === 'pickup') {
       setPadalaData(prev => ({
         ...prev,
         pickup_lat: lat.toString(),
         pickup_lng: lng.toString(),
         pickup_address: address || prev.pickup_address
       }));
-    } else if (field === 'padala_delivery') {
+    } else if (type === 'dropoff') {
       setPadalaData(prev => ({
         ...prev,
         delivery_lat: lat.toString(),
@@ -299,29 +357,7 @@ const PadalaBooking: React.FC<PadalaBookingProps> = ({ onBack, title = 'Padala',
 
         if (error) throw error;
 
-        // Build Messenger message
-        const message = `🛒 Pabili Service
-
-${storeDetails.map((store, idx) => `
-🏪 Store ${idx + 1}: ${store.store_name}${store.store_address ? `\n📍 Address: ${store.store_address}` : ''}
-📋 Items:
-${store.items.map(i => `  • ${i.item_description} — Qty: ${i.quantity}`).join('\n')}`).join('\n')}
-
-━━━━━━━━━━━━━━━━━━
-👤 Customer Details
-━━━━━━━━━━━━━━━━━━
-📋 Receiver: ${customerData.receivers_name}
-📞 Contact: ${customerData.contact_number}
-📍 Address: ${customerData.address}${customerData.pin_lat && customerData.pin_lng ? `\n📌 Pin: https://www.google.com/maps?q=${customerData.pin_lat},${customerData.pin_lng}` : ''}${customerData.landmark ? `\n🗺️ Landmark: ${customerData.landmark}` : ''}
-
-Please confirm this Pabili order. Thank you! 🛵`;
-
-        const encodedMessage = encodeURIComponent(message);
-        const messengerId = siteSettings?.messenger_id || '61558704207383';
-        const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
-        window.open(messengerUrl, '_blank');
-
-        // Reset form
+        // Reset form and show success
         setStoreOrders([{
           id: `store-${Date.now()}`,
           store_name: '',
@@ -336,6 +372,8 @@ Please confirm this Pabili order. Thank you! 🛵`;
           landmark: '',
           contact_number: '',
         });
+
+        setBookingSuccess(true);
 
       } else {
         // ═══════════ PADALA SUBMISSION ═══════════
@@ -355,39 +393,14 @@ Please confirm this Pabili order. Thank you! 🛵`;
             delivery_fee: deliveryFee || null,
             distance_km: distance || null,
             notes: padalaData.notes ? padalaData.notes : null,
+            receiver_name: padalaData.receiver_name || null,
+            receiver_contact: padalaData.receiver_contact || null,
             status: 'pending'
           });
 
         if (error) throw error;
 
-        const message = `📦 Padala Service
-
-👤 Customer: ${padalaData.customer_name}
-📞 Contact: ${padalaData.contact_number}
-
-📍 Pickup Address:
-${padalaData.pickup_address}${padalaData.pickup_lat && padalaData.pickup_lng ? `\n📌 Pin: https://www.google.com/maps?q=${padalaData.pickup_lat},${padalaData.pickup_lng}` : ''}
-
-📍 Delivery Address:
-${padalaData.delivery_address}${padalaData.delivery_lat && padalaData.delivery_lng ? `\n📌 Pin: https://www.google.com/maps?q=${padalaData.delivery_lat},${padalaData.delivery_lng}` : ''}
-
-${padalaData.item_description ? `📦 Item Details:\n${padalaData.item_description}\n` : ''}${padalaData.item_weight ? `Weight: ${padalaData.item_weight}\n` : ''}${padalaData.item_value ? `Declared Value: ₱${padalaData.item_value}\n` : ''}
-📅 Preferred Date: ${padalaData.preferred_date || 'Any'}
-⏰ Preferred Time: ${padalaData.preferred_time}
-
-${distance ? `📏 Distance: ${distance} km` : ''}
-💰 Delivery Fee: ₱${deliveryFee.toFixed(2)}
-
-${padalaData.special_instructions ? `📝 Special Instructions: ${padalaData.special_instructions}` : ''}${padalaData.notes ? `\n📝 Notes: ${padalaData.notes}` : ''}
-
-Please confirm this Padala booking. Thank you! 🛵`;
-
-        const encodedMessage = encodeURIComponent(message);
-        const messengerId = siteSettings?.messenger_id || '61558704207383';
-        const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
-        window.open(messengerUrl, '_blank');
-
-        // Reset form
+        // Reset form and show success
         setPadalaData({
           customer_name: '',
           contact_number: '',
@@ -404,7 +417,11 @@ Please confirm this Padala booking. Thank you! 🛵`;
           pickup_lng: '',
           delivery_lat: '',
           delivery_lng: '',
+          receiver_name: '',
+          receiver_contact: '',
         });
+
+        setBookingSuccess(true);
       }
 
       setDistance(null);
@@ -419,6 +436,42 @@ Please confirm this Padala booking. Thank you! 🛵`;
   };
 
   // ═══════════════════════════════════════
+  // SUCCESS VIEW
+  // ═══════════════════════════════════════
+  if (bookingSuccess) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-8 min-h-screen flex items-center justify-center">
+        <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 text-center max-w-lg w-full transform transition-all border border-brand-primary/20">
+          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Check className="h-12 w-12 text-brand-primary" />
+          </div>
+          <h2 className="text-3xl font-black text-brand-charcoal uppercase tracking-tighter mb-4">
+            Order Received!
+          </h2>
+          <p className="text-gray-600 mb-8 font-medium text-lg leading-relaxed">
+            Your {mode === 'simple' ? 'Pabili' : 'Padala'} booking has been sent successfully. Our team will review your order and contact you shortly.
+          </p>
+          <div className="space-y-4">
+            <button
+              onClick={() => setBookingSuccess(false)}
+              className="w-full py-4 bg-brand-primary text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+              <Plus className="h-5 w-5" />
+              Book Another
+            </button>
+            <button
+              onClick={onBack}
+              className="w-full py-4 bg-gray-50 text-gray-400 font-bold rounded-xl hover:bg-gray-100 transition-colors border border-gray-100"
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════
   // PABILI MODE (simple) - Multi-store with items
   // ═══════════════════════════════════════
   if (mode === 'simple') {
@@ -428,10 +481,10 @@ Please confirm this Padala booking. Thank you! 🛵`;
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-brand-charcoal">
+            <h1 className="text-3xl font-bold text-brand-charcoal uppercase tracking-tighter">
               🛒 Pabili Service
             </h1>
-            <p className="text-gray-500 mt-1">Tell us what you need and we'll buy it for you</p>
+            <p className="text-gray-500 mt-1 font-medium">Tell us what you need and we'll buy it for you</p>
           </div>
 
           {/* ═══════════ STORE ORDERS ═══════════ */}
@@ -568,13 +621,24 @@ Please confirm this Padala booking. Thank you! 🛵`;
               <label className="block text-sm font-medium text-gray-700">Delivery Address & Pin Location *</label>
 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-500 mb-3">Pick your location on the map for more accurate delivery</p>
-                <AddressMapPicker
-                  lat={customerData.pin_lat ? parseFloat(customerData.pin_lat) : undefined}
-                  lng={customerData.pin_lng ? parseFloat(customerData.pin_lng) : undefined}
-                  onLocationSelect={(lat, lng, addr) => handleLocationSelect('pabili_delivery', lat, lng, addr)}
+                <MultiPointMapPicker
+                  pickup={null}
+                  dropoff={customerData.pin_lat && customerData.pin_lng ? {
+                    lat: parseFloat(customerData.pin_lat),
+                    lng: parseFloat(customerData.pin_lng),
+                    address: customerData.address
+                  } : null}
+                  onLocationSelect={(type, lat, lng, addr) => {
+                    if (type === 'dropoff') {
+                      setCustomerData(prev => ({
+                        ...prev,
+                        pin_lat: lat.toString(),
+                        pin_lng: lng.toString(),
+                        address: addr || prev.address
+                      }));
+                    }
+                  }}
                   height="250px"
-                  placeholder="Click to pin your delivery location"
                 />
               </div>
 
@@ -585,7 +649,7 @@ Please confirm this Padala booking. Thank you! 🛵`;
                   required
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent pt-10"
-                  placeholder="Enter complete delivery address"
+                  placeholder="Enter complete delivery address (House No., Street, Brgy, and Landmark)"
                 />
                 <div className="absolute top-3 left-4 flex items-center gap-2">
                   <button
@@ -635,14 +699,42 @@ Please confirm this Padala booking. Thank you! 🛵`;
             </div>
           </div>
 
+          {/* Message Preview */}
+          <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">Order Preview</h3>
+              <button
+                type="button"
+                onClick={copyToClipboard}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${copySuccess ? 'bg-green-500 text-white border-green-500' : 'bg-white text-brand-charcoal hover:bg-gray-100 border border-gray-200'}`}
+              >
+                {copySuccess ? <><Check className="h-4 w-4" /> Copied!</> : <><Copy className="h-4 w-4" /> COPY DETAILS</>}
+              </button>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-gray-100 font-mono text-xs whitespace-pre-wrap text-gray-600 shadow-inner overflow-x-auto min-h-[100px]">
+              {generatePabiliMessage()}
+            </div>
+          </div>
+
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-4 rounded-xl font-medium text-lg transition-all duration-200 transform bg-green-primary text-white hover:bg-green-dark hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Pabili Order'}
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={copyToClipboard}
+              className="w-full py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-xl font-bold text-lg hover:bg-brand-primary hover:text-white transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-3"
+            >
+              <Copy className="h-6 w-6" />
+              COPY DETAILS
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-4 bg-brand-primary text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              <Check className="h-6 w-6" />
+              {isSubmitting ? 'Submitting...' : 'Place Order'}
+            </button>
+          </div>
 
           <button
             type="button"
@@ -665,10 +757,10 @@ Please confirm this Padala booking. Thank you! 🛵`;
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 md:p-8 space-y-6">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-brand-charcoal">
+          <h1 className="text-3xl font-bold text-brand-charcoal uppercase tracking-tighter">
             📦 Padala Service
           </h1>
-          <p className="text-gray-500 mt-1">Send items across the city quickly and safely</p>
+          <p className="text-gray-500 mt-1 font-medium">Send items across the city quickly and safely</p>
         </div>
 
         {/* Customer Information */}
@@ -704,58 +796,99 @@ Please confirm this Padala booking. Thank you! 🛵`;
         <div>
           <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Addresses
+            Addresses & Map
           </h2>
           <div className="space-y-6">
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-red-500" />
-                Pickup Location *
-              </label>
-              <div className="mb-4 h-[200px]">
-                <AddressMapPicker
-                  lat={padalaData.pickup_lat ? parseFloat(padalaData.pickup_lat) : undefined}
-                  lng={padalaData.pickup_lng ? parseFloat(padalaData.pickup_lng) : undefined}
-                  onLocationSelect={(lat, lng, addr) => handleLocationSelect('padala_pickup', lat, lng, addr)}
-                  height="100%"
-                  placeholder="Pin pickup location on map"
-                />
-              </div>
-              <textarea
-                name="pickup_address"
-                value={padalaData.pickup_address}
-                onChange={handlePadalaInputChange}
-                required
-                rows={2}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                placeholder="Complete pickup address"
+
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6">
+              <MultiPointMapPicker
+                pickup={padalaData.pickup_lat && padalaData.pickup_lng ? {
+                  lat: parseFloat(padalaData.pickup_lat),
+                  lng: parseFloat(padalaData.pickup_lng),
+                  address: padalaData.pickup_address
+                } : null}
+                dropoff={padalaData.delivery_lat && padalaData.delivery_lng ? {
+                  lat: parseFloat(padalaData.delivery_lat),
+                  lng: parseFloat(padalaData.delivery_lng),
+                  address: padalaData.delivery_address
+                } : null}
+                onLocationSelect={handleLocationSelect}
+                height="300px"
               />
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-blue-500" />
-                Delivery Location *
-              </label>
-              <div className="mb-4 h-[200px]">
-                <AddressMapPicker
-                  lat={padalaData.delivery_lat ? parseFloat(padalaData.delivery_lat) : undefined}
-                  lng={padalaData.delivery_lng ? parseFloat(padalaData.delivery_lng) : undefined}
-                  onLocationSelect={(lat, lng, addr) => handleLocationSelect('padala_delivery', lat, lng, addr)}
-                  height="100%"
-                  placeholder="Pin delivery location on map"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-red-500" />
+                  Pickup Address *
+                </label>
+                <textarea
+                  name="pickup_address"
+                  value={padalaData.pickup_address}
+                  onChange={handlePadalaInputChange}
+                  required
+                  rows={2}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  placeholder="Complete pickup address"
                 />
               </div>
-              <textarea
-                name="delivery_address"
-                value={padalaData.delivery_address}
-                onChange={handlePadalaInputChange}
-                onBlur={calculatePadalaFee}
-                required
-                rows={2}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                placeholder="Complete delivery address"
-              />
+
+              <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-blue-500" />
+                  Delivery Address *
+                </label>
+                <textarea
+                  name="delivery_address"
+                  value={padalaData.delivery_address}
+                  onChange={handlePadalaInputChange}
+                  onBlur={calculatePadalaFee}
+                  required
+                  rows={2}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  placeholder="Enter complete delivery address"
+                />
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="relative">
+                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1 leading-none">Receiver's Name *</label>
+                  <div className="relative flex items-center">
+                    <input
+                      type="text"
+                      name="receiver_name"
+                      value={padalaData.receiver_name}
+                      onChange={handlePadalaInputChange}
+                      required
+                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-brand-primary transition-all"
+                      placeholder="Receiver's name"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPadalaData(prev => ({ ...prev, receiver_name: padalaData.customer_name, receiver_contact: padalaData.contact_number }))}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black bg-brand-primary/10 text-brand-primary px-2 py-1 rounded-lg hover:bg-brand-primary/20 transition-all uppercase tracking-tighter"
+                    >
+                      Same as Sender
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1 leading-none">Contact Number *</label>
+                  <input
+                    type="tel"
+                    name="receiver_contact"
+                    value={padalaData.receiver_contact}
+                    onChange={handlePadalaInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-brand-primary transition-all"
+                    placeholder="09XX XXX XXXX"
+                  />
+                </div>
+              </div>
+
               {isCalculating && (
                 <p className="text-xs text-gray-500 mt-1">Calculating distance...</p>
               )}
@@ -872,14 +1005,42 @@ Please confirm this Padala booking. Thank you! 🛵`;
           </div>
         )}
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full py-4 bg-brand-primary text-white font-black rounded-xl shadow-lg shadow-brand-primary/30 flex items-center justify-center space-x-3 hover:bg-green-700 transition-all transform hover:-translate-y-1 mt-8 disabled:opacity-50"
-        >
-          {isSubmitting ? 'SUBMITTING...' : 'CONFIRM PADALA'}
-        </button>
+        {/* Message Preview */}
+        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">Order Preview</h3>
+            <button
+              type="button"
+              onClick={copyToClipboard}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${copySuccess ? 'bg-green-500 text-white border-green-500' : 'bg-white text-brand-charcoal hover:bg-gray-100 border border-gray-200'}`}
+            >
+              {copySuccess ? <><Check className="h-4 w-4" /> Copied!</> : <><Copy className="h-4 w-4" /> COPY DETAILS</>}
+            </button>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-gray-100 font-mono text-xs whitespace-pre-wrap text-gray-600 shadow-inner overflow-x-auto min-h-[100px]">
+            {generatePadalaMessage()}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={copyToClipboard}
+            className="w-full py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-xl font-bold text-lg hover:bg-brand-primary hover:text-white transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-3"
+          >
+            <Copy className="h-6 w-6" />
+            COPY DETAILS
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full py-4 bg-brand-primary text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
+          >
+            <Check className="h-6 w-6" />
+            {isSubmitting ? 'Submitting...' : 'Submit Booking'}
+          </button>
+        </div>
 
         <button
           type="button"

@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navigation, Bike, Package, CheckCircle2, X, Phone, Star } from 'lucide-react';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default marker icons in Leaflet with React
@@ -44,6 +45,7 @@ const ChangeView = ({ center }) => {
 };
 
 const RiderTracking = ({ isOpen, onClose, bookingData }) => {
+    const { siteSettings } = useSiteSettings();
     const startPos = [14.5995, 120.9842]; // Manila center as default start
     const endPos = [14.6042, 121.0503]; // A bit further for demo
 
@@ -215,7 +217,7 @@ const RiderTracking = ({ isOpen, onClose, bookingData }) => {
                                             </div>
                                         </div>
                                     </div>
-                                    <a href="https://m.me/100064173395989" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center text-daplash-yellow transition-colors">
+                                    <a href={`https://m.me/${siteSettings?.messenger_id || '100064173395989'}`} target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center text-daplash-yellow transition-colors">
                                         <Phone size={24} />
                                     </a>
                                 </div>

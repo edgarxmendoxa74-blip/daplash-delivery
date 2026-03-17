@@ -2,8 +2,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, MapPin, User, Utensils, Phone } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const ManualOrderModal = ({ isOpen, onClose, onConfirm }) => {
+    const { siteSettings } = useSiteSettings();
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -46,7 +48,8 @@ ${formData.orderDetails}
 Please confirm this manual order. Thank you! 🛵`;
 
             const encodedMessage = encodeURIComponent(message);
-            window.open(`https://m.me/100064173395989?text=${encodedMessage}`, '_blank');
+            const messengerId = siteSettings?.messenger_id || '100064173395989';
+            window.open(`https://m.me/${messengerId}?text=${encodedMessage}`, '_blank');
 
             onClose();
         } catch (err) {

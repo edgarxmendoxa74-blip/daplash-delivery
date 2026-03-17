@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const fallbackFaqs = [
     {
@@ -23,6 +24,7 @@ const fallbackFaqs = [
 ];
 
 const FAQ = () => {
+    const { siteSettings } = useSiteSettings();
     const [faqs, setFaqs] = useState([]);
     const [activeIndex, setActiveIndex] = useState(null);
 
@@ -63,7 +65,7 @@ const FAQ = () => {
                             <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">
                                 Find answers to the most common questions about our services.
                             </p>
-                            <a href="https://m.me/100064173395989" target="_blank" rel="noopener noreferrer" className="text-brand-primary font-bold flex items-center justify-center lg:justify-start space-x-2 hover:underline">
+                            <a href={`https://m.me/${siteSettings?.messenger_id || '100064173395989'}`} target="_blank" rel="noopener noreferrer" className="text-brand-primary font-bold flex items-center justify-center lg:justify-start space-x-2 hover:underline">
                                 <span>Still need help? Contact support</span>
                             </a>
                         </div>

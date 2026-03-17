@@ -3,6 +3,8 @@ CREATE TABLE IF NOT EXISTS padala_bookings (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     customer_name TEXT NOT NULL,
     contact_number TEXT NOT NULL,
+    receiver_name TEXT,
+    receiver_contact TEXT,
     pickup_address TEXT NOT NULL,
     delivery_address TEXT NOT NULL,
     item_description TEXT,

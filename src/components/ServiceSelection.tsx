@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import FAQ from './FAQ';
 import Hero from './Hero';
 
@@ -8,6 +9,7 @@ interface ServiceSelectionProps {
 }
 
 const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) => {
+  const { siteSettings } = useSiteSettings();
   const [showGuide, setShowGuide] = useState(false);
   const [showPartnerModal, setShowPartnerModal] = useState(false);
   const [partnerData, setPartnerData] = useState({
@@ -334,7 +336,8 @@ Walang kontrata — trust-based partnership.
 Open sa feedback and adjustments.`;
 
                   const encodedMessage = encodeURIComponent(message);
-                  window.open(`https://m.me/100064173395989?text=${encodedMessage}`, '_blank');
+                  const messengerId = siteSettings?.messenger_id || '100064173395989';
+                  window.open(`https://m.me/${messengerId}?text=${encodedMessage}`, '_blank');
                   setShowPartnerModal(false);
                 }}
                 disabled={!partnerData.businessName || !partnerData.contactPerson}

@@ -60,7 +60,7 @@ Please process this payment request. Thank you!`;
             // For now, we'll just open Messenger
             const message = generateMessageText();
             const encodedMessage = encodeURIComponent(message);
-            const messengerId = siteSettings?.messenger_id || '61558704207383';
+            const messengerId = siteSettings?.messenger_id || '100064173395989';
             const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
             window.open(messengerUrl, '_blank');
         } catch (error) {

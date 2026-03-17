@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, ArrowRight, ArrowLeft, Store as StoreIcon, X } from 'lucide-react';
+import { Search, MapPin, ArrowRight, ArrowLeft, Store as StoreIcon, X, Copy, Check, ExternalLink } from 'lucide-react';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 interface Store {
     id: string;
@@ -12,6 +13,8 @@ interface Store {
     is_active: boolean;
     menu_image_url?: string;
     menu_image_2_url?: string;
+    menu_image_3_url?: string;
+    external_menu_url?: string;
 }
 
 interface StoreSelectionProps {
@@ -31,6 +34,7 @@ const fallbackStores: Store[] = [
 ];
 
 const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }) => {
+    const { siteSettings } = useSiteSettings();
     const [stores, setStores] = useState<Store[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -41,6 +45,7 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
         address: '',
         orderDetails: ''
     });
+    const [isCopied, setIsCopied] = useState(false);
 
     useEffect(() => {
         const fetchStores = async () => {
@@ -130,9 +135,6 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                                         </div>
                                     </div>
                                     <div className="p-4 md:p-8 flex flex-col flex-1">
-                                        <p className="text-gray-500 text-[10px] md:text-sm font-medium mb-4 md:mb-6 line-clamp-2 leading-relaxed italic border-l-2 border-brand-accent/50 pl-2 md:pl-3">
-                                            "{store.description || 'Quality selection from our local partners.'}"
-                                        </p>
                                         <div className="mt-auto">
                                             <div className="flex items-center justify-between mb-4">
                                                 <div className="flex items-center text-gray-400 text-[10px] md:text-xs font-bold uppercase tracking-widest gap-2">
@@ -200,31 +202,67 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
 
                             {/* Content */}
                             <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="rounded-2xl md:rounded-3xl border-4 border-gray-50 overflow-hidden shadow-inner bg-gray-50">
+                                {/* 3-Image Menu Grid */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div className="rounded-2xl md:rounded-3xl border-4 border-gray-50 overflow-hidden shadow-inner bg-gray-50 h-[300px] flex flex-col justify-center">
                                         {selectedStoreForMenu.menu_image_url ? (
                                             <img
                                                 src={selectedStoreForMenu.menu_image_url}
                                                 alt={`${selectedStoreForMenu.name} Menu 1`}
-                                                className="w-full h-auto object-contain"
+                                                className="w-full h-full object-contain"
                                             />
                                         ) : (
-                                            <div className="py-12 text-center">
-                                                <StoreIcon size={48} className="mx-auto text-gray-200 mb-2" />
-                                                <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Menu image 1 coming soon!</p>
+                                            <div className="text-center p-4">
+                                                <StoreIcon size={32} className="mx-auto text-gray-200 mb-2" />
+                                                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Menu 1</p>
                                             </div>
                                         )}
                                     </div>
-
-                                    {selectedStoreForMenu.menu_image_2_url && (
-                                        <div className="rounded-2xl md:rounded-3xl border-4 border-gray-50 overflow-hidden shadow-inner bg-gray-50">
+                                    <div className="rounded-2xl md:rounded-3xl border-4 border-gray-50 overflow-hidden shadow-inner bg-gray-50 h-[300px] flex flex-col justify-center">
+                                        {selectedStoreForMenu.menu_image_2_url ? (
                                             <img
                                                 src={selectedStoreForMenu.menu_image_2_url}
                                                 alt={`${selectedStoreForMenu.name} Menu 2`}
-                                                className="w-full h-auto object-contain"
+                                                className="w-full h-full object-contain"
                                             />
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div className="text-center p-4">
+                                                <StoreIcon size={32} className="mx-auto text-gray-200 mb-2" />
+                                                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Menu 2</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="rounded-2xl md:rounded-3xl border-4 border-gray-50 overflow-hidden shadow-inner bg-gray-50 h-[300px] flex flex-col justify-center">
+                                        {selectedStoreForMenu.menu_image_3_url ? (
+                                            <img
+                                                src={selectedStoreForMenu.menu_image_3_url}
+                                                alt={`${selectedStoreForMenu.name} Menu 3`}
+                                                className="w-full h-full object-contain"
+                                            />
+                                        ) : (
+                                            <div className="text-center p-4">
+                                                <StoreIcon size={32} className="mx-auto text-gray-200 mb-2" />
+                                                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Menu 3</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Other Menu Link */}
+                                <div className="flex justify-center mt-2">
+                                    <button
+                                        onClick={(e) => {
+                                            if (selectedStoreForMenu.external_menu_url) {
+                                                window.open(selectedStoreForMenu.external_menu_url, '_blank', 'noopener,noreferrer');
+                                            } else {
+                                                alert("No external menu has been set for this store yet!");
+                                            }
+                                        }}
+                                        className="px-8 py-4 bg-brand-charcoal text-white rounded-2xl font-black uppercase tracking-widest text-sm flex items-center gap-3 hover:bg-brand-primary transition-colors shadow-lg shadow-brand-charcoal/20"
+                                    >
+                                        <ExternalLink size={18} />
+                                        SEE OTHER MENUS
+                                    </button>
                                 </div>
 
                                 {/* Order Form */}
@@ -290,22 +328,63 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                                             alert("Please fill up all delivery and order details first!");
                                             return;
                                         }
-                                        const message = encodeURIComponent(
-                                            `DAPLASH DELIVERY - STORE ORDER\n\n` +
+                                        const message = `DAPLASH DELIVERY - STORE ORDER\n\n` +
                                             `🏪 STORE: ${selectedStoreForMenu.name}\n` +
                                             `📝 ITEMS: ${orderForm.orderDetails}\n\n` +
                                             `👤 CUSTOMER: ${orderForm.name}\n` +
                                             `📞 CONTACT: ${orderForm.contact}\n` +
-                                            `📍 ADDRESS: ${orderForm.address}`
-                                        );
-                                        window.open(`https://m.me/100064173395989?text=${message}`, '_blank');
+                                            `📍 ADDRESS: ${orderForm.address}`;
+
+                                        const encodedMessage = encodeURIComponent(message);
+                                        const messengerId = siteSettings?.messenger_id || '100064173395989';
+                                        window.open(`https://m.me/${messengerId}?text=${encodedMessage}`, '_blank');
                                     }}
                                     className="w-full py-5 bg-brand-primary text-white rounded-3xl font-black text-lg sm:text-xl uppercase tracking-widest shadow-xl shadow-brand-primary/20 hover:bg-green-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                                 >
                                     <span>📩</span>
                                     Send order thru Messenger
                                 </button>
+                                <button
+                                    onClick={async () => {
+                                        if (!orderForm.name || !orderForm.contact || !orderForm.address || !orderForm.orderDetails) {
+                                            alert("Please fill up all delivery and order details first!");
+                                            return;
+                                        }
+                                        const message = `DAPLASH DELIVERY - STORE ORDER\n\n` +
+                                            `🏪 STORE: ${selectedStoreForMenu.name}\n` +
+                                            `📝 ITEMS: ${orderForm.orderDetails}\n\n` +
+                                            `👤 CUSTOMER: ${orderForm.name}\n` +
+                                            `📞 CONTACT: ${orderForm.contact}\n` +
+                                            `📍 ADDRESS: ${orderForm.address}`;
+
+                                        try {
+                                            await navigator.clipboard.writeText(message);
+                                            setIsCopied(true);
+                                            setTimeout(() => setIsCopied(false), 2000);
+                                        } catch (err) {
+                                            console.error('Failed to copy text: ', err);
+                                            alert('Failed to copy text. Please try again.');
+                                        }
+                                    }}
+                                    className={`w-full py-4 rounded-3xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 mt-4 border-2 ${isCopied
+                                        ? 'bg-green-50 border-green-500 text-green-600'
+                                        : 'bg-white border-gray-200 text-gray-600 hover:border-brand-primary hover:text-brand-primary'
+                                        }`}
+                                >
+                                    {isCopied ? (
+                                        <>
+                                            <Check size={18} />
+                                            <span>Copied to Clipboard!</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy size={18} />
+                                            <span>Copy Details</span>
+                                        </>
+                                    )}
+                                </button>
                             </div>
+
                         </motion.div>
                     </div>
                 )}

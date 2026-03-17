@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, MapPin, User, Package, Phone, Copy, MessageSquare, Plus, Minus, Navigation } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useSiteSettings } from '../hooks/useSiteSettings';
-import AddressMapPicker from './AddressMapPicker';
+import MultiPointMapPicker from './MultiPointMapPicker';
 
 interface PasakayBookingProps {
     onBack: () => void;
@@ -13,6 +13,7 @@ const PasakayBooking: React.FC<PasakayBookingProps> = ({ onBack }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isGettingLocation, setIsGettingLocation] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
+    const [bookingSuccess, setBookingSuccess] = useState(false);
 
     const [formData, setFormData] = useState({
         customer_name: '',
@@ -40,7 +41,8 @@ const PasakayBooking: React.FC<PasakayBookingProps> = ({ onBack }) => {
         }));
     };
 
-    const handleLocationSelect = (field: 'pickup' | 'destination', lat: number, lng: number, address?: string) => {
+    const handleLocationSelect = (type: 'pickup' | 'dropoff', lat: number, lng: number, address?: string) => {
+        const field = type === 'pickup' ? 'pickup' : 'destination';
         setFormData(prev => ({
             ...prev,
             [`${field}_lat`]: lat.toString(),
@@ -136,20 +138,64 @@ Please confirm this delivery request.`;
                     status: 'pending'
                 });
 
+
             if (error) throw error;
 
-            const message = generateMessageText();
-            const encodedMessage = encodeURIComponent(message);
-            const messengerId = siteSettings?.messenger_id || '61558704207383';
-            const messengerUrl = `https://m.me/${messengerId}?text=${encodedMessage}`;
-            window.open(messengerUrl, '_blank');
+            // Reset form and show success
+            setFormData({
+                customer_name: '',
+                contact_number: '',
+                pickup_location: '',
+                destination: '',
+                passengers: 1,
+                has_baggage: false,
+                notes: '',
+                pickup_lat: '',
+                pickup_lng: '',
+                destination_lat: '',
+                destination_lng: '',
+            });
+            setBookingSuccess(true);
         } catch (error) {
             console.error('Error saving booking:', error);
-            alert('Failed to save booking. You can still copy the text and open Messenger.');
+            alert('Failed to save booking. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
     };
+
+    if (bookingSuccess) {
+        return (
+            <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-12 min-h-[60vh] flex items-center justify-center">
+                <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 text-center max-w-lg w-full transform transition-all border border-brand-primary/20">
+                    <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Check className="h-12 w-12 text-brand-primary" />
+                    </div>
+                    <h2 className="text-3xl font-black text-brand-charcoal uppercase tracking-tighter mb-4">
+                        Request Received!
+                    </h2>
+                    <p className="text-gray-600 mb-8 font-medium text-lg leading-relaxed">
+                        Your Pasakay request has been received. Our team will contact you shortly to confirm your ride.
+                    </p>
+                    <div className="space-y-4">
+                        <button
+                            onClick={() => setBookingSuccess(false)}
+                            className="w-full py-4 bg-brand-primary text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-all shadow-lg flex items-center justify-center gap-2"
+                        >
+                            <Plus className="h-5 w-5" />
+                            Book New Ride
+                        </button>
+                        <button
+                            onClick={onBack}
+                            className="w-full py-4 bg-gray-50 text-gray-400 font-bold rounded-xl hover:bg-gray-100 transition-colors border border-gray-100"
+                        >
+                            Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-12">
@@ -167,65 +213,69 @@ Please confirm this delivery request.`;
                 <div className="p-8 space-y-8">
                     {/* Locations Section */}
                     <div className="space-y-6">
-                        <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                            <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="h-4 w-4 text-red-500" />
-                                    Pickup Location *
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={getCurrentLocation}
-                                    disabled={isGettingLocation}
-                                    className="text-[10px] bg-brand-primary text-white px-2 py-1 rounded-full flex items-center gap-1 hover:bg-green-700 transition-colors disabled:opacity-50"
-                                >
-                                    <Navigation className={`h-2.5 w-2.5 ${isGettingLocation ? 'animate-spin' : ''}`} />
-                                    AUTO-GPS
-                                </button>
+                        <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-6">
+                            <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-4">
+                                Area Map
                             </label>
-                            <div className="mb-4 h-[250px] rounded-xl overflow-hidden border border-gray-200 shadow-inner">
-                                <AddressMapPicker
-                                    lat={formData.pickup_lat ? parseFloat(formData.pickup_lat) : undefined}
-                                    lng={formData.pickup_lng ? parseFloat(formData.pickup_lng) : undefined}
-                                    onLocationSelect={(lat, lng, addr) => handleLocationSelect('pickup', lat, lng, addr)}
-                                    height="100%"
-                                    placeholder="Tap to pin pickup location"
-                                />
-                            </div>
-                            <textarea
-                                name="pickup_location"
-                                value={formData.pickup_location}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-4 bg-white border border-gray-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all"
-                                placeholder="Enter complete pickup address or pin on map"
-                                rows={2}
-                                required
+                            <MultiPointMapPicker
+                                pickup={formData.pickup_lat && formData.pickup_lng ? {
+                                    lat: parseFloat(formData.pickup_lat),
+                                    lng: parseFloat(formData.pickup_lng),
+                                    address: formData.pickup_location
+                                } : null}
+                                dropoff={formData.destination_lat && formData.destination_lng ? {
+                                    lat: parseFloat(formData.destination_lat),
+                                    lng: parseFloat(formData.destination_lng),
+                                    address: formData.destination
+                                } : null}
+                                onLocationSelect={handleLocationSelect}
+                                height="300px"
                             />
                         </div>
 
-                        <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                            <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-blue-500" />
-                                Destination *
-                            </label>
-                            <div className="mb-4 h-[250px] rounded-xl overflow-hidden border border-gray-200 shadow-inner">
-                                <AddressMapPicker
-                                    lat={formData.destination_lat ? parseFloat(formData.destination_lat) : undefined}
-                                    lng={formData.destination_lng ? parseFloat(formData.destination_lng) : undefined}
-                                    onLocationSelect={(lat, lng, addr) => handleLocationSelect('destination', lat, lng, addr)}
-                                    height="100%"
-                                    placeholder="Tap to pin your destination"
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                                <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="h-4 w-4 text-blue-500" />
+                                        Pickup Location *
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={getCurrentLocation}
+                                        disabled={isGettingLocation}
+                                        className="text-[10px] bg-brand-primary text-white px-2 py-1 rounded-full flex items-center gap-1 hover:bg-green-700 transition-colors disabled:opacity-50"
+                                    >
+                                        <Navigation className={`h-2.5 w-2.5 ${isGettingLocation ? 'animate-spin' : ''}`} />
+                                        AUTO-GPS
+                                    </button>
+                                </label>
+                                <textarea
+                                    name="pickup_location"
+                                    value={formData.pickup_location}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-4 bg-white border border-gray-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all mt-4"
+                                    placeholder="Enter complete pickup address"
+                                    rows={3}
+                                    required
                                 />
                             </div>
-                            <textarea
-                                name="destination"
-                                value={formData.destination}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-4 bg-white border border-gray-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all"
-                                placeholder="Where are you going?"
-                                rows={2}
-                                required
-                            />
+
+                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                                <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <MapPin className="h-4 w-4 text-red-500" />
+                                    Destination *
+                                </label>
+                                <textarea
+                                    name="destination"
+                                    value={formData.destination}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-4 bg-white border border-gray-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all mt-4"
+                                    placeholder="Where are you going?"
+                                    rows={3}
+                                    required
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -328,11 +378,6 @@ Please confirm this delivery request.`;
                         </div>
                     </div>
 
-                    {/* Startup Message Alert */}
-                    <div className="bg-orange-50 border-2 border-orange-100 rounded-2xl p-6 text-orange-800">
-                        <p className="text-center font-bold text-lg">Really sorry — we're a startup. 🚀</p>
-                        <p className="text-center text-sm mt-1">Please tap <strong>"Copy order text"</strong>, then <strong>"Open Messenger"</strong>, and paste the message there.</p>
-                    </div>
 
                     {/* Message Preview */}
                     <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
@@ -364,8 +409,8 @@ Please confirm this delivery request.`;
                             disabled={isSubmitting}
                             className="w-full py-5 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-xl shadow-brand-primary/30 flex items-center justify-center gap-3 disabled:opacity-50"
                         >
-                            <MessageSquare className="h-6 w-6" />
-                            {isSubmitting ? 'PROCESSING...' : 'OPEN MESSENGER'}
+                            <Check className="h-6 w-6" />
+                            {isSubmitting ? 'PROCESSING...' : 'REQUEST RIDER'}
                         </button>
                     </div>
 
@@ -376,10 +421,6 @@ Please confirm this delivery request.`;
                     >
                         <span>BACK TO HOME</span>
                     </button>
-
-                    <p className="text-center text-gray-400 text-xs font-medium">
-                        Paste the copied text into the Messenger chat to finalise your booking.
-                    </p>
                 </div>
             </div>
         </div>
