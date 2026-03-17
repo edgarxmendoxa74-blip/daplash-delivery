@@ -335,16 +335,30 @@ No exclusive lock-in.
 Walang kontrata — trust-based partnership.
 Open sa feedback and adjustments.`;
 
-                  const encodedMessage = encodeURIComponent(message);
-                  const messengerId = siteSettings?.messenger_id || '100064173395989';
-                  window.open(`https://m.me/${messengerId}?text=${encodedMessage}`, '_blank');
-                  setShowPartnerModal(false);
-                }}
-                disabled={!partnerData.businessName || !partnerData.contactPerson}
-                className="w-full py-4 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-green-700 transition-all active:scale-[0.98] transform shadow-xl shadow-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl flex items-center justify-center gap-3 uppercase tracking-widest"
-              >
-                SEND VIA MESSENGER 🚀
-              </button>
+                  <button
+                    onClick={() => {
+                      const message = `DAPLASH DELIVERY - PARTNERSHIP INQUIRY\n\n` +
+                        `🏢 BUSINESS: ${partnerData.businessName}\n` +
+                        `👤 CONTACT: ${partnerData.contactPerson}\n` +
+                        `📞 PHONE: ${partnerData.phone}\n` +
+                        `📍 LOCATION: ${partnerData.location}\n\n` +
+                        `💬 MESSAGE: ${partnerData.message || 'No additional message'}\n\n` +
+                        `📌 Partnership Benefits:\n` +
+                        `Libre po ang partnership! Walang bayad.\n` +
+                        `Pwede naming i-feature ang negosyo ninyo sa FB page namin.\n` +
+                        `Pwede kayong magpadala ng promo or discount para mas ma-promote.\n` +
+                        `📌 Terms: No exclusive lock-in. Walang kontrata.`;
+
+                      const encodedMessage = encodeURIComponent(message);
+                      const messengerId = siteSettings?.messenger_id || '100064173395989';
+                      window.open(`https://m.me/${messengerId}?text=${encodedMessage}`, '_blank');
+                      setShowPartnerModal(false);
+                    }}
+                    disabled={!partnerData.businessName || !partnerData.contactPerson}
+                    className="w-full py-3 bg-brand-primary text-white rounded-2xl font-black text-sm hover:bg-green-700 transition-all active:scale-[0.98] transform shadow-xl shadow-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl flex items-center justify-center gap-2 uppercase tracking-widest"
+                  >
+                    SEND VIA MESSENGER 🚀
+                  </button>
             </div>
           </div>
         </div>

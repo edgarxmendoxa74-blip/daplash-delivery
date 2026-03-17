@@ -223,20 +223,20 @@ ${formData.aboutMe}`;
                             </div>
 
                             {/* Final Actions */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                                 <button
                                     onClick={copyToClipboard}
-                                    className="w-full py-6 bg-white border-2 border-brand-primary text-brand-primary rounded-[1.5rem] font-black text-xl hover:bg-brand-primary hover:text-white transition-all transform hover:-translate-y-1 shadow-xl shadow-brand-primary/10 flex items-center justify-center gap-3"
+                                    className="w-full py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-[1.5rem] font-black text-sm hover:bg-brand-primary hover:text-white transition-all transform hover:-translate-y-1 shadow-xl shadow-brand-primary/10 flex items-center justify-center gap-2"
                                 >
-                                    <Copy className="h-7 w-7" />
-                                    COPY APPLICATION TEXT
+                                    <Copy className="h-6 w-6" />
+                                    COPY TEXT
                                 </button>
                                 <button
                                     onClick={openMessenger}
                                     disabled={isSubmitting}
-                                    className="w-full py-6 bg-brand-primary text-white rounded-[1.5rem] font-black text-xl hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-2xl shadow-brand-primary/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                                    className="w-full py-4 bg-brand-primary text-white rounded-[1.5rem] font-black text-sm hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-2xl shadow-brand-primary/20 flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
-                                    <MessageSquare className="h-7 w-7" />
+                                    <MessageSquare className="h-6 w-6" />
                                     {isSubmitting ? 'PROCESSING...' : 'SEND VIA MESSENGER'}
                                 </button>
                             </div>

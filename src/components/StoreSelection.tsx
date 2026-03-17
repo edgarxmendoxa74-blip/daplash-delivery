@@ -339,18 +339,18 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                                         const messengerId = siteSettings?.messenger_id || '100064173395989';
                                         window.open(`https://m.me/${messengerId}?text=${encodedMessage}`, '_blank');
                                     }}
-                                    className="w-full py-5 bg-brand-primary text-white rounded-3xl font-black text-lg sm:text-xl uppercase tracking-widest shadow-xl shadow-brand-primary/20 hover:bg-green-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mb-4"
+                                    className="w-full py-3 bg-brand-primary text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-brand-primary/20 hover:bg-green-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mb-3"
                                 >
                                     <span>📩</span>
                                     SEND VIA MESSENGER
                                 </button>
 
                                 {/* Cancellation Policy */}
-                                <div className="mb-4 p-4 bg-orange-50 rounded-2xl border border-orange-100/50 flex items-start gap-3">
-                                    <AlertCircle size={18} className="text-orange-500 shrink-0 mt-0.5" />
+                                <div className="mb-3 p-2.5 bg-orange-50 rounded-xl border border-orange-100/50 flex items-start gap-2">
+                                    <AlertCircle size={16} className="text-orange-500 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-[10px] font-black text-orange-700 uppercase tracking-widest mb-1">Cancellation Policy</p>
-                                        <p className="text-[11px] font-medium text-orange-600 leading-relaxed">
+                                        <p className="text-[9px] font-black text-orange-700 uppercase tracking-widest mb-0.5">Cancellation Policy</p>
+                                        <p className="text-[10px] font-medium text-orange-600 leading-relaxed">
                                             A ₱40 fee applies if the rider has arrived at the pickup point. This compensates for the rider's travel and effort.
                                         </p>
                                     </div>
@@ -377,19 +377,19 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                                             alert('Failed to copy text. Please try again.');
                                         }
                                     }}
-                                    className={`w-full py-4 rounded-3xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 mt-4 border-2 ${isCopied
+                                    className={`w-full py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 mt-3 border-2 ${isCopied
                                         ? 'bg-green-50 border-green-500 text-green-600'
                                         : 'bg-white border-gray-200 text-gray-600 hover:border-brand-primary hover:text-brand-primary'
                                         }`}
                                 >
                                     {isCopied ? (
                                         <>
-                                            <Check size={18} />
-                                            <span>Copied to Clipboard!</span>
+                                            <Check size={16} />
+                                            <span>Copied!</span>
                                         </>
                                     ) : (
                                         <>
-                                            <Copy size={18} />
+                                            <Copy size={16} />
                                             <span>Copy Details</span>
                                         </>
                                     )}

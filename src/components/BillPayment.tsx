@@ -192,30 +192,30 @@ Please process this payment request. Thank you!`;
                     </div>
 
                     {/* Cancellation Policy */}
-                    <div className="mb-6 p-4 bg-orange-50 rounded-2xl border border-orange-100/50 flex items-start gap-3">
-                        <AlertCircle size={18} className="text-orange-500 shrink-0 mt-0.5" />
+                    <div className="mb-3 p-2.5 bg-orange-50 rounded-xl border border-orange-100/50 flex items-start gap-2">
+                        <AlertCircle size={16} className="text-orange-500 shrink-0 mt-0.5" />
                         <div>
-                            <p className="text-[10px] font-black text-orange-700 uppercase tracking-widest mb-1">Cancellation Policy</p>
-                            <p className="text-[11px] font-medium text-orange-600 leading-relaxed">
+                            <p className="text-[9px] font-black text-orange-700 uppercase tracking-widest mb-0.5">Cancellation Policy</p>
+                            <p className="text-[10px] font-medium text-orange-600 leading-relaxed">
                                 A ₱40 fee applies if the rider has arrived at the pickup point. This compensates for the rider's travel and effort.
                             </p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <button
                             onClick={copyToClipboard}
-                            className="w-full py-5 bg-white border-2 border-brand-primary text-brand-primary rounded-2xl font-black text-lg hover:bg-brand-primary hover:text-white transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-3"
+                            className="w-full py-3 bg-white border-2 border-brand-primary text-brand-primary rounded-xl font-black text-sm hover:bg-brand-primary hover:text-white transition-all transform hover:-translate-y-1 shadow-md flex items-center justify-center gap-2"
                         >
-                            <Copy className="h-6 w-6" />
+                            <Copy className="h-5 w-5" />
                             COPY TEXT
                         </button>
                         <button
                             onClick={openMessenger}
                             disabled={isSubmitting}
-                            className="w-full py-5 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
+                            className="w-full py-3 bg-brand-primary text-white rounded-xl font-black text-sm hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
                         >
-                            <Send className="h-6 w-6" />
+                            <Send className="h-5 w-5" />
                             {isSubmitting ? 'PROCESSING...' : 'SEND VIA MESSENGER'}
                         </button>
                     </div>

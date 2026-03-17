@@ -319,7 +319,7 @@ Thank you for your Angkas/Padala request. We will get back to you soon! 🛵`;
         <button
           type="submit"
           disabled={isSubmittingAngkas}
-          className="w-full py-4 rounded-xl font-medium text-lg transition-all duration-200 transform bg-green-primary text-white hover:bg-green-dark hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 transform bg-green-primary text-white hover:bg-green-dark hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <Send className="h-5 w-5" />
           {isSubmittingAngkas ? 'SUBMITTING...' : 'SEND VIA MESSENGER'}
