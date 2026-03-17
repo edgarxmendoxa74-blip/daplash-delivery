@@ -147,6 +147,8 @@ Please confirm availability and final pricing.`;
                     customer_name: formData.customerName,
                     contact_number: formData.contactNumber,
                     delivery_address: formData.deliveryAddress,
+                    delivery_lat: formData.lat || null,
+                    delivery_lng: formData.lng || null,
                     pickup_address: 'Custom Order',
                     item_description: generateMessageText(),
                     status: 'pending'
