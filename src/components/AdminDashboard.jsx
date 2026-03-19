@@ -210,11 +210,15 @@ const AdminDashboard = () => {
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex flex-col w-80 bg-white border-r border-gray-100 p-8 pt-10">
                 <div className="flex items-center space-x-4 mb-12 ml-2">
-                    <div className="w-12 h-12 bg-brand-accent rounded-2xl flex items-center justify-center text-brand-charcoal shadow-lg shadow-brand-accent/20">
-                        <Truck size={24} />
+                    <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-brand-accent shadow-lg shadow-brand-accent/20 transition-transform hover:scale-105">
+                        <img
+                            src="https://scontent.fcrk4-1.fna.fbcdn.net/v/t39.30808-1/611249515_1271314161684352_3439360183148654677_n.jpg?stp=dst-jpg_tt6&cstp=mx500x500&ctp=s500x500&_nc_cat=108&ccb=1-7&_nc_sid=3ab345&_nc_ohc=Lu49tF-2uEAQ7kNvwFn6e1V&_nc_oc=Adkfb1ss3g3zke8rGta5N1MXz2H6H8nyDxmSchzSikorWCdrsfNXNldC5UZOFauVEX0&_nc_zt=24&_nc_ht=scontent.fcrk4-1.fna&_nc_gid=a_ouJkg1qitpO1Mt6lHnEg&_nc_ss=8&oh=00_AfxHn0IftkPNQI9JTvlWBD3QFVorvRqDyr-_j9PxSFRonw&oe=69B6AA40"
+                            alt="Daplash Logo"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                     <div className="overflow-hidden">
-                        <p className="text-sm font-black text-brand-charcoal truncate">Administrator</p>
+                        <p className="text-sm font-black text-brand-charcoal truncate uppercase tracking-tighter">DAPLASH <span className="text-brand-primary">ADMIN</span></p>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Master Control</p>
                     </div>
                 </div>

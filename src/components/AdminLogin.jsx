@@ -44,15 +44,19 @@ const AdminLogin = () => {
             >
                 {/* Logo & Header */}
                 <div className="text-center mb-10">
-                    <div className="inline-block p-4 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10 mb-6 shadow-2xl">
-                        <div className="w-16 h-16 bg-brand-primary rounded-[1.8rem] flex items-center justify-center text-white shadow-lg shadow-brand-primary/20">
-                            <Shield size={32} />
+                    <div className="inline-block p-1 bg-white/5 backdrop-blur-xl rounded-full border-2 border-brand-accent mb-6 shadow-2xl overflow-hidden">
+                        <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg shadow-brand-primary/20">
+                            <img
+                                src="https://scontent.fcrk4-1.fna.fbcdn.net/v/t39.30808-1/611249515_1271314161684352_3439360183148654677_n.jpg?stp=dst-jpg_tt6&cstp=mx500x500&ctp=s500x500&_nc_cat=108&ccb=1-7&_nc_sid=3ab345&_nc_ohc=Lu49tF-2uEAQ7kNvwFn6e1V&_nc_oc=Adkfb1ss3g3zke8rGta5N1MXz2H6H8nyDxmSchzSikorWCdrsfNXNldC5UZOFauVEX0&_nc_zt=24&_nc_ht=scontent.fcrk4-1.fna&_nc_gid=a_ouJkg1qitpO1Mt6lHnEg&_nc_ss=8&oh=00_AfxHn0IftkPNQI9JTvlWBD3QFVorvRqDyr-_j9PxSFRonw&oe=69B6AA40"
+                                alt="Daplash Logo"
+                                className="w-full h-full object-cover"
+                            />
                         </div>
                     </div>
                     <h1 className="text-4xl font-black text-white tracking-tighter uppercase mb-2">
-                        MASTER <span className="text-brand-primary">PORTAL</span>
+                        DAPLASH <span className="text-brand-primary">DELIVERY</span>
                     </h1>
-                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">Restricted Access Area</p>
+                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">Admin Login</p>
                 </div>
 
                 {/* Login Card */}
