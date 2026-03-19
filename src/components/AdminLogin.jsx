@@ -3,12 +3,14 @@ import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Mail, ArrowRight, AlertCircle, Shield } from 'lucide-react';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const { siteSettings } = useSiteSettings();
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -45,12 +47,16 @@ const AdminLogin = () => {
                 {/* Logo & Header */}
                 <div className="text-center mb-10">
                     <div className="inline-block p-1 bg-white/5 backdrop-blur-xl rounded-full border-2 border-brand-accent mb-6 shadow-2xl overflow-hidden">
-                        <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg shadow-brand-primary/20">
-                            <img
-                                src="https://scontent.fcrk4-1.fna.fbcdn.net/v/t39.30808-1/611249515_1271314161684352_3439360183148654677_n.jpg?stp=dst-jpg_tt6&cstp=mx500x500&ctp=s500x500&_nc_cat=108&ccb=1-7&_nc_sid=3ab345&_nc_ohc=Lu49tF-2uEAQ7kNvwFn6e1V&_nc_oc=Adkfb1ss3g3zke8rGta5N1MXz2H6H8nyDxmSchzSikorWCdrsfNXNldC5UZOFauVEX0&_nc_zt=24&_nc_ht=scontent.fcrk4-1.fna&_nc_gid=a_ouJkg1qitpO1Mt6lHnEg&_nc_ss=8&oh=00_AfxHn0IftkPNQI9JTvlWBD3QFVorvRqDyr-_j9PxSFRonw&oe=69B6AA40"
-                                alt="Daplash Logo"
-                                className="w-full h-full object-cover"
-                            />
+                        <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg shadow-brand-primary/20 bg-brand-accent flex items-center justify-center">
+                            {siteSettings?.site_logo ? (
+                                <img
+                                    src={siteSettings.site_logo}
+                                    alt="Daplash Logo"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-3xl font-black text-brand-charcoal">D</span>
+                            )}
                         </div>
                     </div>
                     <h1 className="text-4xl font-black text-white tracking-tighter uppercase mb-2">

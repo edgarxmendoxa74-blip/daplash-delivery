@@ -210,12 +210,16 @@ const AdminDashboard = () => {
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex flex-col w-80 bg-white border-r border-gray-100 p-8 pt-10">
                 <div className="flex items-center space-x-4 mb-12 ml-2">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-brand-accent shadow-lg shadow-brand-accent/20 transition-transform hover:scale-105">
-                        <img
-                            src="https://scontent.fcrk4-1.fna.fbcdn.net/v/t39.30808-1/611249515_1271314161684352_3439360183148654677_n.jpg?stp=dst-jpg_tt6&cstp=mx500x500&ctp=s500x500&_nc_cat=108&ccb=1-7&_nc_sid=3ab345&_nc_ohc=Lu49tF-2uEAQ7kNvwFn6e1V&_nc_oc=Adkfb1ss3g3zke8rGta5N1MXz2H6H8nyDxmSchzSikorWCdrsfNXNldC5UZOFauVEX0&_nc_zt=24&_nc_ht=scontent.fcrk4-1.fna&_nc_gid=a_ouJkg1qitpO1Mt6lHnEg&_nc_ss=8&oh=00_AfxHn0IftkPNQI9JTvlWBD3QFVorvRqDyr-_j9PxSFRonw&oe=69B6AA40"
-                            alt="Daplash Logo"
-                            className="w-full h-full object-cover"
-                        />
+                    <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-brand-accent shadow-lg shadow-brand-accent/20 transition-transform hover:scale-105 bg-brand-accent flex items-center justify-center">
+                        {siteSettings.find(s => s.id === 'site_logo')?.value ? (
+                            <img
+                                src={siteSettings.find(s => s.id === 'site_logo')?.value}
+                                alt="Daplash Logo"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <span className="text-xl font-black text-brand-charcoal">D</span>
+                        )}
                     </div>
                     <div className="overflow-hidden">
                         <p className="text-sm font-black text-brand-charcoal truncate uppercase tracking-tighter">DAPLASH <span className="text-brand-primary">ADMIN</span></p>
@@ -738,18 +742,33 @@ const AdminDashboard = () => {
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{setting.id.replace(/_/g, ' ')}</p>
                                                         <div className="flex items-center gap-3">
-                                                            <input
-                                                                type="text"
-                                                                defaultValue={setting.value}
-                                                                onBlur={async (e) => {
-                                                                    if (e.target.value !== setting.value) {
-                                                                        const { error } = await supabase.from('site_settings').update({ value: e.target.value }).eq('id', setting.id);
-                                                                        if (!error) fetchData();
-                                                                        else alert(error.message);
-                                                                    }
-                                                                }}
-                                                                className="w-full bg-transparent font-bold text-brand-charcoal outline-none border-b-2 border-transparent focus:border-brand-primary py-1 transition-all text-sm sm:text-base"
-                                                            />
+                                                            {setting.id === 'site_logo' ? (
+                                                                <div className="w-full">
+                                                                    <ImageUpload
+                                                                        value={setting.value}
+                                                                        onChange={async (newValue) => {
+                                                                            const { error } = await supabase.from('site_settings').update({ value: newValue }).eq('id', setting.id);
+                                                                            if (!error) fetchData();
+                                                                            else alert(error.message);
+                                                                        }}
+                                                                        label="Site Logo"
+                                                                        bucket="site-assets"
+                                                                    />
+                                                                </div>
+                                                            ) : (
+                                                                <input
+                                                                    type="text"
+                                                                    defaultValue={setting.value}
+                                                                    onBlur={async (e) => {
+                                                                        if (e.target.value !== setting.value) {
+                                                                            const { error } = await supabase.from('site_settings').update({ value: e.target.value }).eq('id', setting.id);
+                                                                            if (!error) fetchData();
+                                                                            else alert(error.message);
+                                                                        }
+                                                                    }}
+                                                                    className="w-full bg-transparent font-bold text-brand-charcoal outline-none border-b-2 border-transparent focus:border-brand-primary py-1 transition-all text-sm sm:text-base"
+                                                                />
+                                                            )}
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
