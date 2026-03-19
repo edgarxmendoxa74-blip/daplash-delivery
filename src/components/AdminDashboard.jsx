@@ -210,16 +210,12 @@ const AdminDashboard = () => {
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex flex-col w-80 bg-white border-r border-gray-100 p-8 pt-10">
                 <div className="flex items-center space-x-4 mb-12 ml-2">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-brand-accent shadow-lg shadow-brand-accent/20 transition-transform hover:scale-105 bg-brand-accent flex items-center justify-center">
-                        {siteSettings.find(s => s.id === 'site_logo')?.value ? (
-                            <img
-                                src={siteSettings.find(s => s.id === 'site_logo')?.value}
-                                alt="Daplash Logo"
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <span className="text-xl font-black text-brand-charcoal">D</span>
-                        )}
+                    <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-brand-accent shadow-lg shadow-brand-accent/20 transition-transform hover:scale-105">
+                        <img
+                            src={siteSettings.find(s => s.id === 'site_logo')?.value || '/daplash-logo.jpg'}
+                            alt="Daplash Logo"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                     <div className="overflow-hidden">
                         <p className="text-sm font-black text-brand-charcoal truncate uppercase tracking-tighter">DAPLASH <span className="text-brand-primary">ADMIN</span></p>

@@ -47,16 +47,12 @@ const AdminLogin = () => {
                 {/* Logo & Header */}
                 <div className="text-center mb-10">
                     <div className="inline-block p-1 bg-white/5 backdrop-blur-xl rounded-full border-2 border-brand-accent mb-6 shadow-2xl overflow-hidden">
-                        <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg shadow-brand-primary/20 bg-brand-accent flex items-center justify-center">
-                            {siteSettings?.site_logo ? (
-                                <img
-                                    src={siteSettings.site_logo}
-                                    alt="Daplash Logo"
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <span className="text-3xl font-black text-brand-charcoal">D</span>
-                            )}
+                        <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg shadow-brand-primary/20">
+                            <img
+                                src={siteSettings?.site_logo || '/daplash-logo.jpg'}
+                                alt="Daplash Logo"
+                                className="w-full h-full object-cover"
+                            />
                         </div>
                     </div>
                     <h1 className="text-4xl font-black text-white tracking-tighter uppercase mb-2">

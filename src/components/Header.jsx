@@ -47,18 +47,11 @@ const Header = () => {
             <div className={`container mx-auto px-6 flex justify-between items-center transition-all duration-300 ${isScrolled ? 'py-3' : 'py-5'}`}>
                 <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group">
                     <div className="relative w-8 h-8 sm:w-10 sm:h-10 overflow-hidden rounded-full border-2 border-brand-accent shadow-sm transition-transform group-hover:scale-110">
-                        {siteSettings?.site_logo && (
-                            <img
-                                src={siteSettings.site_logo}
-                                alt="Daplash Logo"
-                                className="w-full h-full object-cover"
-                            />
-                        )}
-                        {!siteSettings?.site_logo && (
-                            <div className="w-full h-full bg-brand-accent flex items-center justify-center font-black text-brand-charcoal text-xl">
-                                D
-                            </div>
-                        )}
+                        <img
+                            src={siteSettings?.site_logo || '/daplash-logo.jpg'}
+                            alt="Daplash Logo"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                     <span className="text-base sm:text-xl font-black tracking-tight text-brand-charcoal whitespace-nowrap">
                         DAPLASH <span className="text-brand-primary">DELIVERY</span>
