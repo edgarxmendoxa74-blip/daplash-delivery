@@ -225,21 +225,38 @@ CREATE POLICY "Admin All Access" ON storage.objects FOR ALL TO authenticated USI
 INSERT INTO public.site_settings (id, value)
 VALUES 
     ('site_name', 'Daplash Delivery'),
+    ('site_logo', ''),
     ('site_description', 'Your friendly neighborhood delivery service.'),
-    ('contact_phone', '09569414260'),
-    ('contact_email', 'support@daplash.com'),
-    ('messenger_id', '100064173395989'),
+    ('site_tagline', 'Fast, Reliable, and Local'),
+    ('address', 'Naga City, Camarines Sur'),
+    ('facebook_url', ''),
+    ('facebook_handle', ''),
     ('currency', '₱'),
     ('currency_code', 'PHP'),
+    ('messenger_id', '100064173395989'),
+    ('contact_phone', '09569414260'),
+    ('contact_email', 'support@daplash.com'),
+    ('other_menu_link', ''),
+    ('starting_point_lat', '13.6218'),
+    ('starting_point_lng', '123.1948'),
+    ('starting_point_enabled', 'false'),
+    ('convenience_fee', '0'),
+    ('convenience_fee_enabled', 'false'),
+    ('additional_store_fee', '0'),
     ('base_delivery_fee', '49'),
     ('base_delivery_distance', '2'),
-    ('extra_delivery_fee_per_km', '10')
+    ('extra_delivery_fee_per_km', '10'),
+    ('max_delivery_distance', '15'),
+    ('night_shift_surcharge', '20'),
+    ('night_shift_start', '22:00'),
+    ('night_shift_end', '05:00'),
+    ('night_shift_enabled', 'false')
 ON CONFLICT (id) DO UPDATE SET value = EXCLUDED.value;
 
 -- Stores
 INSERT INTO public.stores (id, name, description, image_url, location, contact, order_index)
 VALUES 
-    ('e0e0e0e0-e0e0-4e0e-ae0e-e0e0e0e0e0e0', 'Daplash House Specialty', 'Our very own kitchen serving the best local delicacies and home-cooked favorites.', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800', 'Naga City', '09569414260', 1)
+    ('e0e0e0e0-e0e0-4e0e-ae0e-e0e0e0e0e0e0', 'Daplash House Specialty', 'Our flagship store offering the best selection of food and services.', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800', 'Naga City', '09569414260', 1)
 ON CONFLICT (id) DO NOTHING;
 
 -- Menu Items
@@ -254,8 +271,11 @@ ON CONFLICT (name) DO NOTHING;
 -- FAQs
 INSERT INTO public.faqs (question, answer, order_index)
 VALUES 
-    ('How fast is your delivery service?', 'Our average delivery time within Naga City is 20 - 30 minutes, depending on the service type and traffic conditions.', 1),
-    ('What are your operating hours?', 'We currently operate from 8am - 12mn daily. However, special delivery arrangements can be made via our Facebook Messenger.', 2),
-    ('Do you deliver outside Naga City?', 'Yes, we do deliver to neighboring towns like Camaligan, Gainza, and Canaman for a small additional delivery fee.', 3),
-    ('How do I pay for the delivery?', 'We primarily accept Cash on Delivery (COD). We are also working on integrating digital payment options like GCash soon.', 4)
+    ('What are your delivery hours?', 'We deliver from 8 AM to 10 PM daily.', 0),
+    ('How do I track my order?', 'You can track your order in real-time through the Rider Tracking page after placing an order.', 1),
+    ('What payment methods do you accept?', 'We currently accept Cash on Delivery and GCash payments.', 2),
+    ('How fast is your delivery service?', 'Our average delivery time within Naga City is 20 - 30 minutes, depending on the service type and traffic conditions.', 3),
+    ('What are your operating hours?', 'We currently operate from 8am - 12mn daily. However, special delivery arrangements can be made via our Facebook Messenger.', 4),
+    ('Do you deliver outside Naga City?', 'Yes, we do deliver to neighboring towns like Camaligan, Gainza, and Canaman for a small additional delivery fee.', 5),
+    ('How do I pay for the delivery?', 'We primarily accept Cash on Delivery (COD). We are also working on integrating digital payment options like GCash soon.', 6)
 ON CONFLICT (question) DO NOTHING;
