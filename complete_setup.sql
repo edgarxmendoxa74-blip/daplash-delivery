@@ -168,42 +168,65 @@ ALTER TABLE public.requests ENABLE ROW LEVEL SECURITY;
 -- 4. RLS POLICIES
 
 -- Site Settings
+DROP POLICY IF EXISTS "Allow public read site_settings" ON public.site_settings;
+DROP POLICY IF EXISTS "Allow admin all site_settings" ON public.site_settings;
 CREATE POLICY "Allow public read site_settings" ON public.site_settings FOR SELECT USING (true);
 CREATE POLICY "Allow admin all site_settings" ON public.site_settings FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- Stores
+DROP POLICY IF EXISTS "Allow public read stores" ON public.stores;
+DROP POLICY IF EXISTS "Allow admin all stores" ON public.stores;
 CREATE POLICY "Allow public read stores" ON public.stores FOR SELECT USING (true);
 CREATE POLICY "Allow admin all stores" ON public.stores FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- Menu Items
+DROP POLICY IF EXISTS "Allow public read menu_items" ON public.menu_items;
+DROP POLICY IF EXISTS "Allow admin all menu_items" ON public.menu_items;
 CREATE POLICY "Allow public read menu_items" ON public.menu_items FOR SELECT USING (true);
 CREATE POLICY "Allow admin all menu_items" ON public.menu_items FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- FAQs
+DROP POLICY IF EXISTS "Allow public read faqs" ON public.faqs;
+DROP POLICY IF EXISTS "Allow admin all faqs" ON public.faqs;
 CREATE POLICY "Allow public read faqs" ON public.faqs FOR SELECT USING (true);
 CREATE POLICY "Allow admin all faqs" ON public.faqs FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- Food Orders
+DROP POLICY IF EXISTS "Allow anon insert food orders" ON public.food_orders;
+DROP POLICY IF EXISTS "Allow anon select food orders" ON public.food_orders;
+DROP POLICY IF EXISTS "Allow anon update food orders" ON public.food_orders;
+DROP POLICY IF EXISTS "Allow admin all food orders" ON public.food_orders;
 CREATE POLICY "Allow anon insert food orders" ON public.food_orders FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "Allow anon select food orders" ON public.food_orders FOR SELECT TO anon USING (true);
 CREATE POLICY "Allow anon update food orders" ON public.food_orders FOR UPDATE TO anon USING (true);
 CREATE POLICY "Allow admin all food orders" ON public.food_orders FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- Manual Orders
+DROP POLICY IF EXISTS "Allow anon insert manual orders" ON public.manual_orders;
+DROP POLICY IF EXISTS "Allow anon select manual orders" ON public.manual_orders;
+DROP POLICY IF EXISTS "Allow admin all manual orders" ON public.manual_orders;
 CREATE POLICY "Allow anon insert manual orders" ON public.manual_orders FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "Allow anon select manual orders" ON public.manual_orders FOR SELECT TO anon USING (true);
 CREATE POLICY "Allow admin all manual orders" ON public.manual_orders FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- Pasakay Bookings
+DROP POLICY IF EXISTS "Allow public insert pasakay" ON public.pasakay_bookings;
+DROP POLICY IF EXISTS "Allow admin all pasakay" ON public.pasakay_bookings;
 CREATE POLICY "Allow public insert pasakay" ON public.pasakay_bookings FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow admin all pasakay" ON public.pasakay_bookings FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- Padala Bookings
+DROP POLICY IF EXISTS "Allow public insert padala" ON public.padala_bookings;
+DROP POLICY IF EXISTS "Allow public read padala" ON public.padala_bookings;
+DROP POLICY IF EXISTS "Allow admin all padala" ON public.padala_bookings;
 CREATE POLICY "Allow public insert padala" ON public.padala_bookings FOR INSERT TO public WITH CHECK (true);
 CREATE POLICY "Allow public read padala" ON public.padala_bookings FOR SELECT TO public USING (true);
 CREATE POLICY "Allow admin all padala" ON public.padala_bookings FOR ALL To authenticated USING (true) WITH CHECK (true);
 
 -- Requests
+DROP POLICY IF EXISTS "Allow public insert requests" ON public.requests;
+DROP POLICY IF EXISTS "Allow public read requests" ON public.requests;
+DROP POLICY IF EXISTS "Allow admin all requests" ON public.requests;
 CREATE POLICY "Allow public insert requests" ON public.requests FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "Allow public read requests" ON public.requests FOR SELECT USING (true);
 CREATE POLICY "Allow admin all requests" ON public.requests FOR ALL TO authenticated USING (true) WITH CHECK (true);
@@ -215,7 +238,9 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('menu-images', 'menu-imag
 INSERT INTO storage.buckets (id, name, public) VALUES ('stores', 'stores', true) ON CONFLICT (id) DO NOTHING;
 INSERT INTO storage.buckets (id, name, public) VALUES ('site-assets', 'site-assets', true) ON CONFLICT (id) DO NOTHING;
 
--- Storage Policies (Simplified)
+-- Storage Policies
+DROP POLICY IF EXISTS "Public Read Access" ON storage.objects;
+DROP POLICY IF EXISTS "Admin All Access" ON storage.objects;
 CREATE POLICY "Public Read Access" ON storage.objects FOR SELECT TO public USING (bucket_id IN ('menu-images', 'stores', 'site-assets'));
 CREATE POLICY "Admin All Access" ON storage.objects FOR ALL TO authenticated USING (bucket_id IN ('menu-images', 'stores', 'site-assets')) WITH CHECK (bucket_id IN ('menu-images', 'stores', 'site-assets'));
 
