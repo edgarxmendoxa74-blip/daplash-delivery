@@ -203,7 +203,6 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({ onServiceSelect }) 
                   <h3 className="font-bold text-brand-primary flex items-center gap-2 mb-2 italic">📦 Delivery Arrangement</h3>
                   <ul className="text-xs text-gray-600 space-y-1.5 list-disc pl-4 font-medium">
                     <li>Kami ang bahala sa pickup at delivery ng orders.</li>
-                    <li>Customer-based ang delivery fee (si customer ang magbabayad, unless merchant wants to shoulder it).</li>
                   </ul>
                 </div>
                 <div className="bg-brand-accent/10 p-4 rounded-2xl border border-brand-accent/20">

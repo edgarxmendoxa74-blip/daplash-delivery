@@ -98,7 +98,6 @@ ${padalaData.item_description ? `📦 Item Details:\n${padalaData.item_descripti
 ⏰ Preferred Time: ${padalaData.preferred_time}
 
 ${distance ? `📏 Distance: ${distance} km` : ''}
-💰 Delivery Fee: ₱${deliveryFee.toFixed(2)}
 
 ${padalaData.special_instructions ? `📝 Special Instructions: ${padalaData.special_instructions}` : ''}${padalaData.notes ? `\n📝 Notes: ${padalaData.notes}` : ''}
 
@@ -941,17 +940,13 @@ Please confirm this Pabili order. Thank you! 🛵`;
           />
         </div>
 
-        {/* Delivery Fee Display */}
-        {distance !== null && deliveryFee > 0 && (
+        {/* Delivery Fee Display Hidden as requested */}
+        {distance !== null && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Estimated Distance</p>
                 <p className="text-lg font-semibold text-gray-900">{distance} km</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Delivery Fee</p>
-                <p className="text-2xl font-bold text-green-primary">₱{deliveryFee.toFixed(2)}</p>
               </div>
             </div>
           </div>

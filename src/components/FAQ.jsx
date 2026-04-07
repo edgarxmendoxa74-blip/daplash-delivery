@@ -15,7 +15,7 @@ const fallbackFaqs = [
     },
     {
         q: "Do you deliver outside Naga City?",
-        a: "Yes, we do deliver to neighboring towns like Camaligan, Gainza, and Canaman for a small additional delivery fee."
+        a: "Yes, we do deliver to neighboring towns like Camaligan, Gainza, and Canaman."
     },
     {
         q: "How do I pay for the delivery?",

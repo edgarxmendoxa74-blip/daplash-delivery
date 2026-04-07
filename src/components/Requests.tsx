@@ -137,7 +137,6 @@ ${angkasData.pickup_address}${angkasData.pickup_lat && angkasData.pickup_lng ? `
 ${angkasData.dropoff_address}${angkasData.dropoff_lat && angkasData.dropoff_lng ? `\n📌 Pin: https://www.google.com/maps?q=${angkasData.dropoff_lat},${angkasData.dropoff_lng}` : ''}
 
 ${distance !== null ? `📏 Distance: ${distance} km` : ''}
-💰 Estimated Fare (delivery fee logic): ₱${deliveryFee.toFixed(2)}
 
 📄 Description:
 ${angkasData.description}
@@ -310,7 +309,7 @@ Thank you for your Angkas/Padala request. We will get back to you soon! 🛵`;
             )}
             {!isCalculating && distance !== null && (
               <p className="text-xs text-green-600 mt-1">
-                Estimated distance: {distance} km • Estimated fee: ₱{deliveryFee.toFixed(2)}
+                Estimated distance: {distance} km
               </p>
             )}
           </div>
