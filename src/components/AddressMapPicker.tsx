@@ -4,8 +4,11 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default marker icons in Leaflet with React
+// @ts-ignore
 import icon from 'leaflet/dist/images/marker-icon.png';
+// @ts-ignore
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+// @ts-ignore
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
 
 const DefaultIcon = L.icon({
@@ -120,7 +123,10 @@ const AddressMapPicker: React.FC<AddressMapPickerProps> = ({
     };
 
     return (
-        <div className="relative w-full rounded-lg overflow-hidden border border-gray-300 shadow-sm" style={{ height }}>
+        <div 
+            className="relative w-full rounded-lg overflow-hidden border border-gray-300 shadow-sm" 
+            style={{ height: height || '400px' }}
+        >
             {(!position || isReverseGeocoding) && (
                 <div className="absolute inset-0 z-[1000] bg-black/5 flex items-center justify-center pointer-events-none">
                     <span className="bg-white/90 px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-sm">
@@ -136,7 +142,7 @@ const AddressMapPicker: React.FC<AddressMapPickerProps> = ({
             <MapContainer
                 center={position || DEFAULT_CENTER}
                 zoom={position ? 15 : 13}
-                style={{ height: '100%', width: '100%' }}
+                className="h-full w-full"
             >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
