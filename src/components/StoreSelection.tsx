@@ -81,16 +81,16 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                             animate={{ opacity: 1, y: 0 }}
                             className="text-3xl sm:text-4xl md:text-6xl font-[1000] text-brand-charcoal uppercase tracking-tighter leading-none"
                         >
-                            CHOOSE FROM <span className="text-brand-primary">STORES</span>
+                            CHOOSE YOUR <span className="text-brand-primary">HUB / BRANCH</span>
                         </motion.h2>
-                        <p className="text-gray-500 font-medium text-sm sm:text-lg uppercase tracking-widest mt-2">Daplash partner products delivered to you</p>
+                        <p className="text-gray-500 font-medium text-sm sm:text-lg uppercase tracking-widest mt-2">Select your nearest branch for automated routing</p>
                     </div>
 
                     <div className="relative w-full md:max-w-md">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                         <input
                             type="text"
-                            placeholder="SEARCH FOR STORES..."
+                            placeholder="SEARCH FOR BRANCHES..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-14 pr-6 py-4 bg-white border border-gray-100 rounded-full outline-none focus:ring-2 focus:ring-brand-primary font-bold shadow-sm transition-all text-brand-charcoal"
@@ -190,7 +190,7 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                                     <h3 className="text-xl sm:text-2xl font-[1000] text-brand-charcoal uppercase tracking-tighter">
                                         {selectedStoreForMenu.name}
                                     </h3>
-                                    <p className="text-gray-500 font-bold text-xs sm:text-sm uppercase tracking-widest mt-1">View Menu & Send via Messenger</p>
+                                    <p className="text-gray-500 font-bold text-xs sm:text-sm uppercase tracking-widest mt-1">Branch-Specific Inquiry & Order Routing</p>
                                 </div>
                                 <button
                                     onClick={() => setSelectedStoreForMenu(null)}
@@ -328,12 +328,15 @@ const StoreSelection: React.FC<StoreSelectionProps> = ({ onStoreSelect, onBack }
                                             alert("Please fill up all delivery and order details first!");
                                             return;
                                         }
-                                        const message = `DAPLASH DELIVERY - STORE ORDER\n\n` +
-                                            `🏪 STORE: ${selectedStoreForMenu.name}\n` +
+                                        const message = `DAPLASH DELIVERY - CENTRALIZED SYSTEM\n` +
+                                            `━━━━━━━━━━━━━━━━━━━━\n` +
+                                            `📍 BRANCH HUB: ${selectedStoreForMenu.name.toUpperCase()}\n` +
                                             `📝 ITEMS: ${orderForm.orderDetails}\n\n` +
                                             `👤 CUSTOMER: ${orderForm.name}\n` +
                                             `📞 CONTACT: ${orderForm.contact}\n` +
-                                            `📍 ADDRESS: ${orderForm.address}`;
+                                            `📍 ADDRESS: ${orderForm.address}\n` +
+                                            `━━━━━━━━━━━━━━━━━━━━\n` +
+                                            `#BRANCH_ID_${selectedStoreForMenu.id.substring(0, 8)}`;
 
                                         const encodedMessage = encodeURIComponent(message);
                                         const messengerId = siteSettings?.messenger_id || '100064173395989';

@@ -14,7 +14,7 @@ interface PadalaBookingProps {
 interface OrderItem {
   id: string;
   item_description: string;
-  quantity: number;
+  quantity: number | string;
 }
 
 interface StoreOrder {
@@ -118,7 +118,7 @@ Please confirm this Padala booking. Thank you! 🛵`;
 ${storeDetails.map((store, idx) => `
 🏪 Store ${idx + 1}: ${store.store_name}${store.store_address ? `\n📍 Address: ${store.store_address}` : ''}
 📋 Items:
-${store.items.map(i => `  • ${i.item_description} — Qty: ${i.quantity}`).join('\n')}`).join('\n')}
+${store.items.map(i => `  • ${i.item_description} — Qty: ${i.quantity || 1}`).join('\n')}`).join('\n')}
 
 ━━━━━━━━━━━━━━━━━━
 👤 Customer Details
@@ -487,7 +487,10 @@ Please confirm this Pabili order. Thank you! 🛵`;
                         <input
                           type="number"
                           value={item.quantity}
-                          onChange={(e) => updateItem(store.id, item.id, 'quantity', Number(e.target.value) || 1)}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            updateItem(store.id, item.id, 'quantity', val === '' ? '' : (parseInt(val) || 1));
+                          }}
                           className="w-16 px-2 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent text-center"
                           min="1"
                         />

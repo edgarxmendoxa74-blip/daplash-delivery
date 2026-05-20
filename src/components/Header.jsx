@@ -63,6 +63,9 @@ const Header = () => {
                     <Link to="/join-team" className="text-sm font-bold text-gray-600 hover:text-brand-primary transition-colors">
                         Join Our Team
                     </Link>
+                    <Link to="/join-team?type=reseller" className="text-sm font-bold text-brand-primary hover:text-brand-charcoal transition-colors">
+                        Become a Reseller
+                    </Link>
                     <button onClick={() => setContactModalOpen(true)} className="btn-primary flex items-center space-x-2 px-6 py-2.5 text-sm">
                         <Phone size={16} />
                         <span>Contact Us</span>
@@ -94,12 +97,12 @@ const Header = () => {
                         <span>Contact Us</span>
                     </button>
                     <Link
-                        to="/join-team"
-                        className="bg-gray-100 text-brand-charcoal p-6 rounded-2xl text-2xl font-black flex items-center justify-center space-x-3"
+                        to="/join-team?type=reseller"
+                        className="bg-brand-primary text-white p-6 rounded-2xl text-2xl font-black flex items-center justify-center space-x-3"
                         onClick={() => setMobileMenuOpen(false)}
                     >
                         <Users size={24} />
-                        <span>Join Our Team</span>
+                        <span>Become a Reseller</span>
                     </Link>
                     <div className="mt-auto pb-10 flex border-t pt-10 border-gray-100">
                     </div>

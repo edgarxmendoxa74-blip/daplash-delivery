@@ -30,7 +30,11 @@ import {
     Mail,
     User,
     Phone,
-    MapPin
+    MapPin,
+    BarChart3,
+    Users,
+    Boxes,
+    MessageCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ImageUpload from './ImageUpload';
@@ -52,6 +56,12 @@ const AdminDashboard = () => {
     const [menuItems, setMenuItems] = useState([]);
     const [requests, setRequests] = useState([]);
     const [siteSettings, setSiteSettings] = useState([]);
+    const [inquiries, setInquiries] = useState([]);
+    const [resellers, setResellers] = useState([]);
+    const [inventoryItems, setInventoryItems] = useState([]);
+    const [branchInventory, setBranchInventory] = useState([]);
+    const [commissions, setCommissions] = useState([]);
+    const [profiles, setProfiles] = useState([]);
 
     // Edit Modal states
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -61,6 +71,14 @@ const AdminDashboard = () => {
     // Booking detail modal
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [bookingFilter, setBookingFilter] = useState('all'); // 'all', 'pending', 'confirmed', 'completed'
+
+    // Toast state
+    const [toast, setToast] = useState(null);
+
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3000);
+    };
 
     useEffect(() => {
         const checkUser = async () => {
@@ -86,6 +104,12 @@ const AdminDashboard = () => {
         const { data: storesData } = await supabase.from('stores').select('*').order('order_index');
         const { data: menuData } = await supabase.from('menu_items').select('*').order('order_index');
         const { data: requestsData } = await supabase.from('requests').select('*').order('created_at', { ascending: false });
+        const { data: inquiriesData } = await supabase.from('inquiries').select('*, stores(name)').order('created_at', { ascending: false });
+        const { data: resellersData } = await supabase.from('resellers').select('*, stores(name)').order('created_at', { ascending: false });
+        const { data: inventoryData } = await supabase.from('inventory_items').select('*').order('name');
+        const { data: branchInvData } = await supabase.from('branch_inventory').select('*, stores(name), inventory_items(name, unit)');
+        const { data: commissionData } = await supabase.from('commissions').select('*, resellers(name), stores(name)').order('created_at', { ascending: false });
+        const { data: profilesData } = await supabase.from('profiles').select('*, stores(name)');
         let { data: settingsData } = await supabase.from('site_settings').select('*').order('id');
 
         // Auto-seed missing contact settings and other menu link
@@ -117,6 +141,12 @@ const AdminDashboard = () => {
         setMenuItems(menuData || []);
         setRequests(requestsData || []);
         setSiteSettings(settingsData || []);
+        setInquiries(inquiriesData || []);
+        setResellers(resellersData || []);
+        setInventoryItems(inventoryData || []);
+        setBranchInventory(branchInvData || []);
+        setCommissions(commissionData || []);
+        setProfiles(profilesData || []);
     };
 
     const handleLogout = async () => {
@@ -127,12 +157,32 @@ const AdminDashboard = () => {
     const handleDelete = async (id, table) => {
         if (!window.confirm('Are you sure you want to delete this?')) return;
         const { error } = await supabase.from(table).delete().eq('id', id);
-        if (!error) fetchData();
+        if (!error) {
+            fetchData();
+            showToast('Item deleted successfully');
+        } else {
+            showToast(error.message, 'error');
+        }
     };
 
     const handleUpdateBookingStatus = async (id, table, newStatus) => {
         const { error } = await supabase.from(table).update({ status: newStatus }).eq('id', id);
-        if (!error) fetchData();
+        if (!error) {
+            fetchData();
+            showToast(`Status updated to ${newStatus}`);
+        } else {
+            showToast(error.message, 'error');
+        }
+    };
+
+    const handleUpdateSetting = async (id, value) => {
+        const { error } = await supabase.from('site_settings').update({ value, updated_at: new Date().toISOString() }).eq('id', id);
+        if (!error) {
+            fetchData();
+            showToast(`Setting "${id}" updated`);
+        } else {
+            showToast(error.message, 'error');
+        }
     };
 
     const handleSave = async (e) => {
@@ -149,11 +199,13 @@ const AdminDashboard = () => {
             ({ error } = await supabase.from(table).insert([editingItem]));
         }
 
-        if (!error) {
-            setIsEditModalOpen(false);
-            fetchData();
+        if (error) {
+            showToast(error.message, 'error');
         } else {
-            alert(error.message);
+            setIsEditModalOpen(false);
+            setEditingItem(null);
+            fetchData();
+            showToast(`${itemType === 'faq' ? 'FAQ' : itemType === 'menu' ? 'Menu item' : 'Store'} saved successfully`);
         }
     };
 
@@ -197,6 +249,10 @@ const AdminDashboard = () => {
             case 'pasakay': return 'Pasakay Bookings';
             case 'stores': return 'Stores Management';
             case 'requests': return 'Support Requests';
+            case 'inquiries': return 'Real-time Inquiries';
+            case 'resellers': return 'Resellers Database';
+            case 'inventory': return 'Inventory Control';
+            case 'commissions': return 'Commission Reports';
             case 'settings': return 'Site Settings';
             default: return 'Dashboard';
         }
@@ -233,6 +289,10 @@ const AdminDashboard = () => {
                     <SidebarLink icon={<Plus size={20} />} label="Manual Orders" active={activeTab === 'manual_orders'} onClick={() => setActiveTab('manual_orders')} />
                     <SidebarLink icon={<ClipboardList size={20} />} label="Pabili / Padala" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} />
                     <SidebarLink icon={<Zap size={20} />} label="Pasakay" active={activeTab === 'pasakay'} onClick={() => setActiveTab('pasakay')} />
+                    <SidebarLink icon={<MessageCircle size={20} />} label="Inquiries" active={activeTab === 'inquiries'} onClick={() => setActiveTab('inquiries')} />
+                    <SidebarLink icon={<Users size={20} />} label="Resellers" active={activeTab === 'resellers'} onClick={() => setActiveTab('resellers')} />
+                    <SidebarLink icon={<Boxes size={20} />} label="Inventory" active={activeTab === 'inventory'} onClick={() => setActiveTab('inventory')} />
+                    <SidebarLink icon={<BarChart3 size={20} />} label="Commissions" active={activeTab === 'commissions'} onClick={() => setActiveTab('commissions')} />
                     <SidebarLink icon={<MessageSquare size={20} />} label="FAQs" active={activeTab === 'faqs'} onClick={() => setActiveTab('faqs')} />
                     <SidebarLink icon={<Mail size={20} />} label="Requests" active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} />
                     <SidebarLink icon={<Settings size={20} />} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
@@ -705,42 +765,247 @@ const AdminDashboard = () => {
                                     <p className="text-gray-400 text-sm">Requests from the contact form will appear here.</p>
                                 </div>
                             ) : (
-                                requests.map(req => (
-                                    <div key={req.id} className="bg-white p-6 rounded-2xl border border-gray-100 flex flex-col sm:flex-row justify-between items-start group gap-4">
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-black uppercase tracking-widest">
-                                                    {req.request_type || 'General'}
-                                                </span>
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${getStatusColor(req.status)}`}>
-                                                    {req.status || 'pending'}
-                                                </span>
-                                            </div>
-                                            <h4 className="font-bold text-brand-charcoal leading-tight">{req.subject}</h4>
-                                            <p className="text-gray-500 text-sm mt-1 whitespace-pre-wrap">{req.description}</p>
-                                            <div className="mt-4 flex flex-wrap gap-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                                                <span className="flex items-center gap-1.5"><User size={12} /> {req.customer_name}</span>
-                                                <span className="flex items-center gap-1.5"><Phone size={12} /> {req.contact_number}</span>
-                                                {req.address && <span className="flex items-center gap-1.5"><MapPin size={12} /> {req.address}</span>}
-                                                <span>{new Date(req.created_at).toLocaleString()}</span>
+                                requests.map(request => (
+                                    <div key={request.id} className="bg-white p-6 rounded-2xl border border-gray-100 flex flex-col group gap-4">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-black uppercase tracking-widest">
+                                                        {request.request_type || 'General'}
+                                                    </span>
+                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${getStatusColor(request.status)}`}>
+                                                        {request.status || 'pending'}
+                                                    </span>
+                                                </div>
+                                                <h4 className="font-bold text-brand-charcoal leading-tight">{request.subject}</h4>
+                                                <p className="text-gray-500 text-sm mt-1 whitespace-pre-wrap">{request.description}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <select
-                                                value={req.status || 'pending'}
-                                                onChange={(e) => handleUpdateBookingStatus(req.id, 'requests', e.target.value)}
-                                                className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-bold bg-gray-50 outline-none"
+                                        <div className="flex flex-wrap gap-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest pt-4 border-t border-gray-50">
+                                            <span className="flex items-center gap-1.5"><User size={12} /> {request.customer_name}</span>
+                                            <span className="flex items-center gap-1.5"><Phone size={12} /> {request.contact_number}</span>
+                                            {request.address && <span className="flex items-center gap-1.5"><MapPin size={12} /> {request.address}</span>}
+                                            <span>{new Date(request.created_at).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex space-x-3 mt-auto">
+                                            <button
+                                                onClick={() => handleUpdateBookingStatus(request.id, 'requests', 'resolved')}
+                                                disabled={request.status === 'resolved'}
+                                                className={`flex-1 py-3 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all ${
+                                                    request.status === 'resolved' 
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                                    : 'bg-green-50 text-green-600 hover:bg-green-100'
+                                                }`}
                                             >
-                                                <option value="pending">Pending</option>
-                                                <option value="in_progress">In Progress</option>
-                                                <option value="resolved">Resolved</option>
-                                                <option value="closed">Closed</option>
-                                            </select>
-                                            <button onClick={() => handleDelete(req.id, 'requests')} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                                                <Check size={18} />
+                                                <span>{request.status === 'resolved' ? 'RESOLVED' : 'MARK AS RESOLVED'}</span>
+                                            </button>
+                                            <button onClick={() => handleDelete(request.id, 'requests')} className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors">
+                                                <Trash2 size={20} />
+                                            </button>
                                         </div>
                                     </div>
                                 ))
                             )}
+                        </div>
+                    )}
+
+                    {/* ═══════════ INQUIRIES TAB ═══════════ */}
+                    {activeTab === 'inquiries' && (
+                        <div className="space-y-4 max-w-4xl">
+                            {inquiries.length === 0 ? (
+                                <div className="text-center py-24">
+                                    <MessageCircle size={48} className="mx-auto text-gray-200 mb-4" />
+                                    <h4 className="text-xl font-bold text-gray-400">No inquiries yet</h4>
+                                    <p className="text-gray-400 text-sm">Messenger inquiries will appear here after routing.</p>
+                                </div>
+                            ) : (
+                                inquiries.map(inquiry => (
+                                    <div key={inquiry.id} className="bg-white p-6 rounded-2xl border border-gray-100 flex flex-col group gap-4">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className="px-2 py-0.5 bg-brand-primary/10 text-brand-primary rounded text-[10px] font-black uppercase tracking-widest">
+                                                        {inquiry.stores?.name || 'Central'}
+                                                    </span>
+                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${getStatusColor(inquiry.status)}`}>
+                                                        {inquiry.status || 'open'}
+                                                    </span>
+                                                </div>
+                                                <h4 className="font-bold text-brand-charcoal leading-tight">{inquiry.customer_name}</h4>
+                                                <p className="text-gray-500 text-sm mt-1 whitespace-pre-wrap">{inquiry.message}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest pt-4 border-t border-gray-50">
+                                            <span className="flex items-center gap-1.5"><User size={12} /> {inquiry.customer_name}</span>
+                                            <span>{new Date(inquiry.created_at).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex space-x-3 mt-auto">
+                                            <button 
+                                                onClick={() => handleUpdateBookingStatus(inquiry.id, 'inquiries', 'replied')}
+                                                className="flex-1 py-3 bg-brand-charcoal text-white font-bold rounded-xl flex items-center justify-center space-x-2 hover:bg-brand-primary transition-all"
+                                            >
+                                                <MessageSquare size={18} />
+                                                <span>MARK AS REPLIED</span>
+                                            </button>
+                                            <button onClick={() => handleDelete(inquiry.id, 'inquiries')} className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors">
+                                                <Trash2 size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
+
+                    {/* ═══════════ RESELLERS TAB ═══════════ */}
+                    {activeTab === 'resellers' && (
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {resellers.map(reseller => (
+                                    <div key={reseller.id} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black">
+                                                {reseller.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-brand-charcoal">{reseller.name}</h4>
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{reseller.stores?.name || 'Central'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2 mb-6">
+                                            <p className="text-sm text-gray-500 flex items-center gap-2"><Phone size={14} /> {reseller.contact_number}</p>
+                                            <p className="text-sm text-gray-500 flex items-center gap-2"><MapPin size={14} /> {reseller.location}</p>
+                                            <p className="text-sm font-bold text-brand-primary">Commission: {reseller.commission_rate}%</p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button className="flex-1 py-3 bg-gray-50 text-gray-600 font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-gray-100">EDIT</button>
+                                            <button onClick={() => handleDelete(reseller.id, 'resellers')} className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-100"><Trash2 size={18} /></button>
+                                        </div>
+                                    </div>
+                                ))}
+                                {resellers.length === 0 && (
+                                    <div className="col-span-full text-center py-12 text-gray-400 italic">No resellers found. Click "New" to add one.</div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ═══════════ INVENTORY TAB ═══════════ */}
+                    {activeTab === 'inventory' && (
+                        <div className="space-y-8">
+                            <div className="bg-white p-8 rounded-[2rem] border border-gray-100">
+                                <h3 className="text-lg font-black text-brand-charcoal uppercase tracking-tight mb-6">Central Warehouse Stock</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {inventoryItems.map(item => (
+                                        <div key={item.id} className="p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{item.unit}</p>
+                                            <h4 className="font-bold text-brand-charcoal">{item.name}</h4>
+                                            <div className="mt-4 flex items-center justify-between">
+                                                <span className="text-2xl font-black text-brand-primary">100</span>
+                                                <button className="p-2 bg-white rounded-lg text-gray-400 hover:text-brand-primary"><Plus size={16} /></button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {inventoryItems.length === 0 && (
+                                        <div className="col-span-full text-center py-6 text-gray-400 italic">No inventory items defined.</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-8 rounded-[2rem] border border-gray-100">
+                                <h3 className="text-lg font-black text-brand-charcoal uppercase tracking-tight mb-6">Branch Inventory Levels</h3>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="border-b border-gray-50">
+                                                <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Branch</th>
+                                                <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Item</th>
+                                                <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock</th>
+                                                <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-50">
+                                            {branchInventory.map(inv => (
+                                                <tr key={inv.id}>
+                                                    <td className="py-4 font-bold text-brand-charcoal text-sm">{inv.stores?.name}</td>
+                                                    <td className="py-4 text-sm text-gray-500">{inv.inventory_items?.name}</td>
+                                                    <td className="py-4 font-black text-brand-charcoal text-sm">{inv.quantity} {inv.inventory_items?.unit}</td>
+                                                    <td className="py-4">
+                                                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${inv.quantity > inv.min_stock_level ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                                                            {inv.quantity > inv.min_stock_level ? 'Healthy' : 'Low Stock'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {branchInventory.length === 0 && (
+                                                <tr>
+                                                    <td colSpan={4} className="py-8 text-center text-gray-400 italic">No branch inventory records found.</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ═══════════ COMMISSIONS TAB ═══════════ */}
+                    {activeTab === 'commissions' && (
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Payouts</p>
+                                    <h4 className="text-3xl font-black text-brand-charcoal leading-none">₱0.00</h4>
+                                </div>
+                                <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Unpaid Earnings</p>
+                                    <h4 className="text-3xl font-black text-brand-primary leading-none">₱0.00</h4>
+                                </div>
+                                <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Active Resellers</p>
+                                    <h4 className="text-3xl font-black text-orange-500 leading-none">{resellers.length}</h4>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-[2rem] border border-gray-100 overflow-hidden">
+                                <div className="p-8 border-b border-gray-50">
+                                    <h3 className="text-lg font-black text-brand-charcoal uppercase tracking-tight">Recent Commission Records</h3>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="bg-gray-50/50">
+                                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Recipient</th>
+                                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Type</th>
+                                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Amount</th>
+                                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-50">
+                                            {commissions.map(comm => (
+                                                <tr key={comm.id} className="hover:bg-gray-50/50 transition-colors">
+                                                    <td className="px-8 py-4 font-bold text-brand-charcoal text-sm">{comm.resellers?.name || comm.stores?.name || 'Owner'}</td>
+                                                    <td className="px-8 py-4 text-xs font-black text-gray-400 uppercase">{comm.type?.replace(/_/g, ' ')}</td>
+                                                    <td className="px-8 py-4 font-black text-brand-primary text-sm">₱{comm.amount}</td>
+                                                    <td className="px-8 py-4">
+                                                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${comm.status === 'paid' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'}`}>
+                                                            {comm.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-8 py-4 text-xs text-gray-400">{new Date(comm.created_at).toLocaleDateString()}</td>
+                                                </tr>
+                                            ))}
+                                            {commissions.length === 0 && (
+                                                <tr>
+                                                    <td colSpan={5} className="px-8 py-12 text-center text-gray-400 italic">No commission records found.</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     )}
 
@@ -767,9 +1032,7 @@ const AdminDashboard = () => {
                                                                     <ImageUpload
                                                                         value={setting.value}
                                                                         onChange={async (newValue) => {
-                                                                            const { error } = await supabase.from('site_settings').update({ value: newValue }).eq('id', setting.id);
-                                                                            if (!error) fetchData();
-                                                                            else alert(error.message);
+                                                                            handleUpdateSetting(setting.id, newValue);
                                                                         }}
                                                                         label="Site Logo"
                                                                         bucket="site-assets"
@@ -781,9 +1044,7 @@ const AdminDashboard = () => {
                                                                     defaultValue={setting.value}
                                                                     onBlur={async (e) => {
                                                                         if (e.target.value !== setting.value) {
-                                                                            const { error } = await supabase.from('site_settings').update({ value: e.target.value }).eq('id', setting.id);
-                                                                            if (!error) fetchData();
-                                                                            else alert(error.message);
+                                                                            handleUpdateSetting(setting.id, e.target.value);
                                                                         }
                                                                     }}
                                                                     className="w-full bg-transparent font-bold text-brand-charcoal outline-none border-b-2 border-transparent focus:border-brand-primary py-1 transition-all text-sm sm:text-base"
@@ -1033,6 +1294,25 @@ const AdminDashboard = () => {
                             </form>
                         </motion.div>
                     </div>
+                )}
+            </AnimatePresence>
+
+            {/* Toast Notification */}
+            <AnimatePresence>
+                {toast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20, x: '-50%' }}
+                        animate={{ opacity: 1, y: 0, x: '-50%' }}
+                        exit={{ opacity: 0, y: -20, x: '-50%' }}
+                        className={`fixed top-10 left-1/2 z-[200] px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 border ${
+                            toast.type === 'success' 
+                            ? 'bg-white border-green-100 text-green-600' 
+                            : 'bg-white border-red-100 text-red-600'
+                        }`}
+                    >
+                        {toast.type === 'success' ? <Check size={20} className="text-green-500" /> : <AlertCircle size={20} className="text-red-500" />}
+                        <span className="font-black uppercase tracking-widest text-xs">{toast.message}</span>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </div >

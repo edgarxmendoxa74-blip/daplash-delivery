@@ -10,8 +10,8 @@ interface CustomOrderProps {
 interface CustomItem {
     id: string;
     description: string;
-    quantity: number;
-    estimatedPrice: number;
+    quantity: number | string;
+    estimatedPrice: number | string;
 }
 
 const CustomOrder: React.FC<CustomOrderProps> = ({ onBack }) => {
@@ -55,7 +55,11 @@ const CustomOrder: React.FC<CustomOrderProps> = ({ onBack }) => {
         ));
     };
 
-    const totalEstimatedAmount = items.reduce((sum, item) => sum + (item.estimatedPrice * item.quantity), 0);
+    const totalEstimatedAmount = items.reduce((sum, item) => {
+        const qty = typeof item.quantity === 'number' ? item.quantity : (parseInt(item.quantity) || 0);
+        const price = typeof item.estimatedPrice === 'number' ? item.estimatedPrice : (parseFloat(item.estimatedPrice) || 0);
+        return sum + (price * qty);
+    }, 0);
 
     const handleLocationSelect = (lat: number, lng: number, address?: string) => {
         setFormData(prev => ({
@@ -105,7 +109,7 @@ const CustomOrder: React.FC<CustomOrderProps> = ({ onBack }) => {
     };
 
     const generateMessageText = () => {
-        const itemsList = items.map(item => `• ${item.description} (x${item.quantity}) - ₱${item.estimatedPrice.toLocaleString()}`).join('\n');
+        const itemsList = items.map(item => `• ${item.description} (x${item.quantity || 1}) - ₱${(typeof item.estimatedPrice === 'number' ? item.estimatedPrice : (parseFloat(item.estimatedPrice) || 0)).toLocaleString()}`).join('\n');
 
         return `*Custom Order Request*
 
@@ -292,7 +296,10 @@ Please confirm availability and final pricing.`;
                                                 id={`qty-${item.id}`}
                                                 type="number"
                                                 value={item.quantity}
-                                                onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 1)}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    updateItem(item.id, 'quantity', val === '' ? '' : (parseInt(val) || 1));
+                                                }}
                                                 className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-brand-primary transition-all text-center"
                                                 min="1"
                                                 placeholder="1"
@@ -307,7 +314,10 @@ Please confirm availability and final pricing.`;
                                                     id={`price-${item.id}`}
                                                     type="number"
                                                     value={item.estimatedPrice}
-                                                    onChange={(e) => updateItem(item.id, 'estimatedPrice', parseFloat(e.target.value) || 0)}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        updateItem(item.id, 'estimatedPrice', val === '' ? '' : (parseFloat(val) || 0));
+                                                    }}
                                                     className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl font-bold outline-none focus:ring-2 focus:ring-brand-primary transition-all"
                                                     step="0.01"
                                                     placeholder="0.00"

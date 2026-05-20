@@ -50,7 +50,7 @@ const BookingModal = ({ isOpen, onClose, onConfirm, item }) => {
         const message = `🍔 Daplash Food Order
 
 📋 Item: ${item.name}
-🔢 Qty: ${formData.quantity}
+🔢 Qty: ${formData.quantity || 1}
 💰 Total: ₱${totalPrice}
 ${formData.instructions ? `📝 Note: ${formData.instructions}\n` : ''}
 ━━━━━━━━━━━━━━━━━━
