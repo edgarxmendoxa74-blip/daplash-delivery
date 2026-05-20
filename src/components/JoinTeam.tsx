@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { ArrowLeft, User, Phone, MessageSquare, Copy, Target, Eye, Bike, CheckCircle2, Star, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { ArrowLeft, User, Phone, MessageSquare, Copy, Target, Eye, Bike, CheckCircle2, Star, MapPin, Store, Clock, CreditCard, Link2 } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 
 interface JoinTeamProps {
@@ -8,30 +9,80 @@ interface JoinTeamProps {
 
 const JoinTeam: React.FC<JoinTeamProps> = ({ onBack }) => {
     const { siteSettings } = useSiteSettings();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
 
-    const [formData, setFormData] = useState({
+    // Determine initial tab from URL query parameter
+    const typeParam = searchParams.get('type');
+    const initialTab = (typeParam === 'partner' || typeParam === 'reseller') ? 'partner' : 'rider';
+    const [activeTab, setActiveTab] = useState<'rider' | 'partner'>(initialTab);
+
+    // Sync state if URL param changes
+    useEffect(() => {
+        const type = searchParams.get('type');
+        if (type === 'partner' || type === 'reseller') {
+            setActiveTab('partner');
+        } else {
+            setActiveTab('rider');
+        }
+    }, [searchParams]);
+
+    const handleTabChange = (tab: 'rider' | 'partner') => {
+        setActiveTab(tab);
+        setSearchParams({ type: tab });
+    };
+
+    const [riderFormData, setRiderFormData] = useState({
         fullName: '',
         phoneNumber: '',
         aboutMe: '',
     });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const [partnerFormData, setPartnerFormData] = useState({
+        businessName: '',
+        contactPerson: '',
+        phoneNumber: '',
+        businessAddress: '',
+        operatingHours: '',
+        paymentMode: 'COD & GCash',
+        menuLink: '',
+    });
+
+    const handleRiderInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setRiderFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handlePartnerInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setPartnerFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const generateMessageText = () => {
-        return `Hi Daplash Delivery,
+        if (activeTab === 'rider') {
+            return `Hi Daplash Delivery,
 
 I would like to apply for the Rider position.
 
-Name: ${formData.fullName}
-Phone: ${formData.phoneNumber}
+Name: ${riderFormData.fullName}
+Phone: ${riderFormData.phoneNumber}
 
 About Me:
-${formData.aboutMe}`;
+${riderFormData.aboutMe}`;
+        } else {
+            return `Hi Daplash Delivery,
+
+I would like to inquire about partnering with you as a Merchant/Store.
+
+Business Name: ${partnerFormData.businessName}
+Contact Person: ${partnerFormData.contactPerson}
+Phone: ${partnerFormData.phoneNumber}
+Pickup Location: ${partnerFormData.businessAddress}
+Operating Hours: ${partnerFormData.operatingHours}
+Payment Mode: ${partnerFormData.paymentMode}
+Menu/Products Link: ${partnerFormData.menuLink || 'N/A'}`;
+        }
     };
 
     const copyToClipboard = () => {
@@ -43,9 +94,16 @@ ${formData.aboutMe}`;
     };
 
     const openMessenger = async () => {
-        if (!formData.fullName || !formData.phoneNumber || !formData.aboutMe) {
-            alert('Please fill in all required fields');
-            return;
+        if (activeTab === 'rider') {
+            if (!riderFormData.fullName || !riderFormData.phoneNumber || !riderFormData.aboutMe) {
+                alert('Please fill in all required fields');
+                return;
+            }
+        } else {
+            if (!partnerFormData.businessName || !partnerFormData.contactPerson || !partnerFormData.phoneNumber || !partnerFormData.businessAddress || !partnerFormData.operatingHours) {
+                alert('Please fill in all required fields (Business Name, Contact Person, Phone Number, Operating Hours, and Pickup Location)');
+                return;
+            }
         }
 
         setIsSubmitting(true);
@@ -64,186 +122,437 @@ ${formData.aboutMe}`;
 
     return (
         <div className="max-w-4xl mx-auto px-6 pt-32 sm:pt-24 pb-12">
-
+            {/* Back Button */}
+            <button
+                onClick={onBack}
+                className="mb-8 flex items-center space-x-2 text-gray-500 hover:text-brand-primary font-bold transition-colors uppercase tracking-wider text-sm"
+            >
+                <ArrowLeft size={20} />
+                <span>Back to Home</span>
+            </button>
 
             <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 mb-12">
+                {/* Banner Header */}
                 <div className="bg-brand-primary p-8 sm:p-12 text-white text-center relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-full opacity-10">
-                        <Bike className="w-64 h-64 absolute -bottom-10 -right-10 rotate-12" />
+                        {activeTab === 'rider' ? (
+                            <Bike className="w-64 h-64 absolute -bottom-10 -right-10 rotate-12" />
+                        ) : (
+                            <Store className="w-64 h-64 absolute -bottom-10 -right-10 rotate-12" />
+                        )}
                     </div>
-                    <h1 className="text-3xl sm:text-6xl font-black uppercase tracking-tighter mb-4 relative z-10 leading-none">Join Our Team</h1>
+                    <h1 className="text-3xl sm:text-6xl font-black uppercase tracking-tighter mb-4 relative z-10 leading-none">
+                        {activeTab === 'rider' ? 'Join Our Team' : 'Partner with Us'}
+                    </h1>
                     <p className="text-white/90 text-sm sm:text-xl font-medium max-w-2xl mx-auto relative z-10 leading-relaxed uppercase tracking-wider italic">
-                        Be part of Naga City's fastest growing delivery service.
+                        {activeTab === 'rider' 
+                            ? "Be part of Naga City's fastest growing delivery service." 
+                            : "Grow your business with Naga City's premier delivery service."}
                     </p>
                 </div>
 
                 <div className="p-8 sm:p-12 space-y-16">
-                    {/* Mission & Vision */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div className="space-y-6">
-                            <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center text-green-600">
-                                <Target size={32} />
-                            </div>
-                            <h2 className="text-3xl font-black text-brand-charcoal uppercase tracking-tight">Our Mission</h2>
-                            <p className="text-gray-600 leading-relaxed text-lg">
-                                To revolutionize delivery services in Naga City by providing fast, reliable, and customer-centric solutions. We empower our riders to be the face of excellence, ensuring every delivery is handled with care and professionalism.
-                            </p>
-                        </div>
-                        <div className="space-y-6">
-                            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-                                <Eye size={32} />
-                            </div>
-                            <h2 className="text-3xl font-black text-brand-charcoal uppercase tracking-tight">Our Vision</h2>
-                            <p className="text-gray-600 leading-relaxed text-lg">
-                                To become the most trusted and preferred delivery service in Bicol, known for our reliability, speed, and exceptional customer service. We aim to create opportunities for our riders to build successful careers while serving our community.
-                            </p>
-                        </div>
+                    {/* Tab Switcher */}
+                    <div className="flex justify-center p-1 bg-gray-50 rounded-2xl max-w-md mx-auto border border-gray-100 shadow-inner">
+                        <button
+                            onClick={() => handleTabChange('rider')}
+                            className={`flex-1 py-3 px-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                                activeTab === 'rider' 
+                                    ? 'bg-white text-brand-primary shadow-md border border-gray-100' 
+                                    : 'text-gray-400 hover:text-brand-charcoal'
+                            }`}
+                        >
+                            <Bike size={18} />
+                            Apply as Rider
+                        </button>
+                        <button
+                            onClick={() => handleTabChange('partner')}
+                            className={`flex-1 py-3 px-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                                activeTab === 'partner' 
+                                    ? 'bg-white text-brand-primary shadow-md border border-gray-100' 
+                                    : 'text-gray-400 hover:text-brand-charcoal'
+                            }`}
+                        >
+                            <Store size={18} />
+                            Partner with Us
+                        </button>
                     </div>
 
-                    <hr className="border-gray-100" />
-
-                    {/* Rider Position Info */}
-                    <div className="bg-brand-charcoal rounded-[2rem] p-8 sm:p-14 text-white relative overflow-hidden">
-                        <div className="relative z-10">
-                            <div className="inline-flex items-center space-x-2 bg-green-primary/20 backdrop-blur-sm px-4 py-2 rounded-full mb-8 border border-green-500/30">
-                                <span className="flex h-2 w-2 rounded-full bg-green-primary animate-pulse"></span>
-                                <span className="text-xs font-black uppercase tracking-widest text-green-primary">Hiring Now</span>
-                            </div>
-                            <h2 className="text-3xl sm:text-5xl font-black mb-2 uppercase tracking-tight leading-none text-brand-accent">Rider Position</h2>
-                            <p className="text-gray-400 text-base sm:text-xl mb-12 italic uppercase tracking-widest font-bold opacity-60">Full-time • Naga City</p>
-
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    {activeTab === 'rider' ? (
+                        <>
+                            {/* Mission & Vision */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                 <div className="space-y-6">
-                                    <h3 className="text-2xl font-black uppercase text-green-primary tracking-wide">About the Role</h3>
-                                    <p className="text-gray-300 leading-relaxed text-lg font-medium">
-                                        Join our team as a Rider and be the backbone of Daplash Delivery. You'll be responsible for delivering orders quickly and safely across Naga City. We're looking for reliable, professional riders who take pride in their work and are committed to customer satisfaction.
+                                    <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center text-green-600">
+                                        <Target size={32} />
+                                    </div>
+                                    <h2 className="text-3xl font-black text-brand-charcoal uppercase tracking-tight">Our Mission</h2>
+                                    <p className="text-gray-600 leading-relaxed text-lg">
+                                        To revolutionize delivery services in Naga City by providing fast, reliable, and customer-centric solutions. We empower our riders to be the face of excellence, ensuring every delivery is handled with care and professionalism.
                                     </p>
                                 </div>
                                 <div className="space-y-6">
-                                    <h3 className="text-2xl font-black uppercase text-green-primary tracking-wide">Requirements</h3>
-                                    <ul className="space-y-4">
-                                        {[
-                                            { icon: <Bike size={20} />, text: "Own Motorcycle: In good working condition" },
-                                            { icon: <CheckCircle2 size={20} />, text: "Valid License: Motorcycle driver's license" },
-                                            { icon: <MapPin size={20} />, text: "Knowledge of City: Familiar with Naga routes" },
-                                            { icon: <Star size={20} />, text: "Reliability: Punctual and committed" }
-                                        ].map((item, id) => (
-                                            <li key={id} className="flex items-center space-x-4 text-gray-200 text-lg">
-                                                <span className="text-green-primary">{item.icon}</span>
-                                                <span>{item.text}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div className="mt-12 p-8 bg-white/5 rounded-2xl border border-white/10">
-                                <h3 className="text-xl font-black uppercase text-brand-accent mb-4">Why Join Us?</h3>
-                                <p className="text-gray-300 text-lg">
-                                    Competitive compensation, flexible hours, professional support, and the opportunity to be part of a growing company that values its team members.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Application Form */}
-                    <div id="apply-now" className="space-y-10 pt-8 text-center sm:text-left">
-                        <div className="max-w-2xl">
-                            <h2 className="text-4xl font-black text-brand-charcoal uppercase tracking-tight mb-4">Apply Now</h2>
-                            <p className="text-gray-500 text-xl font-medium leading-relaxed">
-                                Ready to join our team? Fill out the form below and we'll get back to you soon.
-                            </p>
-                        </div>
-
-                        <div className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-3 text-left">
-                                    <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Full Name *</label>
-                                    <div className="relative">
-                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                        <input
-                                            type="text"
-                                            name="fullName"
-                                            value={formData.fullName}
-                                            onChange={handleInputChange}
-                                            className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
-                                            placeholder="Enter your full name"
-                                            required
-                                        />
+                                    <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                                        <Eye size={32} />
                                     </div>
+                                    <h2 className="text-3xl font-black text-brand-charcoal uppercase tracking-tight">Our Vision</h2>
+                                    <p className="text-gray-600 leading-relaxed text-lg">
+                                        To become the most trusted and preferred delivery service in Bicol, known for our reliability, speed, and exceptional customer service. We aim to create opportunities for our riders to build successful careers while serving our community.
+                                    </p>
                                 </div>
-                                <div className="space-y-3 text-left">
-                                    <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Phone Number *</label>
-                                    <div className="relative">
-                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                        <input
-                                            type="tel"
-                                            name="phoneNumber"
-                                            value={formData.phoneNumber}
-                                            onChange={handleInputChange}
-                                            className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
-                                            placeholder="09XX-XXX-XXXX"
-                                            required
-                                        />
+                            </div>
+
+                            <hr className="border-gray-100" />
+
+                            {/* Rider Position Info */}
+                            <div className="bg-brand-charcoal rounded-[2rem] p-8 sm:p-14 text-white relative overflow-hidden">
+                                <div className="relative z-10">
+                                    <div className="inline-flex items-center space-x-2 bg-green-primary/20 backdrop-blur-sm px-4 py-2 rounded-full mb-8 border border-green-500/30">
+                                        <span className="flex h-2 w-2 rounded-full bg-green-primary animate-pulse"></span>
+                                        <span className="text-xs font-black uppercase tracking-widest text-green-primary">Hiring Now</span>
+                                    </div>
+                                    <h2 className="text-3xl sm:text-5xl font-black mb-2 uppercase tracking-tight leading-none text-brand-accent">Rider Position</h2>
+                                    <p className="text-gray-400 text-base sm:text-xl mb-12 italic uppercase tracking-widest font-bold opacity-60">Full-time • Naga City</p>
+
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                        <div className="space-y-6">
+                                            <h3 className="text-2xl font-black uppercase text-green-primary tracking-wide">About the Role</h3>
+                                            <p className="text-gray-300 leading-relaxed text-lg font-medium">
+                                                Join our team as a Rider and be the backbone of Daplash Delivery. You'll be responsible for delivering orders quickly and safely across Naga City. We're looking for reliable, professional riders who take pride in their work and are committed to customer satisfaction.
+                                            </p>
+                                        </div>
+                                        <div className="space-y-6">
+                                            <h3 className="text-2xl font-black uppercase text-green-primary tracking-wide">Requirements</h3>
+                                            <ul className="space-y-4">
+                                                {[
+                                                    { icon: <Bike size={20} />, text: "Own Motorcycle: In good working condition" },
+                                                    { icon: <CheckCircle2 size={20} />, text: "Valid License: Motorcycle driver's license" },
+                                                    { icon: <MapPin size={20} />, text: "Knowledge of City: Familiar with Naga routes" },
+                                                    { icon: <Star size={20} />, text: "Reliability: Punctual and committed" }
+                                                ].map((item, id) => (
+                                                    <li key={id} className="flex items-center space-x-4 text-gray-200 text-lg">
+                                                        <span className="text-green-primary">{item.icon}</span>
+                                                        <span>{item.text}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-12 p-8 bg-white/5 rounded-2xl border border-white/10">
+                                        <h3 className="text-xl font-black uppercase text-brand-accent mb-4">Why Join Us?</h3>
+                                        <p className="text-gray-300 text-lg">
+                                            Competitive compensation, flexible hours, professional support, and the opportunity to be part of a growing company that values its team members.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-3 text-left">
-                                <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Tell us about yourself *</label>
-                                <textarea
-                                    name="aboutMe"
-                                    value={formData.aboutMe}
-                                    onChange={handleInputChange}
-                                    className="w-full p-6 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner min-h-[180px]"
-                                    placeholder="Share your experience, why you want to join us, and what makes you a great rider..."
-                                    required
-                                />
-                            </div>
-
-                            <div className="bg-orange-50 border-2 border-orange-100 rounded-[1.5rem] p-8 text-orange-800 text-center space-y-2">
-                                <p className="font-black text-xl">Really sorry — we're a startup. 🚀</p>
-                                <p className="text-lg font-medium">Please tap <strong>"Copy application text"</strong>, then <strong>"Open Messenger"</strong>, and paste the message there.</p>
-                            </div>
-
-                            <div className="bg-gray-50 rounded-[1.5rem] p-8 border border-gray-100 space-y-6">
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-200 pb-4">
-                                    <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest text-left w-full">Application Preview</h3>
-                                    <button
-                                        onClick={copyToClipboard}
-                                        className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all shadow-lg ${copySuccess ? 'bg-green-500 text-white shadow-green-200' : 'bg-white text-brand-charcoal hover:bg-gray-100 border border-gray-200 shadow-gray-100'}`}
-                                    >
-                                        {copySuccess ? <span>Copied!</span> : <><Copy className="h-4 w-4" /> Copy application text</>}
-                                    </button>
+                            {/* Application Form */}
+                            <div id="apply-now" className="space-y-10 pt-8 text-center sm:text-left">
+                                <div className="max-w-2xl">
+                                    <h2 className="text-4xl font-black text-brand-charcoal uppercase tracking-tight mb-4">Apply Now</h2>
+                                    <p className="text-gray-500 text-xl font-medium leading-relaxed">
+                                        Ready to join our team? Fill out the form below and we'll get back to you soon.
+                                    </p>
                                 </div>
-                                <div className="bg-white p-8 rounded-2xl border border-gray-100 font-mono text-lg whitespace-pre-wrap text-gray-600 shadow-inner text-left">
-                                    {generateMessageText()}
+
+                                <div className="space-y-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-3 text-left">
+                                            <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Full Name *</label>
+                                            <div className="relative">
+                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                                <input
+                                                    type="text"
+                                                    name="fullName"
+                                                    value={riderFormData.fullName}
+                                                    onChange={handleRiderInputChange}
+                                                    className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
+                                                    placeholder="Enter your full name"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3 text-left">
+                                            <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Phone Number *</label>
+                                            <div className="relative">
+                                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                                <input
+                                                    type="tel"
+                                                    name="phoneNumber"
+                                                    value={riderFormData.phoneNumber}
+                                                    onChange={handleRiderInputChange}
+                                                    className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
+                                                    placeholder="09XX-XXX-XXXX"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3 text-left">
+                                        <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Tell us about yourself *</label>
+                                        <textarea
+                                            name="aboutMe"
+                                            value={riderFormData.aboutMe}
+                                            onChange={handleRiderInputChange}
+                                            className="w-full p-6 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner min-h-[180px]"
+                                            placeholder="Share your experience, why you want to join us, and what makes you a great rider..."
+                                            required
+                                        />
+                                    </div>
                                 </div>
-                                <p className="text-gray-400 text-sm italic font-medium">Paste the copied text into the Messenger chat.</p>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Mission & Vision (Partners) */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                <div className="space-y-6">
+                                    <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center text-green-600">
+                                        <Target size={32} />
+                                    </div>
+                                    <h2 className="text-3xl font-black text-brand-charcoal uppercase tracking-tight">Empower Merchants</h2>
+                                    <p className="text-gray-600 leading-relaxed text-lg">
+                                        We aim to boost the local economy in Naga City by providing merchants with a seamless delivery network. We handle the logistics, so you can focus entirely on craft and quality.
+                                    </p>
+                                </div>
+                                <div className="space-y-6">
+                                    <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                                        <Eye size={32} />
+                                    </div>
+                                    <h2 className="text-3xl font-black text-brand-charcoal uppercase tracking-tight">Expand Your Reach</h2>
+                                    <p className="text-gray-600 leading-relaxed text-lg">
+                                        Our goal is to connect every amazing kitchen, boutique, and local business in Bicol directly to thousands of customers online, boosting sales and digital visibility.
+                                    </p>
+                                </div>
                             </div>
 
-                            {/* Final Actions */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                            <hr className="border-gray-100" />
+
+                            {/* Merchant Partnership Info */}
+                            <div className="bg-brand-charcoal rounded-[2rem] p-8 sm:p-14 text-white relative overflow-hidden">
+                                <div className="relative z-10">
+                                    <div className="inline-flex items-center space-x-2 bg-green-primary/20 backdrop-blur-sm px-4 py-2 rounded-full mb-8 border border-green-500/30">
+                                        <span className="flex h-2 w-2 rounded-full bg-green-primary animate-pulse"></span>
+                                        <span className="text-xs font-black uppercase tracking-widest text-green-primary">Free Partnership</span>
+                                    </div>
+                                    <h2 className="text-3xl sm:text-5xl font-black mb-2 uppercase tracking-tight leading-none text-brand-accent">Merchant Partnership</h2>
+                                    <p className="text-gray-400 text-base sm:text-xl mb-12 italic uppercase tracking-widest font-bold opacity-60">Zero Onboarding Fees • Naga City</p>
+
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                        <div className="space-y-6">
+                                            <h3 className="text-2xl font-black uppercase text-green-primary tracking-wide">Delivery & Marketing</h3>
+                                            <p className="text-gray-300 leading-relaxed text-lg font-medium">
+                                                Grow your sales with zero hassle. We handle the logistics from pickup to delivery. We also feature your products on our platform and marketing channels to give you high-impact visibility across Naga.
+                                            </p>
+                                        </div>
+                                        <div className="space-y-6">
+                                            <h3 className="text-2xl font-black uppercase text-green-primary tracking-wide">Key Benefits</h3>
+                                            <ul className="space-y-4">
+                                                {[
+                                                    { icon: <Store size={20} />, text: "Free onboarding: No hidden fees or registration charges" },
+                                                    { icon: <CheckCircle2 size={20} />, text: "Flexible integration: Keep your current sales channels active" },
+                                                    { icon: <MapPin size={20} />, text: "Broad coverage: Reach customers all across Naga City" },
+                                                    { icon: <Star size={20} />, text: "Customer Service: We handle client inquiries and complaints" }
+                                                ].map((item, id) => (
+                                                    <li key={id} className="flex items-center space-x-4 text-gray-200 text-lg">
+                                                        <span className="text-green-primary">{item.icon}</span>
+                                                        <span>{item.text}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-12 p-8 bg-white/5 rounded-2xl border border-white/10">
+                                        <h3 className="text-xl font-black uppercase text-brand-accent mb-4">No Exclusive Lock-in</h3>
+                                        <p className="text-gray-300 text-lg">
+                                            Our partnership is trust-based and contract-free. You have complete freedom to run your business your way while relying on our delivery network.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Partner Inquiry Form */}
+                            <div id="apply-now" className="space-y-10 pt-8 text-center sm:text-left">
+                                <div className="max-w-2xl">
+                                    <h2 className="text-4xl font-black text-brand-charcoal uppercase tracking-tight mb-4">Partner With Us</h2>
+                                    <p className="text-gray-500 text-xl font-medium leading-relaxed">
+                                        Ready to partner with us? Fill out the merchant form below and we'll get back to you soon.
+                                    </p>
+                                </div>
+
+                                <div className="space-y-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-3 text-left">
+                                            <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Business Name *</label>
+                                            <div className="relative">
+                                                <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                                <input
+                                                    type="text"
+                                                    name="businessName"
+                                                    value={partnerFormData.businessName}
+                                                    onChange={handlePartnerInputChange}
+                                                    className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
+                                                    placeholder="Enter Business Name"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3 text-left">
+                                            <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Contact Person Name *</label>
+                                            <div className="relative">
+                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                                <input
+                                                    type="text"
+                                                    name="contactPerson"
+                                                    value={partnerFormData.contactPerson}
+                                                    onChange={handlePartnerInputChange}
+                                                    className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
+                                                    placeholder="Enter your name"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-3 text-left">
+                                            <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Phone Number *</label>
+                                            <div className="relative">
+                                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                                <input
+                                                    type="tel"
+                                                    name="phoneNumber"
+                                                    value={partnerFormData.phoneNumber}
+                                                    onChange={handlePartnerInputChange}
+                                                    className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
+                                                    placeholder="09XX-XXX-XXXX"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3 text-left">
+                                            <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Operating Hours *</label>
+                                            <div className="relative">
+                                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                                <input
+                                                    type="text"
+                                                    name="operatingHours"
+                                                    value={partnerFormData.operatingHours}
+                                                    onChange={handlePartnerInputChange}
+                                                    className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
+                                                    placeholder="e.g. 8:00 AM - 9:00 PM"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3 text-left">
+                                        <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Business Address / Pickup Location *</label>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                            <input
+                                                type="text"
+                                                name="businessAddress"
+                                                value={partnerFormData.businessAddress}
+                                                onChange={handlePartnerInputChange}
+                                                className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
+                                                placeholder="Brgy. Concepcion Pequena, Naga City"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-3 text-left">
+                                            <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Preferred Mode of Payment *</label>
+                                            <div className="relative">
+                                                <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                                <select
+                                                    name="paymentMode"
+                                                    value={partnerFormData.paymentMode}
+                                                    onChange={handlePartnerInputChange}
+                                                    className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner appearance-none"
+                                                    required
+                                                >
+                                                    <option value="COD & GCash">COD & GCash (Recommended)</option>
+                                                    <option value="COD Only">COD Only</option>
+                                                    <option value="GCash Only">GCash Only</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3 text-left">
+                                            <label className="text-sm font-black text-gray-400 uppercase tracking-widest pl-1">Menu or Product List Link</label>
+                                            <div className="relative">
+                                                <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                                <input
+                                                    type="text"
+                                                    name="menuLink"
+                                                    value={partnerFormData.menuLink}
+                                                    onChange={handlePartnerInputChange}
+                                                    className="w-full pl-12 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.25rem] font-bold text-brand-charcoal outline-none focus:ring-4 focus:ring-brand-primary/10 focus:bg-white focus:border-brand-primary transition-all text-lg shadow-inner"
+                                                    placeholder="Google Drive, FB Menu, or Website Link"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* Shared Messenger & Copy Steps Section */}
+                    <div className="space-y-8">
+                        <div className="bg-orange-50 border-2 border-orange-100 rounded-[1.5rem] p-8 text-orange-800 text-center space-y-2">
+                            <p className="font-black text-xl">Really sorry — we're a startup. 🚀</p>
+                            <p className="text-lg font-medium">Please tap <strong>"Copy application text"</strong>, then <strong>"Open Messenger"</strong>, and paste the message there.</p>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-[1.5rem] p-8 border border-gray-100 space-y-6">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-200 pb-4">
+                                <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest text-left w-full">Inquiry Preview</h3>
                                 <button
                                     onClick={copyToClipboard}
-                                    className="w-full py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-[1.5rem] font-black text-sm hover:bg-brand-primary hover:text-white transition-all transform hover:-translate-y-1 shadow-xl shadow-brand-primary/10 flex items-center justify-center gap-2"
+                                    className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all shadow-lg ${
+                                        copySuccess 
+                                            ? 'bg-green-500 text-white shadow-green-200' 
+                                            : 'bg-white text-brand-charcoal hover:bg-gray-100 border border-gray-200 shadow-gray-100'
+                                    }`}
                                 >
-                                    <Copy className="h-6 w-6" />
-                                    COPY TEXT
-                                </button>
-                                <button
-                                    onClick={openMessenger}
-                                    disabled={isSubmitting}
-                                    className="w-full py-4 bg-brand-primary text-white rounded-[1.5rem] font-black text-sm hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-2xl shadow-brand-primary/20 flex items-center justify-center gap-2 disabled:opacity-50"
-                                >
-                                    <MessageSquare className="h-6 w-6" />
-                                    {isSubmitting ? 'PROCESSING...' : 'SEND VIA MESSENGER'}
+                                    {copySuccess ? <span>Copied!</span> : <><Copy className="h-4 w-4" /> Copy application text</>}
                                 </button>
                             </div>
-                            <p className="text-gray-400 font-bold text-base text-center pt-4">
-                                Your information will be sent via Messenger. Copy and paste the previewed text.
-                            </p>
+                            <div className="bg-white p-8 rounded-2xl border border-gray-100 font-mono text-lg whitespace-pre-wrap text-gray-600 shadow-inner text-left">
+                                {generateMessageText()}
+                            </div>
+                            <p className="text-gray-400 text-sm italic font-medium">Paste the copied text into the Messenger chat.</p>
                         </div>
+
+                        {/* Final Actions */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                            <button
+                                onClick={copyToClipboard}
+                                className="w-full py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-[1.5rem] font-black text-sm hover:bg-brand-primary hover:text-white transition-all transform hover:-translate-y-1 shadow-xl shadow-brand-primary/10 flex items-center justify-center gap-2"
+                            >
+                                <Copy className="h-6 w-6" />
+                                COPY TEXT
+                            </button>
+                            <button
+                                onClick={openMessenger}
+                                disabled={isSubmitting}
+                                className="w-full py-4 bg-brand-primary text-white rounded-[1.5rem] font-black text-sm hover:bg-green-700 transition-all transform hover:-translate-y-1 shadow-2xl shadow-brand-primary/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                <MessageSquare className="h-6 w-6" />
+                                {isSubmitting ? 'PROCESSING...' : 'SEND VIA MESSENGER'}
+                            </button>
+                        </div>
+                        <p className="text-gray-400 font-bold text-base text-center pt-4">
+                            Your information will be sent via Messenger. Copy and paste the previewed text.
+                        </p>
                     </div>
                 </div>
             </div>
